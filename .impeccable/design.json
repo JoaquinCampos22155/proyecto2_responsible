@@ -1,0 +1,390 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-10-03T19:57:30.040917+00:00",
+  "title": "Design System: Perspectiva",
+  "extensions": {
+    "colorMeta": {
+      "ink": {
+        "role": "primary",
+        "displayName": "Navy Ink",
+        "tonalRamp": [
+          "oklch(15% 0.04928 252.28)",
+          "oklch(26% 0.04928 252.28)",
+          "oklch(38% 0.04928 252.28)",
+          "oklch(49% 0.04928 252.28)",
+          "oklch(61% 0.04928 252.28)",
+          "oklch(72% 0.04928 252.28)",
+          "oklch(84% 0.04928 252.28)",
+          "oklch(95% 0.04928 252.28)"
+        ]
+      },
+      "muted": {
+        "role": "neutral",
+        "displayName": "Muted Slate",
+        "tonalRamp": [
+          "oklch(15% 0.03152 250.14)",
+          "oklch(26% 0.03152 250.14)",
+          "oklch(38% 0.03152 250.14)",
+          "oklch(49% 0.03152 250.14)",
+          "oklch(61% 0.03152 250.14)",
+          "oklch(72% 0.03152 250.14)",
+          "oklch(84% 0.03152 250.14)",
+          "oklch(95% 0.03152 250.14)"
+        ]
+      },
+      "paper": {
+        "role": "neutral",
+        "displayName": "Cool Paper",
+        "tonalRamp": [
+          "oklch(15% 0.00453 258.32)",
+          "oklch(26% 0.00453 258.32)",
+          "oklch(38% 0.00453 258.32)",
+          "oklch(49% 0.00453 258.32)",
+          "oklch(61% 0.00453 258.32)",
+          "oklch(72% 0.00453 258.32)",
+          "oklch(84% 0.00453 258.32)",
+          "oklch(95% 0.00453 258.32)"
+        ]
+      },
+      "white": {
+        "role": "neutral",
+        "displayName": "White Sheet",
+        "tonalRamp": [
+          "oklch(15% 0.00000 0.00)",
+          "oklch(26% 0.00000 0.00)",
+          "oklch(38% 0.00000 0.00)",
+          "oklch(49% 0.00000 0.00)",
+          "oklch(61% 0.00000 0.00)",
+          "oklch(72% 0.00000 0.00)",
+          "oklch(84% 0.00000 0.00)",
+          "oklch(95% 0.00000 0.00)"
+        ]
+      },
+      "line": {
+        "role": "neutral",
+        "displayName": "Fine Rule",
+        "tonalRamp": [
+          "oklch(15% 0.01045 247.94)",
+          "oklch(26% 0.01045 247.94)",
+          "oklch(38% 0.01045 247.94)",
+          "oklch(49% 0.01045 247.94)",
+          "oklch(61% 0.01045 247.94)",
+          "oklch(72% 0.01045 247.94)",
+          "oklch(84% 0.01045 247.94)",
+          "oklch(95% 0.01045 247.94)"
+        ]
+      },
+      "red": {
+        "role": "primary",
+        "displayName": "Editorial Vermilion",
+        "tonalRamp": [
+          "oklch(15% 0.16890 29.84)",
+          "oklch(26% 0.16890 29.84)",
+          "oklch(38% 0.16890 29.84)",
+          "oklch(49% 0.16890 29.84)",
+          "oklch(61% 0.16890 29.84)",
+          "oklch(72% 0.16890 29.84)",
+          "oklch(84% 0.16890 29.84)",
+          "oklch(95% 0.16890 29.84)"
+        ]
+      },
+      "soft": {
+        "role": "neutral",
+        "displayName": "Soft Paper",
+        "tonalRamp": [
+          "oklch(15% 0.00931 242.84)",
+          "oklch(26% 0.00931 242.84)",
+          "oklch(38% 0.00931 242.84)",
+          "oklch(49% 0.00931 242.84)",
+          "oklch(61% 0.00931 242.84)",
+          "oklch(72% 0.00931 242.84)",
+          "oklch(84% 0.00931 242.84)",
+          "oklch(95% 0.00931 242.84)"
+        ]
+      },
+      "blue": {
+        "role": "secondary",
+        "displayName": "Source Blue",
+        "tonalRamp": [
+          "oklch(15% 0.08235 249.61)",
+          "oklch(26% 0.08235 249.61)",
+          "oklch(38% 0.08235 249.61)",
+          "oklch(49% 0.08235 249.61)",
+          "oklch(61% 0.08235 249.61)",
+          "oklch(72% 0.08235 249.61)",
+          "oklch(84% 0.08235 249.61)",
+          "oklch(95% 0.08235 249.61)"
+        ]
+      },
+      "ink-secondary": {
+        "role": "neutral",
+        "displayName": "Ink Secondary",
+        "tonalRamp": [
+          "oklch(15% 0.01745 248.02)",
+          "oklch(26% 0.01745 248.02)",
+          "oklch(38% 0.01745 248.02)",
+          "oklch(49% 0.01745 248.02)",
+          "oklch(61% 0.01745 248.02)",
+          "oklch(72% 0.01745 248.02)",
+          "oklch(84% 0.01745 248.02)",
+          "oklch(95% 0.01745 248.02)"
+        ]
+      }
+    },
+    "typographyMeta": {
+      "display": {
+        "displayName": "Conversation Display",
+        "purpose": "Welcome headline; compact conversation uses a separate 25px heading."
+      },
+      "headline": {
+        "displayName": "Page Headline",
+        "purpose": "Shared page heading base; article and lead surfaces specialize it."
+      },
+      "title": {
+        "displayName": "Section Title",
+        "purpose": "Section headings."
+      },
+      "body": {
+        "displayName": "Interface Body",
+        "purpose": "DM Sans interface prose; size depends on surface."
+      },
+      "reading": {
+        "displayName": "Article Reading",
+        "purpose": "Newsreader article paragraphs, capped at 68ch."
+      },
+      "label": {
+        "displayName": "Control Label",
+        "purpose": "Field labels and text navigation."
+      },
+      "provenance": {
+        "displayName": "Provenance",
+        "purpose": "Evidence, source and image disclosure text."
+      },
+      "story-title": {
+        "displayName": "Story Title",
+        "purpose": "Shared scoped story hierarchy; lead, secondary and grid variants vary size."
+      },
+      "story-metadata": {
+        "displayName": "Story Metadata",
+        "purpose": "Feed geography/date and compact evidence/context footer; image credits remain on article detail."
+      }
+    },
+    "shadows": [
+      {
+        "name": "account-menu",
+        "value": "0 10px 35px #10243a20",
+        "purpose": "Floating account panel."
+      },
+      {
+        "name": "modal",
+        "value": "0 20px 80px #10243a35",
+        "purpose": "Native modal dialog with protected focus."
+      },
+      {
+        "name": "modal-chat",
+        "value": "-20px 0 70px #10243a25",
+        "purpose": "Chat overlay at viewport widths up to 1199px, with #10243a65 backdrop."
+      }
+    ],
+    "motion": [
+      {
+        "name": "route-heading",
+        "value": "0.45s power3.out",
+        "purpose": "From y14 and opacity0; clear transform/opacity. No-preference motion only."
+      },
+      {
+        "name": "featured-stories",
+        "value": "0.45s power3.out; stagger 0.07s",
+        "purpose": "From y16, heading overlap at 0.1s; scoped to featured stories."
+      },
+      {
+        "name": "image-hover",
+        "value": "0.65s power2.out; scale 1.025",
+        "purpose": "Mouse only; return 0.5s and clear transform."
+      },
+      {
+        "name": "button-press",
+        "value": "0.1s power2.out; scale 0.97",
+        "purpose": "Return 0.22s power3.out; clear transform."
+      },
+      {
+        "name": "sidebar-open",
+        "value": "0.4s power3.out",
+        "purpose": "From x32; content y8 over 0.35s, stagger 0.06s, overlap 0.1s."
+      },
+      {
+        "name": "loading-sweep",
+        "value": "1.2s ease-in-out infinite",
+        "purpose": "Static under reduced motion."
+      }
+    ],
+    "breakpoints": [
+      {
+        "name": "wide-min",
+        "value": "1450px"
+      },
+      {
+        "name": "companion-min",
+        "value": "1200px"
+      },
+      {
+        "name": "modal-max",
+        "value": "1199px"
+      },
+      {
+        "name": "intermediate-max",
+        "value": "1000px"
+      },
+      {
+        "name": "mobile-max",
+        "value": "760px"
+      },
+      {
+        "name": "full-chat-max",
+        "value": "600px"
+      },
+      {
+        "name": "narrow-max",
+        "value": "430px"
+      }
+    ],
+    "colorRampProvenance": "Preview ramps are synthesized in OKLCH from shipped hue/chroma at 15–95% lightness. They are visual metadata, not additional implementation palette tokens.",
+    "containerQueries": [
+      {
+        "name": "feed-intermediate-max",
+        "value": "920px",
+        "purpose": "Full-width photographic lead, two secondary columns."
+      },
+      {
+        "name": "feed-narrow-max",
+        "value": "620px",
+        "purpose": "360px lead, wrapped toolbar and denser secondary photos."
+      }
+    ],
+    "motionLifecycle": "GSAP matchMedia enables motion only for no-preference; scoped useGSAP reverts route/open dependencies, observer/listeners disconnect, media reverts.",
+    "readerDensityRevision": "2026-10-03: compact 28px feed heading, sticky combined toolbar, photographic lead in every section, 1.35fr/1fr wide composition; 44px circular citation row with expandable sources.",
+    "sectionCompositions": {
+      "featured": "Photographic overlay cover with two supporting stories.",
+      "country": "Plain photo feature; single-story image/text split.",
+      "world": "Image and navy text band followed by supporting photo strip.",
+      "regions": "Newsreader feature and illustrated supporting list.",
+      "interests": "Soft-paper feature with condensed rail."
+    },
+    "conversationDisclosure": "Desktop defaults expanded on every reader route; 56px collapsed rail. Mobile starts with a 48px corner launcher; expansion protects focus. Navbar has no chat action. Public preview gates AI behind sign-in."
+  },
+  "components": [
+    {
+      "name": "Primary Button",
+      "kind": "button",
+      "refersTo": "button-primary",
+      "description": "The main action uses navy ink; hover shifts to source blue.",
+      "html": "<button class=\"ds-primary\">Guardar borrador</button>",
+      "css": ".ds-primary{display:inline-flex;align-items:center;justify-content:center;gap:12px;min-height:46px;border:1px solid transparent;padding:12px 21px;border-radius:6px;font-family:\"DM Sans\",sans-serif;font-weight:600;font-size:14px;line-height:1.35;cursor:pointer;background:var(--ink,#10243a);color:var(--white,#fff)}.ds-primary:hover:not(:disabled){background:var(--blue,#214b73);filter:brightness(.97)}.ds-primary:focus-visible{outline:3px solid var(--blue,#214b73);outline-offset:4px}.ds-primary:disabled{opacity:.5;cursor:not-allowed}"
+    },
+    {
+      "name": "Secondary Button",
+      "kind": "button",
+      "refersTo": "button-secondary",
+      "description": "A secondary action is transparent with a fine rule.",
+      "html": "<button class=\"ds-secondary\">Vista previa</button>",
+      "css": ".ds-secondary{display:inline-flex;align-items:center;justify-content:center;gap:12px;min-height:46px;border:1px solid transparent;padding:12px 21px;border-radius:6px;font-family:\"DM Sans\",sans-serif;font-weight:600;font-size:14px;line-height:1.35;cursor:pointer;background:transparent;color:var(--ink,#10243a);border-color:var(--line,#dbe1e7)}.ds-secondary:hover:not(:disabled){background:var(--soft,#eaf0f5);filter:brightness(.97)}.ds-secondary:focus-visible{outline:3px solid var(--blue,#214b73);outline-offset:4px}.ds-secondary:disabled{opacity:.5;cursor:not-allowed}"
+    },
+    {
+      "name": "Labelled Field",
+      "kind": "input",
+      "refersTo": "field",
+      "description": "Explicit label, opaque placeholder and shared focus.",
+      "html": "<label class=\"ds-field\">Título<input placeholder=\"Escribe el título\" /></label>",
+      "css": ".ds-field{display:flex;flex-direction:column;gap:9px;font-family:\"DM Sans\",sans-serif;font-weight:600;font-size:13px;color:var(--ink,#10243a)}.ds-field input{width:100%;background:var(--white,#fff);border:1px solid var(--line,#dbe1e7);border-radius:5px;min-height:46px;padding:11px 13px;font-family:inherit;font-weight:400;font-size:14px;color:var(--ink,#10243a);caret-color:var(--red,#b93729)}.ds-field input::placeholder{color:var(--muted,#566575);opacity:1}.ds-field input:focus-visible{outline:3px solid var(--blue,#214b73);outline-offset:4px}"
+    },
+    {
+      "name": "Topic Action",
+      "kind": "chip",
+      "refersTo": "topic-action",
+      "description": "Real article metadata after a heading, with its action retained.",
+      "html": "<button class=\"ds-topic\">Medio ambiente</button>",
+      "css": ".ds-topic{background:none;border:0;border-bottom:1px solid var(--line,#dbe1e7);padding:8px 0;min-height:44px;font-family:\"DM Sans\",sans-serif;font-size:12px;font-weight:600;color:var(--red,#b93729);cursor:pointer}.ds-topic:hover{filter:brightness(.97)}.ds-topic:focus-visible{outline:3px solid var(--blue,#214b73);outline-offset:4px}"
+    },
+    {
+      "name": "Source Entry",
+      "kind": "custom",
+      "description": "Provenance stays in normal flow, with a 44px source target.",
+      "html": "<div class=\"ds-source\"><a href=\"#original\">Abrir fuente original<svg aria-hidden=\"true\" width=\"13\" height=\"13\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M15 3h6v6M10 14 21 3\"/><path d=\"M21 14v4a3 3 0 0 1-3 3H6a3 3 0 0 1-3-3V6a3 3 0 0 1 3-3h4\"/></svg></a><p>Descripción de ejemplo de la fuente consultada.</p><span>Procedencia del reporte</span></div>",
+      "css": ".ds-source{border-top:1px solid var(--line,#dbe1e7);padding:17px 0;font-family:\"DM Sans\",sans-serif;color:var(--ink,#10243a);overflow-wrap:anywhere}.ds-source a{display:flex;gap:7px;align-items:start;min-height:44px;font-size:12px;line-height:1.5;color:inherit;text-decoration:none}.ds-source a:hover{text-decoration:underline;text-underline-offset:4px}.ds-source a:focus-visible{outline:3px solid var(--blue,#214b73);outline-offset:4px}.ds-source p{margin:6px 0 0;font-size:12px;color:var(--muted,#566575)}.ds-source span{display:block;margin-top:7px;font-size:12px;color:var(--muted,#566575)}"
+    },
+    {
+      "name": "Desktop Navigation",
+      "kind": "nav",
+      "description": "Navigation contains edition, region and permitted editorial destinations. Sidebar controls are independent.",
+      "html": "<nav class=\"ds-nav\" aria-label=\"Principal\"><a href=\"#feed\">La portada</a><a href=\"#region\">Mi región</a></nav>",
+      "css": ".ds-nav{display:flex;flex-wrap:wrap;gap:28px;align-items:center;font-family:\"DM Sans\",sans-serif;font-size:13px;font-weight:600;color:var(--ink,#10243a)}.ds-nav a,.ds-nav button{display:flex;align-items:center;min-height:44px;position:relative;text-decoration:none;color:inherit;font:inherit}.ds-nav button{border:0;background:none;padding:0;cursor:pointer}.ds-nav button[aria-expanded=\"true\"]{color:var(--red,#b93729)}.ds-nav a:hover{text-decoration:underline;text-underline-offset:4px}.ds-nav a:focus-visible{outline:3px solid var(--blue,#214b73);outline-offset:4px}.ds-nav button:focus-visible{outline:3px solid var(--blue,#214b73);outline-offset:4px}"
+    },
+    {
+      "name": "Aligned News Story",
+      "kind": "card",
+      "refersTo": "news-story",
+      "description": "Open supporting story with compact evidence footer; every section also has a photographic lead. Image provenance remains on article detail.",
+      "html": "<article class=\"ds-story\"><div class=\"ds-story-copy\"><a href=\"#story\"><h3>Título ilustrativo del reporte</h3></a><p>Resumen de ejemplo para mostrar la jerarquía.</p><div class=\"ds-story-meta\">Nacional · Guatemala · Fecha del reporte</div></div><footer class=\"ds-story-footer\"><span>Estado de evidencia</span></footer></article>",
+      "css": ".ds-story{display:flex;flex-direction:column;min-width:0;font-family:\"DM Sans\",sans-serif;color:var(--ink,#10243a)}.ds-story-copy{display:flex;flex-direction:column;flex:1;margin-top:16px}.ds-story-copy>a{display:block;color:inherit;text-decoration:none}.ds-story-copy>a:hover{color:var(--blue,#214b73);text-decoration:underline;text-underline-offset:4px}.ds-story-copy>a:focus-visible{outline:3px solid var(--blue,#214b73);outline-offset:4px}.ds-story h3{margin:0;font-size:22px;line-height:1.24;font-weight:800;letter-spacing:-.025em}.ds-story p{font-size:14px;line-height:1.6;color:var(--muted,#566575);margin:9px 0 0}.ds-story-meta{margin-top:auto;padding-top:14px;color:var(--muted,#566575);font-size:11px}.ds-story-footer{margin-top:14px;padding-top:12px;border-top:1px solid var(--line,#dbe1e7);font-size:11px;color:var(--muted,#566575)}.ds-story-credit{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:12px}.ds-story-credit a{display:inline-flex;align-items:center;min-height:44px;color:inherit;text-decoration:underline;text-underline-offset:3px}.ds-story-credit a:hover{color:var(--blue,#214b73)}.ds-story-credit a:focus-visible{outline:3px solid var(--blue,#214b73);outline-offset:4px}"
+    },
+    {
+      "name": "Chat Sidebar Anatomy",
+      "kind": "custom",
+      "refersTo": "chat-sidebar",
+      "description": "Structural sidebar specimen: clear below header, scrolling content, note then pinned aligned input. Runtime focus/GSAP behavior remains in React.",
+      "html": "<section class=\"ds-chat\" id=\"ds-chat\" aria-label=\"Conversar\"><header class=\"ds-chat-header\"><h2>Conversar</h2></header><div class=\"ds-chat-main\"><button class=\"ds-chat-clear\">Limpiar conversación</button><div class=\"ds-chat-scroll\"><h3>Pregunta sobre las noticias</h3><p>Las respuestas se basan en las noticias de esta edición.</p></div><p class=\"ds-chat-note\">La IA puede equivocarse. Consulta las fuentes. Esta conversación no se guarda.</p><form class=\"ds-chat-composer\"><textarea aria-label=\"Tu pregunta\" placeholder=\"¿Qué te gustaría entender hoy?\"></textarea><button type=\"button\" aria-label=\"Enviar pregunta\"><svg width=\"20\" height=\"20\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"m22 2-7 20-4-9-9-4 20-7Z\"/><path d=\"M22 2 11 13\"/></svg></button></form></div></section>",
+      "css": ".ds-chat{width:400px;max-width:100%;height:560px;background:var(--white,#fff);border-left:1px solid var(--line,#dbe1e7);display:flex;flex-direction:column;font-family:\"DM Sans\",sans-serif;color:var(--ink,#10243a)}.ds-chat-header{padding:20px 24px;border-bottom:1px solid var(--line,#dbe1e7);flex-shrink:0}.ds-chat-header h2{margin:0;font-size:19px;font-weight:800}.ds-chat-main{display:flex;flex-direction:column;flex:1;min-height:0;padding:28px 24px 0}.ds-chat-clear{align-self:start;min-height:44px;font-family:inherit;font-size:12px;font-weight:600;background:none;border:0;padding:0;color:inherit;cursor:pointer}.ds-chat-clear:hover{filter:brightness(.97)}.ds-chat-clear:focus-visible{outline:3px solid var(--blue,#214b73);outline-offset:4px}.ds-chat-scroll{flex:1;min-height:0;overflow-y:auto;padding:18px 0 20px;border-top:1px solid var(--line,#dbe1e7)}.ds-chat-scroll h3{margin:0 0 12px;font-size:25px;line-height:1.2;font-weight:800;letter-spacing:-.035em}.ds-chat-scroll p{font-size:13px;line-height:1.6;color:var(--muted,#566575)}.ds-chat-note{flex-shrink:0;margin:10px 0;font-size:11px;line-height:1.5;color:var(--muted,#566575)}.ds-chat-composer{display:flex;align-items:center;gap:8px;flex-shrink:0;margin:0 0 16px;padding:8px;border:1px solid var(--line,#dbe1e7);border-radius:10px}.ds-chat-composer textarea{min-width:0;flex:1;height:56px;min-height:56px;padding:6px 4px;line-height:22px;font-family:inherit;font-size:14px;border:0;background:none;resize:none;color:var(--ink,#10243a);caret-color:var(--red,#b93729)}.ds-chat-composer textarea::placeholder{color:var(--muted,#566575);opacity:1}.ds-chat-composer textarea:focus-visible{outline:3px solid var(--blue,#214b73);outline-offset:4px}.ds-chat-composer button{display:flex;align-items:center;justify-content:center;width:44px;height:44px;flex-shrink:0;background:var(--ink,#10243a);color:var(--white,#fff);border:0;border-radius:6px;cursor:pointer}.ds-chat-composer button:hover{filter:brightness(.97)}.ds-chat-composer button:focus-visible{outline:3px solid var(--blue,#214b73);outline-offset:4px}"
+    }
+  ],
+  "narrative": {
+    "northStar": "The Editorial Reading Desk",
+    "overview": "Cool paper, navy ink, fine rules and an original three-stroke masthead frame a Spanish editorial product. Headlines carry the hierarchy; Newsreader gives extended reading a quieter cadence. Interfaces remain direct and compact, with generous space between conversations, reports and editorial tasks.\n\nThe identity makes evidence visible through source links, descriptive uncertainty and disclosed imagery. The typography and layout support reading without adding truth scores or synthetic authority. Product commitments come from PRODUCT.md; the recorded implementation is `frontend/`, primarily `src/styles.css`, the shared components and reader/editor surfaces.",
+    "keyCharacteristics": [
+      "Navy ink and cool paper with restrained vermilion.",
+      "Self-hosted DM Sans hierarchy and Newsreader article prose.",
+      "Aligned editorial groups, backend-ordered stories and fine dividing rules.",
+      "Attributed imagery with disclosure outside cropped pixels.",
+      "Visible focus and responsive reader/editor controls."
+    ],
+    "rules": [
+      {
+        "name": "The Surface Contrast Rule",
+        "body": "Use the supporting text assigned to its surface: muted slate on light paper and ink secondary on navy. Placeholders use opaque muted slate.",
+        "section": "colors"
+      },
+      {
+        "name": "The Headline First Rule",
+        "body": "Put topic and geographic metadata beneath the headline or deck. Keep the headline's scale and weight responsible for hierarchy.",
+        "section": "typography"
+      },
+      {
+        "name": "The Ordered Asymmetry Rule",
+        "body": "Establish lead, secondary and supporting prominence with scale and space. Preserve returned order within each displayed group and include each article only once.",
+        "section": "layout"
+      },
+      {
+        "name": "The Editorial Flatness Rule",
+        "body": "Keep story and source surfaces flat; use the recorded overlay elevation only when a surface actually floats or protects focus.",
+        "section": "elevation"
+      }
+    ],
+    "dos": [
+      "**Do** preserve backend ordering within editorial groups, with no duplicate article across groups.",
+      "**Do** place topic and scope metadata beneath headlines or decks.",
+      "**Do** keep image disclosure and attribution outside cropped pixels, with 44px attribution targets.",
+      "**Do** use opaque muted placeholders and surface-specific supporting text.",
+      "**Do** retain self-hosted DM Sans, Newsreader article prose, visible focus and reduced-motion behavior.",
+      "**Do** label demo, mock, illustrative and assisted content according to actual provenance.",
+      "**Do** use plain Spanish section/action wording and the selected country name.",
+      "**Do** keep the clear action below Conversar and the caution note above the pinned textarea/send row.",
+      "**Do** scope GSAP motion, respect reduced motion and revert contexts/listeners on lifecycle changes."
+    ],
+    "donts": [
+      "**Don't** introduce a truth-score aesthetic for evidence states.",
+      "**Don't** substitute invented event imagery when the backend has no image.",
+      "**Don't** turn the flat editorial story grid into nested decorative cards.",
+      "**Don't** use decorative pre-heading eyebrows, glyph icons or system display faces as the house style.",
+      "**Don't** advertise a dark theme or verified physical installation/sign-in without corresponding implementation and evidence."
+    ]
+  }
+}

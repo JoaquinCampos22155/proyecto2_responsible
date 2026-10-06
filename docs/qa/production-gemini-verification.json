@@ -1,0 +1,39 @@
+{
+  "project": "proyecto2responsibleai",
+  "apiHealth": 200,
+  "deployedProvider": "gemini",
+  "secretBinding": "GEMINI_API_KEY:1",
+  "observedGoogleSession": "Existing Google reader session in regular Chrome loaded 12 Spanish articles and displayed a generated response to que noticias hay with 3 citations and Resumen asistido por IA.",
+  "records": [
+    {
+      "provider": "gemini",
+      "model": "gemini-3.5-flash-lite",
+      "feature": "chat",
+      "inputTokens": "246",
+      "outputTokens": "49",
+      "estimatedCostUsd": 0.0001963,
+      "timestamp": "2026-10-03T19:57:01.241Z"
+    },
+    {
+      "provider": "mock",
+      "model": "deterministic-v1",
+      "feature": "chat",
+      "estimatedCostUsd": "0",
+      "timestamp": "2026-10-03T19:16:00.725Z"
+    },
+    {
+      "provider": "mock",
+      "model": "deterministic-v1",
+      "feature": "chat",
+      "estimatedCostUsd": "0",
+      "timestamp": "2026-10-03T19:15:40.055Z"
+    },
+    {
+      "provider": "mock",
+      "model": "deterministic-v1",
+      "feature": "chat",
+      "estimatedCostUsd": "0",
+      "timestamp": "2026-10-03T18:35:59.108Z"
+    }
+  ]
+}

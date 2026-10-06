@@ -1,0 +1,90 @@
+{
+  "project": "proyecto2responsibleai",
+  "verifiedAt": "2026-10-03T19:04:19.481Z",
+  "articles": [
+    {
+      "id": "demo-guatemala-river",
+      "firestore": true,
+      "publicWebPVariants": 3,
+      "generatedByAI": true,
+      "bytes": 343068
+    },
+    {
+      "id": "demo-guatemala-library",
+      "firestore": true,
+      "publicWebPVariants": 3,
+      "generatedByAI": true,
+      "bytes": 218710
+    },
+    {
+      "id": "demo-guatemala-transit",
+      "firestore": true,
+      "publicWebPVariants": 3,
+      "generatedByAI": true,
+      "bytes": 138012
+    },
+    {
+      "id": "demo-guatemala-schools",
+      "firestore": true,
+      "publicWebPVariants": 3,
+      "generatedByAI": true,
+      "bytes": 198918
+    },
+    {
+      "id": "demo-new-york-garden",
+      "firestore": true,
+      "publicWebPVariants": 3,
+      "generatedByAI": true,
+      "bytes": 245734
+    },
+    {
+      "id": "demo-international-weather",
+      "firestore": true,
+      "publicWebPVariants": 3,
+      "generatedByAI": true,
+      "bytes": 174840
+    },
+    {
+      "id": "demo-spain-energy",
+      "firestore": true,
+      "publicWebPVariants": 3,
+      "generatedByAI": true,
+      "bytes": 169614
+    },
+    {
+      "id": "demo-mexico-cultural",
+      "firestore": true,
+      "publicWebPVariants": 3,
+      "generatedByAI": true,
+      "bytes": 249220
+    },
+    {
+      "id": "demo-united-states-research",
+      "firestore": true,
+      "publicWebPVariants": 3,
+      "generatedByAI": true,
+      "bytes": 143720
+    },
+    {
+      "id": "demo-international-health",
+      "firestore": true,
+      "publicWebPVariants": 3,
+      "generatedByAI": true,
+      "bytes": 135032
+    },
+    {
+      "id": "demo-international-art",
+      "firestore": true,
+      "publicWebPVariants": 3,
+      "generatedByAI": true,
+      "bytes": 155878
+    },
+    {
+      "id": "demo-international-dispute",
+      "firestore": true,
+      "publicWebPVariants": 3,
+      "generatedByAI": true,
+      "bytes": 209646
+    }
+  ]
+}

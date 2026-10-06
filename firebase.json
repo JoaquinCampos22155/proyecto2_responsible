@@ -1,0 +1,41 @@
+{
+  "functions": {
+    "source": ".",
+    "runtime": "nodejs22",
+    "ignore": [
+      ".git",
+      ".env",
+      ".env.*",
+      "node_modules/.cache",
+      "tests",
+      "docs",
+      "lib/tests",
+      "lib/scripts",
+      "*.md",
+      "firebase-debug.log",
+      "frontend",
+      ".impeccable",
+      ".secret.local",
+      "scripts/media"
+    ],
+    "predeploy": ["npm run build"]
+  },
+  "firestore": {
+    "rules": "firestore.rules",
+    "indexes": "firestore.indexes.json"
+  },
+  "emulators": {
+    "auth": {
+      "port": 9099
+    },
+    "firestore": {
+      "port": 8080
+    },
+    "functions": {
+      "port": 5001
+    },
+    "ui": {
+      "enabled": false
+    }
+  }
+}

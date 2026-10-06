@@ -1,0 +1,474 @@
+{
+  "generator": "built-in image_gen",
+  "createdAt": "2026-10-03",
+  "images": [
+    {
+      "id": "demo-guatemala-river",
+      "prompt": "Use case: photorealistic-natural. Asset type: wide editorial illustration for a university news PWA, 3:2 landscape. Primary request: create a premium, believable documentary-style illustrative photograph of a fictional community river cleanup in Guatemala City. Scene: a small diverse team of adult volunteers in work gloves collecting litter at a lush riverbank, layered greenery and modest urban buildings in the distance. Natural morning light, tactile vegetation and water, candid composition, restrained vibrant green and earth tones, subject readable when cropped to 16:9. The event is synthetic classroom demonstration, no identifiable real people or real news incident. No logos, text, lettering, overlays, watermarks, borders or UI. This will be explicitly labeled AI-generated in the application.",
+      "path": "/Users/julio/.codex/generated_images/01a0df34-5418-7620-948c-e1ad85b83878/exec-c3f5381a-bc49-4505-a2c0-acea28a3a133.png",
+      "variants": [
+        {
+          "width": 480,
+          "height": 320,
+          "bytes": 49632,
+          "path": "frontend/public/demo-news/demo-guatemala-river-480.webp",
+          "url": "https://storage.googleapis.com/proyecto2responsibleai-demo-media/demo-news/9bacbe930ae4b83a/demo-guatemala-river-480.webp"
+        },
+        {
+          "width": 800,
+          "height": 533,
+          "bytes": 107162,
+          "path": "frontend/public/demo-news/demo-guatemala-river-800.webp",
+          "url": "https://storage.googleapis.com/proyecto2responsibleai-demo-media/demo-news/9bacbe930ae4b83a/demo-guatemala-river-800.webp"
+        },
+        {
+          "width": 1200,
+          "height": 800,
+          "bytes": 186274,
+          "path": "frontend/public/demo-news/demo-guatemala-river-1200.webp",
+          "url": "https://storage.googleapis.com/proyecto2responsibleai-demo-media/demo-news/9bacbe930ae4b83a/demo-guatemala-river-1200.webp"
+        }
+      ],
+      "revision": "9bacbe930ae4b83a",
+      "image": {
+        "url": "https://storage.googleapis.com/proyecto2responsibleai-demo-media/demo-news/9bacbe930ae4b83a/demo-guatemala-river-1200.webp",
+        "provider": "openai-imagegen",
+        "originalUrl": "https://storage.googleapis.com/proyecto2responsibleai-demo-media/demo-news/9bacbe930ae4b83a/demo-guatemala-river-1200.webp",
+        "license": "Uso ilustrativo en la demo académica; no documenta un hecho real",
+        "attribution": "Perspectiva · Ilustración generada con IA",
+        "generatedByAI": true,
+        "alteredByAI": false,
+        "retrievedAt": "2026-10-03T18:55:59.770Z"
+      }
+    },
+    {
+      "id": "demo-guatemala-library",
+      "prompt": "Use case: photorealistic-natural. Asset type: premium wide editorial illustration for a university news PWA, 3:2 landscape. Primary request: create a believable candid editorial photograph illustrating a sunlit contemporary public library in Guatemala, tall wooden bookshelves, adult readers at a shared table, one librarian arranging books, warm amber wood and green courtyard visible through windows. Refined natural light, realistic tactile materials, strong magazine composition and layered depth. Keep the central subject readable when cropped to 16:9. This is synthetic classroom demonstration, not a real reported incident. No identifiable public figures, logos, readable text, lettering, overlays, watermark, borders or UI. The app will visibly label this as AI-generated illustrative imagery.",
+      "path": "/Users/julio/.codex/generated_images/01a0df34-5418-7620-948c-e1ad85b83878/exec-ec318513-539b-44e1-961a-65537f079039.png",
+      "variants": [
+        {
+          "width": 480,
+          "height": 320,
+          "bytes": 34854,
+          "path": "frontend/public/demo-news/demo-guatemala-library-480.webp",
+          "url": "https://storage.googleapis.com/proyecto2responsibleai-demo-media/demo-news/e384730a7db47cc7/demo-guatemala-library-480.webp"
+        },
+        {
+          "width": 800,
+          "height": 533,
+          "bytes": 69664,
+          "path": "frontend/public/demo-news/demo-guatemala-library-800.webp",
+          "url": "https://storage.googleapis.com/proyecto2responsibleai-demo-media/demo-news/e384730a7db47cc7/demo-guatemala-library-800.webp"
+        },
+        {
+          "width": 1200,
+          "height": 800,
+          "bytes": 114192,
+          "path": "frontend/public/demo-news/demo-guatemala-library-1200.webp",
+          "url": "https://storage.googleapis.com/proyecto2responsibleai-demo-media/demo-news/e384730a7db47cc7/demo-guatemala-library-1200.webp"
+        }
+      ],
+      "revision": "e384730a7db47cc7",
+      "image": {
+        "url": "https://storage.googleapis.com/proyecto2responsibleai-demo-media/demo-news/e384730a7db47cc7/demo-guatemala-library-1200.webp",
+        "provider": "openai-imagegen",
+        "originalUrl": "https://storage.googleapis.com/proyecto2responsibleai-demo-media/demo-news/e384730a7db47cc7/demo-guatemala-library-1200.webp",
+        "license": "Uso ilustrativo en la demo académica; no documenta un hecho real",
+        "attribution": "Perspectiva · Ilustración generada con IA",
+        "generatedByAI": true,
+        "alteredByAI": false,
+        "retrievedAt": "2026-10-03T18:55:59.770Z"
+      }
+    },
+    {
+      "id": "demo-guatemala-transit",
+      "prompt": "Use case: photorealistic-natural. Asset type: premium wide editorial illustration for a university news PWA, 3:2 landscape. Primary request: create a believable candid editorial photograph illustrating a fictional transit planning workshop in Guatemala, adult planners gathered around a tabletop route map with small bus models, a bright red and cream public bus visible outside a large window, candid over-the-shoulder angle. Refined natural light, realistic tactile materials, strong magazine composition and layered depth. Keep the central subject readable when cropped to 16:9. This is synthetic classroom demonstration, not a real reported incident. No identifiable public figures, logos, readable text, lettering, overlays, watermark, borders or UI. The app will visibly label this as AI-generated illustrative imagery.",
+      "path": "/Users/julio/.codex/generated_images/01a0df34-5418-7620-948c-e1ad85b83878/exec-8490acd0-91ad-4577-9730-e37473c72be7.png",
+      "variants": [
+        {
+          "width": 480,
+          "height": 320,
+          "bytes": 21682,
+          "path": "frontend/public/demo-news/demo-guatemala-transit-480.webp",
+          "url": "https://storage.googleapis.com/proyecto2responsibleai-demo-media/demo-news/2cffde6c561a4380/demo-guatemala-transit-480.webp"
+        },
+        {
+          "width": 800,
+          "height": 533,
+          "bytes": 43324,
+          "path": "frontend/public/demo-news/demo-guatemala-transit-800.webp",
+          "url": "https://storage.googleapis.com/proyecto2responsibleai-demo-media/demo-news/2cffde6c561a4380/demo-guatemala-transit-800.webp"
+        },
+        {
+          "width": 1200,
+          "height": 800,
+          "bytes": 73006,
+          "path": "frontend/public/demo-news/demo-guatemala-transit-1200.webp",
+          "url": "https://storage.googleapis.com/proyecto2responsibleai-demo-media/demo-news/2cffde6c561a4380/demo-guatemala-transit-1200.webp"
+        }
+      ],
+      "revision": "2cffde6c561a4380",
+      "image": {
+        "url": "https://storage.googleapis.com/proyecto2responsibleai-demo-media/demo-news/2cffde6c561a4380/demo-guatemala-transit-1200.webp",
+        "provider": "openai-imagegen",
+        "originalUrl": "https://storage.googleapis.com/proyecto2responsibleai-demo-media/demo-news/2cffde6c561a4380/demo-guatemala-transit-1200.webp",
+        "license": "Uso ilustrativo en la demo académica; no documenta un hecho real",
+        "attribution": "Perspectiva · Ilustración generada con IA",
+        "generatedByAI": true,
+        "alteredByAI": false,
+        "retrievedAt": "2026-10-03T18:55:59.770Z"
+      }
+    },
+    {
+      "id": "demo-guatemala-schools",
+      "prompt": "Use case: photorealistic-natural. Asset type: premium wide editorial illustration for a university news PWA, 3:2 landscape. Primary request: create a believable candid editorial photograph illustrating a lively fictional school science fair in Guatemala, student teams from behind and adult mentors examining a small handmade robotics and plant-growing exhibit, colorful project materials without readable text. Refined natural light, realistic tactile materials, strong magazine composition and layered depth. Keep the central subject readable when cropped to 16:9. This is synthetic classroom demonstration, not a real reported incident. No identifiable public figures, logos, readable text, lettering, overlays, watermark, borders or UI. The app will visibly label this as AI-generated illustrative imagery.",
+      "path": "/Users/julio/.codex/generated_images/01a0df34-5418-7620-948c-e1ad85b83878/exec-cec66d95-bcf3-4380-b502-56102a80871b.png",
+      "variants": [
+        {
+          "width": 480,
+          "height": 320,
+          "bytes": 31560,
+          "path": "frontend/public/demo-news/demo-guatemala-schools-480.webp",
+          "url": "https://storage.googleapis.com/proyecto2responsibleai-demo-media/demo-news/68cfae8866e977f4/demo-guatemala-schools-480.webp"
+        },
+        {
+          "width": 800,
+          "height": 533,
+          "bytes": 62990,
+          "path": "frontend/public/demo-news/demo-guatemala-schools-800.webp",
+          "url": "https://storage.googleapis.com/proyecto2responsibleai-demo-media/demo-news/68cfae8866e977f4/demo-guatemala-schools-800.webp"
+        },
+        {
+          "width": 1200,
+          "height": 800,
+          "bytes": 104368,
+          "path": "frontend/public/demo-news/demo-guatemala-schools-1200.webp",
+          "url": "https://storage.googleapis.com/proyecto2responsibleai-demo-media/demo-news/68cfae8866e977f4/demo-guatemala-schools-1200.webp"
+        }
+      ],
+      "revision": "68cfae8866e977f4",
+      "image": {
+        "url": "https://storage.googleapis.com/proyecto2responsibleai-demo-media/demo-news/68cfae8866e977f4/demo-guatemala-schools-1200.webp",
+        "provider": "openai-imagegen",
+        "originalUrl": "https://storage.googleapis.com/proyecto2responsibleai-demo-media/demo-news/68cfae8866e977f4/demo-guatemala-schools-1200.webp",
+        "license": "Uso ilustrativo en la demo académica; no documenta un hecho real",
+        "attribution": "Perspectiva · Ilustración generada con IA",
+        "generatedByAI": true,
+        "alteredByAI": false,
+        "retrievedAt": "2026-10-03T18:55:59.770Z"
+      }
+    },
+    {
+      "id": "demo-new-york-garden",
+      "prompt": "Use case: photorealistic-natural. Asset type: premium wide editorial illustration for a university news PWA, 3:2 landscape. Primary request: create a believable candid editorial photograph illustrating a fictional community garden in New York, diverse adult neighbors tending raised beds with lush vegetables, warm brick apartment buildings behind them, bright leafy summer light, hands and seedlings in foreground. Refined natural light, realistic tactile materials, strong magazine composition and layered depth. Keep the central subject readable when cropped to 16:9. This is synthetic classroom demonstration, not a real reported incident. No identifiable public figures, logos, readable text, lettering, overlays, watermark, borders or UI. The app will visibly label this as AI-generated illustrative imagery.",
+      "path": "/Users/julio/.codex/generated_images/01a0df34-5418-7620-948c-e1ad85b83878/exec-e30f384e-ef7f-46ce-a6ad-672b798a1391.png",
+      "variants": [
+        {
+          "width": 480,
+          "height": 320,
+          "bytes": 37496,
+          "path": "frontend/public/demo-news/demo-new-york-garden-480.webp",
+          "url": "https://storage.googleapis.com/proyecto2responsibleai-demo-media/demo-news/098aa6ad17e94743/demo-new-york-garden-480.webp"
+        },
+        {
+          "width": 800,
+          "height": 533,
+          "bytes": 76720,
+          "path": "frontend/public/demo-news/demo-new-york-garden-800.webp",
+          "url": "https://storage.googleapis.com/proyecto2responsibleai-demo-media/demo-news/098aa6ad17e94743/demo-new-york-garden-800.webp"
+        },
+        {
+          "width": 1200,
+          "height": 800,
+          "bytes": 131518,
+          "path": "frontend/public/demo-news/demo-new-york-garden-1200.webp",
+          "url": "https://storage.googleapis.com/proyecto2responsibleai-demo-media/demo-news/098aa6ad17e94743/demo-new-york-garden-1200.webp"
+        }
+      ],
+      "revision": "098aa6ad17e94743",
+      "image": {
+        "url": "https://storage.googleapis.com/proyecto2responsibleai-demo-media/demo-news/098aa6ad17e94743/demo-new-york-garden-1200.webp",
+        "provider": "openai-imagegen",
+        "originalUrl": "https://storage.googleapis.com/proyecto2responsibleai-demo-media/demo-news/098aa6ad17e94743/demo-new-york-garden-1200.webp",
+        "license": "Uso ilustrativo en la demo académica; no documenta un hecho real",
+        "attribution": "Perspectiva · Ilustración generada con IA",
+        "generatedByAI": true,
+        "alteredByAI": false,
+        "retrievedAt": "2026-10-03T18:55:59.770Z"
+      }
+    },
+    {
+      "id": "demo-international-weather",
+      "prompt": "Use case: photorealistic-natural. Asset type: premium wide editorial illustration for a university news PWA, 3:2 landscape. Primary request: create a believable candid editorial photograph illustrating a fictional global weather data classroom exercise, close-up of an adult student's hand on a globe beside a laptop with abstract unlabeled weather maps and an analog weather instrument, cool blue accents, believable science desk. Refined natural light, realistic tactile materials, strong magazine composition and layered depth. Keep the central subject readable when cropped to 16:9. This is synthetic classroom demonstration, not a real reported incident. No identifiable public figures, logos, readable text, lettering, overlays, watermark, borders or UI. The app will visibly label this as AI-generated illustrative imagery.",
+      "path": "/Users/julio/.codex/generated_images/01a0df34-5418-7620-948c-e1ad85b83878/exec-37b61c31-afe4-4a57-843d-4f1652543dc1.png",
+      "variants": [
+        {
+          "width": 480,
+          "height": 320,
+          "bytes": 26220,
+          "path": "frontend/public/demo-news/demo-international-weather-480.webp",
+          "url": "https://storage.googleapis.com/proyecto2responsibleai-demo-media/demo-news/99d6ac90c46e89e9/demo-international-weather-480.webp"
+        },
+        {
+          "width": 800,
+          "height": 533,
+          "bytes": 54168,
+          "path": "frontend/public/demo-news/demo-international-weather-800.webp",
+          "url": "https://storage.googleapis.com/proyecto2responsibleai-demo-media/demo-news/99d6ac90c46e89e9/demo-international-weather-800.webp"
+        },
+        {
+          "width": 1200,
+          "height": 800,
+          "bytes": 94452,
+          "path": "frontend/public/demo-news/demo-international-weather-1200.webp",
+          "url": "https://storage.googleapis.com/proyecto2responsibleai-demo-media/demo-news/99d6ac90c46e89e9/demo-international-weather-1200.webp"
+        }
+      ],
+      "revision": "99d6ac90c46e89e9",
+      "image": {
+        "url": "https://storage.googleapis.com/proyecto2responsibleai-demo-media/demo-news/99d6ac90c46e89e9/demo-international-weather-1200.webp",
+        "provider": "openai-imagegen",
+        "originalUrl": "https://storage.googleapis.com/proyecto2responsibleai-demo-media/demo-news/99d6ac90c46e89e9/demo-international-weather-1200.webp",
+        "license": "Uso ilustrativo en la demo académica; no documenta un hecho real",
+        "attribution": "Perspectiva · Ilustración generada con IA",
+        "generatedByAI": true,
+        "alteredByAI": false,
+        "retrievedAt": "2026-10-03T18:55:59.770Z"
+      }
+    },
+    {
+      "id": "demo-spain-energy",
+      "prompt": "Use case: photorealistic-natural. Asset type: premium wide editorial illustration for a university news PWA, 3:2 landscape. Primary request: create a believable candid editorial photograph illustrating a fictional student solar energy design challenge in Spain, young adult engineering students assembling a tabletop miniature solar-panel prototype in a bright courtyard, warm Mediterranean architecture behind them. Refined natural light, realistic tactile materials, strong magazine composition and layered depth. Keep the central subject readable when cropped to 16:9. This is synthetic classroom demonstration, not a real reported incident. No identifiable public figures, logos, readable text, lettering, overlays, watermark, borders or UI. The app will visibly label this as AI-generated illustrative imagery.",
+      "path": "/Users/julio/.codex/generated_images/01a0df34-5418-7620-948c-e1ad85b83878/exec-a002281a-debb-44e6-8191-2e2a345aec1d.png",
+      "variants": [
+        {
+          "width": 480,
+          "height": 320,
+          "bytes": 26698,
+          "path": "frontend/public/demo-news/demo-spain-energy-480.webp",
+          "url": "https://storage.googleapis.com/proyecto2responsibleai-demo-media/demo-news/1fa2df4cb9526944/demo-spain-energy-480.webp"
+        },
+        {
+          "width": 800,
+          "height": 533,
+          "bytes": 53104,
+          "path": "frontend/public/demo-news/demo-spain-energy-800.webp",
+          "url": "https://storage.googleapis.com/proyecto2responsibleai-demo-media/demo-news/1fa2df4cb9526944/demo-spain-energy-800.webp"
+        },
+        {
+          "width": 1200,
+          "height": 800,
+          "bytes": 89812,
+          "path": "frontend/public/demo-news/demo-spain-energy-1200.webp",
+          "url": "https://storage.googleapis.com/proyecto2responsibleai-demo-media/demo-news/1fa2df4cb9526944/demo-spain-energy-1200.webp"
+        }
+      ],
+      "revision": "1fa2df4cb9526944",
+      "image": {
+        "url": "https://storage.googleapis.com/proyecto2responsibleai-demo-media/demo-news/1fa2df4cb9526944/demo-spain-energy-1200.webp",
+        "provider": "openai-imagegen",
+        "originalUrl": "https://storage.googleapis.com/proyecto2responsibleai-demo-media/demo-news/1fa2df4cb9526944/demo-spain-energy-1200.webp",
+        "license": "Uso ilustrativo en la demo académica; no documenta un hecho real",
+        "attribution": "Perspectiva · Ilustración generada con IA",
+        "generatedByAI": true,
+        "alteredByAI": false,
+        "retrievedAt": "2026-10-03T18:55:59.770Z"
+      }
+    },
+    {
+      "id": "demo-mexico-cultural",
+      "prompt": "Use case: photorealistic-natural. Asset type: premium wide editorial illustration for a university news PWA, 3:2 landscape. Primary request: create a believable candid editorial photograph illustrating a fictional cultural exchange in Mexico, adult art students sharing colorful handmade ceramic pieces and woven fabric across a table in a sunlit courtyard, vibrant terracotta and rich cobalt accents. Refined natural light, realistic tactile materials, strong magazine composition and layered depth. Keep the central subject readable when cropped to 16:9. This is synthetic classroom demonstration, not a real reported incident. No identifiable public figures, logos, readable text, lettering, overlays, watermark, borders or UI. The app will visibly label this as AI-generated illustrative imagery.",
+      "path": "/Users/julio/.codex/generated_images/01a0df34-5418-7620-948c-e1ad85b83878/exec-52855b0c-62e5-4033-b786-c9ed8eb67e09.png",
+      "variants": [
+        {
+          "width": 480,
+          "height": 320,
+          "bytes": 38176,
+          "path": "frontend/public/demo-news/demo-mexico-cultural-480.webp",
+          "url": "https://storage.googleapis.com/proyecto2responsibleai-demo-media/demo-news/c5f604f43eb2549c/demo-mexico-cultural-480.webp"
+        },
+        {
+          "width": 800,
+          "height": 533,
+          "bytes": 78200,
+          "path": "frontend/public/demo-news/demo-mexico-cultural-800.webp",
+          "url": "https://storage.googleapis.com/proyecto2responsibleai-demo-media/demo-news/c5f604f43eb2549c/demo-mexico-cultural-800.webp"
+        },
+        {
+          "width": 1200,
+          "height": 800,
+          "bytes": 132844,
+          "path": "frontend/public/demo-news/demo-mexico-cultural-1200.webp",
+          "url": "https://storage.googleapis.com/proyecto2responsibleai-demo-media/demo-news/c5f604f43eb2549c/demo-mexico-cultural-1200.webp"
+        }
+      ],
+      "revision": "c5f604f43eb2549c",
+      "image": {
+        "url": "https://storage.googleapis.com/proyecto2responsibleai-demo-media/demo-news/c5f604f43eb2549c/demo-mexico-cultural-1200.webp",
+        "provider": "openai-imagegen",
+        "originalUrl": "https://storage.googleapis.com/proyecto2responsibleai-demo-media/demo-news/c5f604f43eb2549c/demo-mexico-cultural-1200.webp",
+        "license": "Uso ilustrativo en la demo académica; no documenta un hecho real",
+        "attribution": "Perspectiva · Ilustración generada con IA",
+        "generatedByAI": true,
+        "alteredByAI": false,
+        "retrievedAt": "2026-10-03T18:55:59.770Z"
+      }
+    },
+    {
+      "id": "demo-united-states-research",
+      "prompt": "Use case: photorealistic-natural. Asset type: premium wide editorial illustration for a university news PWA, 3:2 landscape. Primary request: create a believable candid editorial photograph illustrating a fictional university sensor research showcase in the United States, young adult university researchers demonstrating a small environmental sensor and electronics on a lab table, tactile circuit boards, naturally bright research space. Refined natural light, realistic tactile materials, strong magazine composition and layered depth. Keep the central subject readable when cropped to 16:9. This is synthetic classroom demonstration, not a real reported incident. No identifiable public figures, logos, readable text, lettering, overlays, watermark, borders or UI. The app will visibly label this as AI-generated illustrative imagery.",
+      "path": "/Users/julio/.codex/generated_images/01a0df34-5418-7620-948c-e1ad85b83878/exec-64a24a26-2abf-4fb9-a743-b22db5002f93.png",
+      "variants": [
+        {
+          "width": 480,
+          "height": 320,
+          "bytes": 22522,
+          "path": "frontend/public/demo-news/demo-united-states-research-480.webp",
+          "url": "https://storage.googleapis.com/proyecto2responsibleai-demo-media/demo-news/2fb3b9b91351de72/demo-united-states-research-480.webp"
+        },
+        {
+          "width": 800,
+          "height": 533,
+          "bytes": 44674,
+          "path": "frontend/public/demo-news/demo-united-states-research-800.webp",
+          "url": "https://storage.googleapis.com/proyecto2responsibleai-demo-media/demo-news/2fb3b9b91351de72/demo-united-states-research-800.webp"
+        },
+        {
+          "width": 1200,
+          "height": 800,
+          "bytes": 76524,
+          "path": "frontend/public/demo-news/demo-united-states-research-1200.webp",
+          "url": "https://storage.googleapis.com/proyecto2responsibleai-demo-media/demo-news/2fb3b9b91351de72/demo-united-states-research-1200.webp"
+        }
+      ],
+      "revision": "2fb3b9b91351de72",
+      "image": {
+        "url": "https://storage.googleapis.com/proyecto2responsibleai-demo-media/demo-news/2fb3b9b91351de72/demo-united-states-research-1200.webp",
+        "provider": "openai-imagegen",
+        "originalUrl": "https://storage.googleapis.com/proyecto2responsibleai-demo-media/demo-news/2fb3b9b91351de72/demo-united-states-research-1200.webp",
+        "license": "Uso ilustrativo en la demo académica; no documenta un hecho real",
+        "attribution": "Perspectiva · Ilustración generada con IA",
+        "generatedByAI": true,
+        "alteredByAI": false,
+        "retrievedAt": "2026-10-03T18:55:59.770Z"
+      }
+    },
+    {
+      "id": "demo-international-health",
+      "prompt": "Use case: photorealistic-natural. Asset type: premium wide editorial illustration for a university news PWA, 3:2 landscape. Primary request: create a believable candid editorial photograph illustrating a fictional student public health workshop, young adult university students and an adult instructor at a practical table sharing educational materials and inspecting a small first-aid kit, calm teal and white accents, natural light. Refined natural light, realistic tactile materials, strong magazine composition and layered depth. Keep the central subject readable when cropped to 16:9. This is synthetic classroom demonstration, not a real reported incident. No identifiable public figures, logos, readable text, lettering, overlays, watermark, borders or UI. The app will visibly label this as AI-generated illustrative imagery.",
+      "path": "/Users/julio/.codex/generated_images/01a0df34-5418-7620-948c-e1ad85b83878/exec-da8728fb-6c0b-4a78-ae83-b1a4a984eabd.png",
+      "variants": [
+        {
+          "width": 480,
+          "height": 320,
+          "bytes": 20526,
+          "path": "frontend/public/demo-news/demo-international-health-480.webp",
+          "url": "https://storage.googleapis.com/proyecto2responsibleai-demo-media/demo-news/61d38ea0d399cfc4/demo-international-health-480.webp"
+        },
+        {
+          "width": 800,
+          "height": 533,
+          "bytes": 41688,
+          "path": "frontend/public/demo-news/demo-international-health-800.webp",
+          "url": "https://storage.googleapis.com/proyecto2responsibleai-demo-media/demo-news/61d38ea0d399cfc4/demo-international-health-800.webp"
+        },
+        {
+          "width": 1200,
+          "height": 800,
+          "bytes": 72818,
+          "path": "frontend/public/demo-news/demo-international-health-1200.webp",
+          "url": "https://storage.googleapis.com/proyecto2responsibleai-demo-media/demo-news/61d38ea0d399cfc4/demo-international-health-1200.webp"
+        }
+      ],
+      "revision": "61d38ea0d399cfc4",
+      "image": {
+        "url": "https://storage.googleapis.com/proyecto2responsibleai-demo-media/demo-news/61d38ea0d399cfc4/demo-international-health-1200.webp",
+        "provider": "openai-imagegen",
+        "originalUrl": "https://storage.googleapis.com/proyecto2responsibleai-demo-media/demo-news/61d38ea0d399cfc4/demo-international-health-1200.webp",
+        "license": "Uso ilustrativo en la demo académica; no documenta un hecho real",
+        "attribution": "Perspectiva · Ilustración generada con IA",
+        "generatedByAI": true,
+        "alteredByAI": false,
+        "retrievedAt": "2026-10-03T18:55:59.770Z"
+      }
+    },
+    {
+      "id": "demo-international-art",
+      "prompt": "Use case: photorealistic-natural. Asset type: premium wide editorial illustration for a university news PWA, 3:2 landscape. Primary request: create a believable candid editorial photograph illustrating a fictional international youth art exchange, young adult art students from diverse backgrounds arranging colorful original abstract paintings in a naturally lit gallery studio, coral and ochre art materials, candid creative moment. Refined natural light, realistic tactile materials, strong magazine composition and layered depth. Keep the central subject readable when cropped to 16:9. This is synthetic classroom demonstration, not a real reported incident. No identifiable public figures, logos, readable text, lettering, overlays, watermark, borders or UI. The app will visibly label this as AI-generated illustrative imagery.",
+      "path": "/Users/julio/.codex/generated_images/01a0df34-5418-7620-948c-e1ad85b83878/exec-62a5e70d-767b-4f8e-a44f-bcb00c6b95eb.png",
+      "variants": [
+        {
+          "width": 480,
+          "height": 320,
+          "bytes": 23136,
+          "path": "frontend/public/demo-news/demo-international-art-480.webp",
+          "url": "https://storage.googleapis.com/proyecto2responsibleai-demo-media/demo-news/db2e4ed6498a380e/demo-international-art-480.webp"
+        },
+        {
+          "width": 800,
+          "height": 533,
+          "bytes": 48570,
+          "path": "frontend/public/demo-news/demo-international-art-800.webp",
+          "url": "https://storage.googleapis.com/proyecto2responsibleai-demo-media/demo-news/db2e4ed6498a380e/demo-international-art-800.webp"
+        },
+        {
+          "width": 1200,
+          "height": 800,
+          "bytes": 84172,
+          "path": "frontend/public/demo-news/demo-international-art-1200.webp",
+          "url": "https://storage.googleapis.com/proyecto2responsibleai-demo-media/demo-news/db2e4ed6498a380e/demo-international-art-1200.webp"
+        }
+      ],
+      "revision": "db2e4ed6498a380e",
+      "image": {
+        "url": "https://storage.googleapis.com/proyecto2responsibleai-demo-media/demo-news/db2e4ed6498a380e/demo-international-art-1200.webp",
+        "provider": "openai-imagegen",
+        "originalUrl": "https://storage.googleapis.com/proyecto2responsibleai-demo-media/demo-news/db2e4ed6498a380e/demo-international-art-1200.webp",
+        "license": "Uso ilustrativo en la demo académica; no documenta un hecho real",
+        "attribution": "Perspectiva · Ilustración generada con IA",
+        "generatedByAI": true,
+        "alteredByAI": false,
+        "retrievedAt": "2026-10-03T18:55:59.770Z"
+      }
+    },
+    {
+      "id": "demo-international-dispute",
+      "prompt": "Use case: photorealistic-natural. Asset type: premium wide editorial illustration for a university news PWA, 3:2 landscape. Primary request: create a believable candid editorial photograph illustrating a fictional public event seen from above in a sunny plaza, a modest gathering of adult attendees with generous open space, two reporters from behind taking notes at the edge, neutral composition that makes no attendance claim. Refined natural light, realistic tactile materials, strong magazine composition and layered depth. Keep the central subject readable when cropped to 16:9. This is synthetic classroom demonstration, not a real reported incident. No identifiable public figures, logos, readable text, lettering, overlays, watermark, borders or UI. The app will visibly label this as AI-generated illustrative imagery.",
+      "path": "/Users/julio/.codex/generated_images/01a0df34-5418-7620-948c-e1ad85b83878/exec-0021d204-17bb-45ea-93cb-324a8ebe71f2.png",
+      "variants": [
+        {
+          "width": 480,
+          "height": 320,
+          "bytes": 27936,
+          "path": "frontend/public/demo-news/demo-international-dispute-480.webp",
+          "url": "https://storage.googleapis.com/proyecto2responsibleai-demo-media/demo-news/77696e0bf6433cb8/demo-international-dispute-480.webp"
+        },
+        {
+          "width": 800,
+          "height": 533,
+          "bytes": 63580,
+          "path": "frontend/public/demo-news/demo-international-dispute-800.webp",
+          "url": "https://storage.googleapis.com/proyecto2responsibleai-demo-media/demo-news/77696e0bf6433cb8/demo-international-dispute-800.webp"
+        },
+        {
+          "width": 1200,
+          "height": 800,
+          "bytes": 118130,
+          "path": "frontend/public/demo-news/demo-international-dispute-1200.webp",
+          "url": "https://storage.googleapis.com/proyecto2responsibleai-demo-media/demo-news/77696e0bf6433cb8/demo-international-dispute-1200.webp"
+        }
+      ],
+      "revision": "77696e0bf6433cb8",
+      "image": {
+        "url": "https://storage.googleapis.com/proyecto2responsibleai-demo-media/demo-news/77696e0bf6433cb8/demo-international-dispute-1200.webp",
+        "provider": "openai-imagegen",
+        "originalUrl": "https://storage.googleapis.com/proyecto2responsibleai-demo-media/demo-news/77696e0bf6433cb8/demo-international-dispute-1200.webp",
+        "license": "Uso ilustrativo en la demo académica; no documenta un hecho real",
+        "attribution": "Perspectiva · Ilustración generada con IA",
+        "generatedByAI": true,
+        "alteredByAI": false,
+        "retrievedAt": "2026-10-03T18:55:59.770Z"
+      }
+    }
+  ]
+}
