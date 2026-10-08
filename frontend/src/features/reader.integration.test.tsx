@@ -1,7 +1,7 @@
-import { render, screen, waitFor, within } from "@testing-library/react";
+import { fireEvent, render, screen, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { MemoryRouter, Routes, Route } from "react-router-dom";
+import { MemoryRouter, Routes, Route, useLocation } from "react-router-dom";
 import { beforeEach, describe, it, expect, vi } from "vitest";
 import { useState, useRef, useCallback, type ReactNode } from "react";
 import seed from "./sample-news.json";
@@ -11,14 +11,25 @@ const boundary = vi.hoisted(() => ({
   api: {
     me: vi.fn(),
     feed: vi.fn(),
+    globe: vi.fn(),
     news: vi.fn(),
     locations: vi.fn(),
     location: vi.fn(),
     event: vi.fn(),
     chat: vi.fn(),
     adminNews: vi.fn(),
+    mySubmissions: vi.fn(),
+    submitNews: vi.fn(),
+    adminSubmissions: vi.fn(),
+    approveSubmission: vi.fn(),
+    deleteSubmission: vi.fn(),
   },
-  user: { uid: "reader", displayName: "Reader", email: "reader@example.test" },
+  user: null as {
+    uid: string;
+    displayName: string | null;
+    email?: string | null;
+    photoURL?: string | null;
+  } | null,
   admin: true,
 }));
 vi.mock("../auth/AuthProvider", () => ({
@@ -41,7 +52,11 @@ import { AdminNews } from "./Admin";
 import { EventProvider } from "./EventProvider";
 import { newsTitle } from "../utils/presentation";
 import { NewsImage } from "../components/common";
-import { Layout } from "../components/Layout";
+import { EditorialNav, Layout } from "../components/Layout";
+import { Profile } from "./Profile";
+import { SubmissionForm } from "./SubmissionForm";
+import { AdminSubmissions } from "./AdminSubmissions";
+import { Globe } from "./Globe";
 const articles = seed as Article[];
 const profile: UserProfile = {
   uid: "reader",
@@ -68,6 +83,13 @@ function mount(children: ReactNode, route = "/") {
 }
 beforeEach(() => {
   vi.resetAllMocks();
+  boundary.user = {
+    uid: "reader",
+    displayName: "Reader",
+    email: "reader@example.test",
+    photoURL: null,
+  };
+  boundary.admin = true;
   boundary.api.me.mockResolvedValue(profile);
   boundary.api.feed.mockResolvedValue({
     items: articles.map((article, index) => ({
@@ -76,10 +98,17 @@ beforeEach(() => {
     })),
     nextCursor: null,
   });
+  boundary.api.globe.mockResolvedValue({
+    week: { start: "2026-10-04", end: "2026-10-11" },
+    countries: {},
+    worldStory: null,
+  });
   boundary.api.news.mockImplementation(async (id: string) =>
     articles.find((a) => a.id === id),
   );
   boundary.api.event.mockResolvedValue({ profile });
+  boundary.api.mySubmissions.mockResolvedValue({ items: [] });
+  boundary.api.adminSubmissions.mockResolvedValue({ items: [] });
   vi.stubGlobal(
     "IntersectionObserver",
     class {
@@ -101,6 +130,202 @@ beforeEach(() => {
   });
 });
 describe("reader workflows and disclosures", () => {
+  it("opens a country when its clickable map shape is tapped", async () => {
+    boundary.user = null;
+    boundary.admin = false;
+    Object.defineProperty(SVGSVGElement.prototype, "setPointerCapture", {
+      configurable: true,
+      value: vi.fn(),
+    });
+    function LocationProbe() {
+      const location = useLocation();
+      return <output data-testid="pathname">{location.pathname}</output>;
+    }
+    mount(
+      <>
+        <Routes>
+          <Route path="/preview/globe" element={<Globe preview />} />
+          <Route
+            path="/preview/globe/:countryCode"
+            element={<p>Noticias del país seleccionado</p>}
+          />
+        </Routes>
+        <LocationProbe />
+      </>,
+      "/preview/globe",
+    );
+
+    const guatemala = screen.getByRole("button", {
+      name: /Guatemala.*Abrir noticias/,
+    });
+    fireEvent.pointerDown(guatemala, {
+      pointerId: 1,
+      clientX: 60,
+      clientY: 80,
+    });
+    fireEvent.pointerUp(guatemala, {
+      pointerId: 1,
+      clientX: 60,
+      clientY: 80,
+    });
+
+    await waitFor(() =>
+      expect(screen.getByTestId("pathname")).toHaveTextContent(
+        "/preview/globe/gt",
+      ),
+    );
+    expect(screen.getByText("Noticias del país seleccionado")).toBeInTheDocument();
+    expect(boundary.api.me).not.toHaveBeenCalled();
+    expect(boundary.api.globe).not.toHaveBeenCalled();
+  });
+
+  it("shows the sample profile and report form without signing in", async () => {
+    boundary.user = null;
+    boundary.admin = false;
+    mount(
+      <>
+        <Profile preview />
+        <EditorialNav preview countryAvailable globeAvailable />
+      </>,
+      "/preview/profile",
+    );
+
+    expect(
+      screen.getByRole("heading", { level: 1, name: /Ana López/ }),
+    ).toBeInTheDocument();
+    expect(screen.getAllByRole("article")).toHaveLength(6);
+    expect(
+      within(
+        screen.getByRole("navigation", { name: "Navegación principal" }),
+      ).getByRole("link", { name: "Perfil" }),
+    ).toHaveAttribute("aria-current", "page");
+    expect(screen.getByRole("link", { name: /Subir noticia/ })).toHaveAttribute(
+      "href",
+      "/preview/profile/new",
+    );
+    await userEvent.click(screen.getByRole("button", { name: /En revisión/ }));
+    expect(screen.getAllByRole("article")).toHaveLength(2);
+  });
+
+  it("does not present sample submissions as belonging to a signed-in reader", async () => {
+    boundary.user = { uid: "reader", displayName: "Reader" };
+    boundary.admin = false;
+    mount(<Profile />, "/profile");
+
+    expect(
+      await screen.findByRole("heading", { level: 1, name: /Reader/ }),
+    ).toBeInTheDocument();
+    expect(screen.getByText("Aún no tienes noticias")).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: /Subir noticia/ })).toHaveAttribute(
+      "href",
+      "/profile/new",
+    );
+  });
+
+  it("shows actual user reports and their pending/publication states in the profile grid", async () => {
+    const submitted = {
+      ...articles[0],
+      id: "my-report",
+      title: "Mi reporte comunitario",
+      status: "pending_review" as const,
+      submittedByUid: "reader",
+      publishedAt: null,
+      originDate: "2026-09-25",
+    };
+    boundary.api.mySubmissions.mockResolvedValue({ items: [submitted] });
+    boundary.user = { uid: "reader", displayName: "Reader" };
+    boundary.admin = false;
+    mount(<Profile />, "/profile");
+
+    expect(
+      await screen.findByText("Mi reporte comunitario"),
+    ).toBeInTheDocument();
+    expect(screen.getAllByText("En revisión").length).toBeGreaterThan(0);
+    await userEvent.click(screen.getByRole("button", { name: /En revisión/ }));
+    expect(
+      screen.getByRole("heading", { name: "Mi reporte comunitario" }),
+    ).toBeInTheDocument();
+  });
+
+  it("keeps the unauthenticated report-composer preview local and asks the user to sign in", async () => {
+    boundary.user = null;
+    boundary.admin = false;
+    mount(<SubmissionForm preview />, "/preview/profile/new");
+
+    expect(
+      screen.getByRole("heading", { level: 1, name: /Comparte un reporte/ }),
+    ).toBeInTheDocument();
+    expect(screen.getByLabelText("Reporte completo")).toBeRequired();
+    expect(screen.getByLabelText("Enlace de la fuente")).toBeRequired();
+    await userEvent.type(
+      screen.getByLabelText("Titular"),
+      "Reporte de prueba comunitaria",
+    );
+    await userEvent.type(
+      screen.getByLabelText("Resumen"),
+      "Un resumen suficiente para completar la prueba.",
+    );
+    await userEvent.type(
+      screen.getByLabelText("Reporte completo"),
+      "Este es un reporte comunitario con todos los detalles necesarios para la prueba.",
+    );
+    await userEvent.type(
+      screen.getByLabelText("Fecha de origen"),
+      "2026-09-25",
+    );
+    await userEvent.type(
+      screen.getByLabelText("Medio u origen"),
+      "Medio de prueba",
+    );
+    await userEvent.type(
+      screen.getByLabelText("Título o descripción de la fuente"),
+      "Nota de prueba",
+    );
+    await userEvent.type(
+      screen.getByLabelText("Enlace de la fuente"),
+      "https://example.com/reporte",
+    );
+    await userEvent.click(
+      screen.getByRole("button", { name: /Enviar para revisión/ }),
+    );
+    expect(
+      await screen.findByText(/Esta es una vista de prueba/),
+    ).toBeInTheDocument();
+    expect(boundary.api.submitNews).not.toHaveBeenCalled();
+  });
+
+  it("lets editors review community reports and offers a protected permanent-delete confirmation", async () => {
+    const report = {
+      ...articles[0],
+      id: "community-report",
+      title: "Un reporte enviado por la comunidad",
+      status: "pending_review" as const,
+      submittedByUid: "reader",
+      publishedAt: null,
+      originDate: "2026-09-25",
+    };
+    boundary.api.adminSubmissions.mockResolvedValue({ items: [report] });
+    boundary.api.deleteSubmission.mockResolvedValue({ deleted: true });
+    mount(<AdminSubmissions />, "/admin/submissions");
+
+    expect(
+      await screen.findByText("Un reporte enviado por la comunidad"),
+    ).toBeInTheDocument();
+    expect(screen.getByLabelText("Desde")).toBeInTheDocument();
+    await userEvent.click(
+      screen.getByRole("button", { name: /Eliminar permanentemente/ }),
+    );
+    expect(
+      await screen.findByRole("dialog", { name: "Eliminar este reporte" }),
+    ).toBeInTheDocument();
+    await userEvent.click(
+      screen.getByRole("button", { name: /Sí, eliminar permanentemente/ }),
+    );
+    expect(boundary.api.deleteSubmission).toHaveBeenCalledWith(
+      "community-report",
+    );
+  });
+
   it("offers only other published articles and opens a related report through its real reader route", async () => {
     const draft = {
       ...articles[2],
@@ -170,10 +395,9 @@ describe("reader workflows and disclosures", () => {
     });
     expect(screen.getByRole("dialog")).not.toHaveAttribute("aria-modal");
     expect(
-      within(screen.getByRole("navigation", { name: "Principal" })).queryByRole(
-        "button",
-        { name: "Conversar" },
-      ),
+      within(
+        screen.getByRole("navigation", { name: "Navegación principal" }),
+      ).queryByRole("button", { name: "Conversar" }),
     ).not.toBeInTheDocument();
     await userEvent.click(
       screen.getByRole("button", { name: "Contraer conversación" }),
@@ -183,10 +407,9 @@ describe("reader workflows and disclosures", () => {
       name: "Expandir conversación",
     });
     await userEvent.click(
-      within(screen.getByRole("navigation", { name: "Principal" })).getByRole(
-        "link",
-        { name: "La portada" },
-      ),
+      within(
+        screen.getByRole("navigation", { name: "Navegación principal" }),
+      ).getByRole("link", { name: "Noticias." }),
     );
     await screen.findByRole("heading", { level: 1, name: /Noticias/ });
     expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
@@ -437,13 +660,12 @@ function SidebarHarness() {
         open={open}
         onClose={close}
         onOpen={() => setOpen(true)}
-        background={background}
       />
     </>
   );
 }
 describe("chat sidebar lifecycle", () => {
-  it("preserves the answer when reopened and restores mobile focus and background access", async () => {
+  it("keeps the reader available behind the horizontal drawer and hides the keyboard on send", async () => {
     boundary.api.chat.mockResolvedValue({
       answer: "Respuesta con contexto conservado.",
       citations: [],
@@ -454,21 +676,28 @@ describe("chat sidebar lifecycle", () => {
     mount(<SidebarHarness />);
     const opener = screen.getByRole("button", { name: "Abrir conversación" });
     await user.click(opener);
-    expect(screen.getByRole("dialog")).toHaveAttribute("aria-modal", "true");
-    expect(screen.getByTestId("reader-background").inert).toBe(true);
+    expect(screen.getByRole("dialog")).not.toHaveAttribute("aria-modal");
+    expect(screen.getByTestId("reader-background")).not.toHaveAttribute("inert");
+    expect(document.body.style.overflow).toBe("");
     const close = screen.getByRole("button", {
       name: "Contraer conversación",
     });
-    expect(close).toHaveFocus();
+    expect(opener).toHaveFocus();
     await user.type(
       screen.getByLabelText("Tu pregunta sobre las noticias"),
       "river cleanup",
     );
+    expect(document.querySelector(".chat-layer")).toHaveClass(
+      "is-keyboard-open",
+    );
     await user.click(screen.getByRole("button", { name: "Enviar pregunta" }));
+    expect(document.querySelector(".chat-layer")).not.toHaveClass(
+      "is-keyboard-open",
+    );
     await screen.findByText("Respuesta con contexto conservado.");
     await user.click(close);
     expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
-    expect(screen.getByTestId("reader-background").inert).toBe(false);
+    expect(screen.getByTestId("reader-background")).not.toHaveAttribute("inert");
     expect(document.body.style.overflow).toBe("");
     expect(opener).toHaveFocus();
     await user.click(opener);
@@ -495,5 +724,66 @@ describe("chat sidebar lifecycle", () => {
     expect(screen.getByTestId("reader-background").inert).not.toBe(true);
     expect(document.body.style.overflow).toBe("");
     expect(opener).toHaveFocus();
+  });
+
+  it("previews the mobile keyboard and local sample response without login or API calls", async () => {
+    boundary.user = null;
+    boundary.admin = false;
+    function PreviewSidebarHarness() {
+      const [open, setOpen] = useState(false);
+      const background = useRef<HTMLDivElement>(null);
+      const close = useCallback(() => setOpen(false), []);
+      return (
+        <>
+          <div ref={background} data-testid="preview-background">
+            <p>Una noticia sigue visible detrás del chat.</p>
+          </div>
+          <ChatSidebar
+            open={open}
+            onClose={close}
+            onOpen={() => setOpen(true)}
+            preview
+            previewItems={articles.map((article) => ({ article, reasons: [] }))}
+          />
+        </>
+      );
+    }
+    const user = userEvent.setup();
+    mount(<PreviewSidebarHarness />);
+    await user.click(screen.getByRole("button", { name: "Expandir conversación" }));
+
+    expect(screen.getByRole("dialog")).not.toHaveAttribute("aria-modal");
+    expect(screen.getByTestId("preview-background")).not.toHaveAttribute("inert");
+    expect(screen.getByText(/no se envían a Firebase/)).toBeInTheDocument();
+    expect(
+      screen.getByRole("heading", {
+        level: 2,
+        name: newsTitle(articles[0].title),
+      }),
+    ).toBeInTheDocument();
+    await user.click(screen.getByRole("button", { name: "Siguiente noticia" }));
+    expect(
+      screen.getByRole("heading", {
+        level: 2,
+        name: newsTitle(articles[1].title),
+      }),
+    ).toBeInTheDocument();
+    const input = screen.getByLabelText("Escribe una pregunta sobre las noticias");
+    await user.type(input, "¿Qué confirma la noticia?");
+    expect(document.querySelector(".chat-layer")).toHaveClass(
+      "is-keyboard-open",
+    );
+    await user.keyboard("{Enter}");
+    expect(
+      screen.getByText("¿Qué confirma la noticia?"),
+    ).toBeInTheDocument();
+    expect(document.querySelector(".chat-layer")).not.toHaveClass(
+      "is-keyboard-open",
+    );
+    expect(screen.getByRole("status")).toHaveTextContent("Revisando el reporte");
+    expect(
+      await screen.findByText(/Esta es una respuesta de muestra/, {}, { timeout: 2000 }),
+    ).toBeInTheDocument();
+    expect(boundary.api.chat).not.toHaveBeenCalled();
   });
 });
