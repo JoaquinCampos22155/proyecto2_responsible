@@ -37,8 +37,10 @@ const app = initializeApp({
   projectId,
   appId: env.VITE_FIREBASE_APP_ID,
   messagingSenderId: env.VITE_FIREBASE_MESSAGING_SENDER_ID,
+  storageBucket: env.VITE_FIREBASE_STORAGE_BUCKET || undefined,
 });
-export const auth = getAuth(app);
+export const firebaseApp = app;
+export const auth = getAuth(firebaseApp);
 if (emulator)
   connectAuthEmulator(
     auth,

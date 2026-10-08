@@ -16,10 +16,16 @@ import { ApiError } from "./api/client";
 import { Login } from "./features/Login";
 import { MotionSurface } from "./components/Motion";
 import { Feed } from "./features/Feed";
+import { MyCountry } from "./features/MyCountry";
 import { Article } from "./features/Article";
 import { Location } from "./features/Location";
 import { About } from "./features/About";
 import { Preview } from "./features/Preview";
+import { Profile } from "./features/Profile";
+import { SubmissionForm } from "./features/SubmissionForm";
+const Globe = lazy(() =>
+  import("./features/Globe").then((m) => ({ default: m.Globe })),
+);
 const AdminNews = lazy(() =>
   import("./features/Admin").then((m) => ({ default: m.AdminNews })),
 );
@@ -31,6 +37,11 @@ const AdminUsage = lazy(() =>
 );
 const AdminAudit = lazy(() =>
   import("./features/Admin").then((m) => ({ default: m.AdminAudit })),
+);
+const AdminSubmissions = lazy(() =>
+  import("./features/AdminSubmissions").then((m) => ({
+    default: m.AdminSubmissions,
+  })),
 );
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -87,10 +98,23 @@ export function App() {
                 <Route path="/login" element={<Login />} />
                 <Route path="/about" element={<About />} />
                 <Route path="/preview" element={<Preview />} />
+                <Route path="/preview/my-country" element={<Preview />} />
+                <Route path="/preview/profile" element={<Preview />} />
+                <Route path="/preview/profile/new" element={<Preview />} />
+                <Route path="/preview/globe" element={<Preview />} />
+                <Route
+                  path="/preview/globe/:countryCode"
+                  element={<Preview />}
+                />
                 <Route path="/preview/news/:id" element={<Preview />} />
                 <Route element={<Protected />}>
                   <Route index element={<Feed />} />
                   <Route path="/feed" element={<Feed />} />
+                  <Route path="/my-country" element={<MyCountry />} />
+                  <Route path="/profile" element={<Profile />} />
+                  <Route path="/profile/new" element={<SubmissionForm />} />
+                  <Route path="/globe" element={<Globe />} />
+                  <Route path="/globe/:countryCode" element={<Globe />} />
                   <Route path="/news/:id" element={<Article />} />
                   <Route path="/location" element={<Location />} />
                   <Route path="/admin" element={<AdminGuard />}>
@@ -101,6 +125,7 @@ export function App() {
                     <Route path="news" element={<AdminNews />} />
                     <Route path="news/new" element={<AdminEditor />} />
                     <Route path="news/:id" element={<AdminEditor />} />
+                    <Route path="submissions" element={<AdminSubmissions />} />
                     <Route path="usage" element={<AdminUsage />} />
                     <Route path="audit" element={<AdminAudit />} />
                   </Route>

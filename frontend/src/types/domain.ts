@@ -5,7 +5,8 @@ export type VerificationStatus =
   | "corroborated"
   | "developing"
   | "conflicting_sources";
-export type ArticleStatus = "draft" | "published" | "archived";
+export type ArticleStatus =
+  "draft" | "pending_review" | "published" | "archived";
 export type EditorialPriority = "normal" | "high";
 export type SourceType =
   "news" | "wire" | "official" | "report" | "eyewitness" | "social" | "other";
@@ -38,6 +39,7 @@ export interface ImageRecord {
   generatedByAI: boolean;
   alteredByAI: boolean;
   retrievedAt: string;
+  storagePath?: string;
 }
 
 export interface Article {
@@ -63,6 +65,8 @@ export interface Article {
   status: ArticleStatus;
   humanReview: { reviewedBy: string; reviewedAt: string } | null;
   developing?: boolean;
+  submittedByUid?: string;
+  originDate?: string;
 }
 
 export interface UserProfile {
@@ -90,7 +94,15 @@ export interface AuditRecord {
   id: string;
   articleId: string;
   actorUid: string;
-  action: "create" | "edit" | "assess" | "publish" | "archive";
+  action:
+    | "create"
+    | "edit"
+    | "assess"
+    | "publish"
+    | "archive"
+    | "submit"
+    | "approve_submission"
+    | "delete_submission";
   timestamp: string;
   details?: Record<string, unknown>;
 }
@@ -128,6 +140,19 @@ export type DraftInput = Pick<
 export type SourceInput = Omit<SourceRecord, "retrievedAt"> & {
   retrievedAt?: string;
 };
+export type SubmissionInput = {
+  submissionId: string;
+  title: string;
+  summary: string;
+  body: string;
+  originDate: string;
+  scope: Scope;
+  country: string;
+  topics: string[];
+  source: SourceInput;
+  image?: ImageRecord;
+  aiDisclosure?: { assisted: boolean; note: string | null };
+};
 export type EventInput = {
   type: EventType;
   articleId: string;
@@ -136,6 +161,11 @@ export type EventInput = {
 };
 export type LocationInput = UserProfile["simulatedLocation"];
 export type FeedItem = { article: Article; reasons: string[] };
+export type GlobeResponse = {
+  week: { start: string; end: string };
+  countries: Record<string, { count: number; items: FeedItem[] }>;
+  worldStory: FeedItem | null;
+};
 export type ChatResponse = {
   answer: string;
   citations: {

@@ -1,8 +1,11 @@
-import { useEffect, useState, useCallback, useRef } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { NavLink, Link, Outlet, useLocation, Navigate } from "react-router-dom";
 import {
   Newspaper,
   MapPin,
+  Star,
+  Globe,
+  UserRound,
   ArrowUpRight,
   LogOut,
   Menu,
@@ -30,6 +33,111 @@ export function Brand() {
   );
 }
 type InstallEvent = Event & { prompt: () => Promise<void> };
+export function EditorialNav({
+  preview = false,
+  countryAvailable = false,
+  globeAvailable = false,
+  profileAvailable = false,
+}: {
+  preview?: boolean;
+  countryAvailable?: boolean;
+  globeAvailable?: boolean;
+  profileAvailable?: boolean;
+}) {
+  const { pathname: path, hash } = useLocation();
+  const feedPath = preview
+    ? path === "/preview" || path === "/preview/my-country"
+    : path === "/feed" || path === "/";
+  const countrySection =
+    countryAvailable &&
+    (path === "/my-country" ||
+      (preview && path === "/preview/my-country") ||
+      (feedPath && hash === "#tu-pais"));
+  const globeSection =
+    globeAvailable &&
+    (path === "/globe" ||
+      path.startsWith("/globe/") ||
+      (preview &&
+        (path === "/preview/globe" || path.startsWith("/preview/globe/"))));
+  const profileSection = preview
+    ? path === "/preview/profile" || path.startsWith("/preview/profile/")
+    : path === "/profile" || path.startsWith("/profile/");
+  const feedUrl = preview ? "/preview" : "/feed";
+  const globeUrl = preview ? "/preview/globe" : "/globe";
+  const profileUrl = preview
+    ? "/preview/profile"
+    : profileAvailable
+      ? "/profile"
+      : "/login";
+  const countryTab = (
+    <>
+      <Star size={18} aria-hidden="true" />
+      <span>Mi país</span>
+    </>
+  );
+
+  return (
+    <nav className="editorial-nav" aria-label="Navegación principal">
+      <div className="editorial-nav-items">
+        <Link
+          to={`${feedUrl}#destacadas`}
+          className={`editorial-nav-item${feedPath && !countrySection ? " active" : ""}`}
+          aria-current={feedPath && !countrySection ? "page" : undefined}
+        >
+          <Newspaper size={18} aria-hidden="true" />
+          <span>Noticias.</span>
+        </Link>
+        {countryAvailable ? (
+          <Link
+            to={preview ? "/preview/my-country" : "/my-country"}
+            className={`editorial-nav-item${countrySection ? " active" : ""}`}
+            aria-current={countrySection ? "page" : undefined}
+          >
+            {countryTab}
+          </Link>
+        ) : (
+          <button
+            type="button"
+            className="editorial-nav-item"
+            aria-label="Mi país"
+            disabled
+          >
+            {countryTab}
+          </button>
+        )}
+        {globeAvailable ? (
+          <Link
+            to={globeUrl}
+            className={`editorial-nav-item${globeSection ? " active" : ""}`}
+            aria-current={globeSection ? "page" : undefined}
+          >
+            <Globe size={18} aria-hidden="true" />
+            <span>Globo</span>
+          </Link>
+        ) : (
+          <button
+            type="button"
+            className="editorial-nav-item"
+            aria-label="Globo"
+            disabled
+          >
+            <Globe size={18} aria-hidden="true" />
+            <span>Globo</span>
+          </button>
+        )}
+        <Link
+          to={profileUrl}
+          className="editorial-nav-item"
+          aria-current={profileSection ? "page" : undefined}
+        >
+          <UserRound size={18} aria-hidden="true" />
+          <span>Perfil</span>
+        </Link>
+      </div>
+    </nav>
+  );
+}
+
 export function Layout() {
   const { user, admin, logout } = useAuth();
   const [menu, setMenu] = useState(false),
@@ -39,7 +147,6 @@ export function Layout() {
   const [chatOpen, setChatOpen] = useState(
     () => window.matchMedia("(min-width: 1200px)").matches,
   );
-  const background = useRef<HTMLDivElement>(null);
   const closeChat = useCallback(() => setChatOpen(false), []);
   useEffect(() => {
     setMenu(false);
@@ -55,7 +162,6 @@ export function Layout() {
   return (
     <EventProvider>
       <div
-        ref={background}
         className={`reader-shell ${chatOpen ? "chat-open" : "chat-collapsed"}`}
       >
         <a className="skip-link" href="#main-content">
@@ -82,15 +188,13 @@ export function Layout() {
         <header className="site-header">
           <div className="container header-inner">
             <Brand />
-            <nav aria-label="Principal" className="desktop-nav">
-              <NavLink to="/feed">La portada</NavLink>
-              <NavLink to="/location">Mi región</NavLink>
-              {admin && (
+            {admin && (
+              <nav aria-label="Administración" className="desktop-nav">
                 <NavLink to="/admin/news">
                   Redacción <ArrowUpRight size={13} />
                 </NavLink>
-              )}
-            </nav>
+              </nav>
+            )}
             <div className="header-actions">
               <Link to="/location" className="location-link">
                 <MapPin size={15} />
@@ -146,22 +250,18 @@ export function Layout() {
             Cómo funciona Perspectiva <ArrowUpRight size={14} />
           </Link>
         </footer>
-        <nav className="mobile-nav" aria-label="Navegación móvil">
-          <NavLink to="/feed">
-            <Newspaper size={21} />
-            Portada
-          </NavLink>
-          <NavLink to="/location">
-            <MapPin size={21} />
-            Mi región
-          </NavLink>
-        </nav>
+        <EditorialNav
+          countryAvailable={Boolean(
+            user && profile.data?.simulatedLocation?.country,
+          )}
+          globeAvailable
+          profileAvailable={Boolean(user)}
+        />
       </div>
       <ChatSidebar
         open={chatOpen}
         onClose={closeChat}
         onOpen={() => setChatOpen(true)}
-        background={background}
       />
     </EventProvider>
   );
@@ -196,6 +296,7 @@ export function AdminGuard() {
     <>
       <div className="admin-nav">
         <NavLink to="/admin/news">Noticias</NavLink>
+        <NavLink to="/admin/submissions">Aportes</NavLink>
         <NavLink to="/admin/audit">Historial</NavLink>
         <NavLink to="/admin/usage">Uso de API</NavLink>
       </div>

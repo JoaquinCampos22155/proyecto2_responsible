@@ -5,9 +5,11 @@ import type {
   DraftInput,
   EventInput,
   FeedItem,
+  GlobeResponse,
   ImageRecord,
   LocationInput,
   SourceInput,
+  SubmissionInput,
   Usage,
   UserProfile,
 } from "../types/domain";
@@ -88,6 +90,7 @@ export function createClient(
     me: () => request<UserProfile>("/v1/me"),
     feed: () =>
       request<{ items: FeedItem[]; nextCursor: null }>("/v1/feed?limit=50"),
+    globe: () => request<GlobeResponse>("/v1/globe"),
     news: (id: string) =>
       request<Article>(`/v1/news/${encodeURIComponent(id)}`),
     locations: () =>
@@ -108,7 +111,26 @@ export function createClient(
       }),
     chat: (question: string) =>
       request<ChatResponse>("/v1/chat", { method: "POST", body: { question } }),
+    mySubmissions: () => request<{ items: Article[] }>("/v1/me/submissions"),
+    submitNews: (body: SubmissionInput) =>
+      request<Article>("/v1/me/submissions", { method: "POST", body }),
     adminNews: () => request<{ items: Article[] }>("/v1/admin/news"),
+    adminSubmissions: (filters: Record<string, string>) => {
+      const query = new URLSearchParams(filters).toString();
+      return request<{ items: Article[] }>(
+        `/v1/admin/submissions${query ? `?${query}` : ""}`,
+      );
+    },
+    approveSubmission: (id: string, editorialPriority: "normal" | "high") =>
+      request<Article>(
+        `/v1/admin/submissions/${encodeURIComponent(id)}/approve`,
+        { method: "POST", body: { editorialPriority } },
+      ),
+    deleteSubmission: (id: string) =>
+      request<{ deleted: boolean }>(
+        `/v1/admin/submissions/${encodeURIComponent(id)}`,
+        { method: "DELETE" },
+      ),
     adminArticle: (id: string) => request<Article>(articlePath(id)),
     create: (body: DraftInput) =>
       request<Article>("/v1/admin/news", { method: "POST", body }),

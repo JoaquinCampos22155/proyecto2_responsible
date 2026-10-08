@@ -1,6 +1,6 @@
-import { useState } from "react";
-import { Link } from "react-router-dom";
-import { ArrowUpRight, MapPin, X } from "lucide-react";
+import { useEffect, useState } from "react";
+import { Link, useLocation } from "react-router-dom";
+import { ArrowUpRight, MapPin, SlidersHorizontal, X } from "lucide-react";
 import { useFeed, useMe } from "../api/queries";
 import {
   Empty,
@@ -150,7 +150,32 @@ export function FeedContent({
   country?: string;
   interests?: string[];
 }) {
+  const location = useLocation();
   const [topic, setTopic] = useState<string | null>(null);
+  const [toolbarCondensed, setToolbarCondensed] = useState(false);
+  useEffect(() => {
+    const sectionId = location.hash.slice(1);
+    if (
+      !["destacadas", "tu-pais"].includes(sectionId) ||
+      !["/feed", "/", "/preview"].includes(location.pathname)
+    )
+      return;
+    const frame = window.requestAnimationFrame(() => {
+      document.getElementById(sectionId)?.scrollIntoView({
+        behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches
+          ? "auto"
+          : "smooth",
+        block: "start",
+      });
+    });
+    return () => window.cancelAnimationFrame(frame);
+  }, [location.hash, location.pathname, items]);
+  useEffect(() => {
+    const updateToolbar = () => setToolbarCondensed(window.scrollY > 88);
+    updateToolbar();
+    window.addEventListener("scroll", updateToolbar, { passive: true });
+    return () => window.removeEventListener("scroll", updateToolbar);
+  }, []);
   if (!items.length)
     return (
       <Empty title="No hay noticias publicadas">
@@ -233,23 +258,18 @@ export function FeedContent({
           <ArrowUpRight size={16} />
         </Link>
       </div>
-      <div className="feed-toolbar">
-        <nav className="edition-navigation" aria-label="Secciones de noticias">
-          <a href="#destacadas">Destacadas</a>
-          {sections.map((s) => (
-            <a href={`#${s.id}`} key={s.id}>
-              {s.title}
-            </a>
-          ))}
-        </nav>
+      <div
+        className={`feed-toolbar${toolbarCondensed ? " feed-toolbar-condensed" : ""}`}
+      >
         <div className="topic-navigation">
           <label htmlFor="feed-topic">Filtrar por tema</label>
+          <SlidersHorizontal aria-hidden="true" size={15} />
           <select
             id="feed-topic"
             value={topic ?? ""}
             onChange={(e) => setTopic(e.target.value || null)}
           >
-            <option value="">Todos los temas</option>
+            <option value="">Temas</option>
             {availableTopics.map((t) => (
               <option value={t} key={t}>
                 {topicLabel(t)}
@@ -262,9 +282,6 @@ export function FeedContent({
               Quitar filtro
             </button>
           )}
-          <span>
-            {visible.length} {visible.length === 1 ? "noticia" : "noticias"}
-          </span>
         </div>
       </div>
       <section
@@ -291,7 +308,7 @@ export function FeedContent({
       </section>
       {sections.map((section) => (
         <section
-          className="news-section"
+          className={`news-section${section.id === "tu-pais" ? " geographic-section" : ""}`}
           id={section.id}
           key={section.id}
           aria-labelledby={`${section.id}-heading`}

@@ -1,26 +1,37 @@
-import { Link, useParams } from "react-router-dom";
-import { useState, useRef, useCallback } from "react";
+import { Link, useLocation, useParams } from "react-router-dom";
+import { lazy, useState, useCallback } from "react";
 import { ArrowRight, ArrowLeft } from "lucide-react";
 import sample from "./sample-news.json";
 import type { Article } from "../types/domain";
-import { Brand } from "../components/Layout";
+import { Brand, EditorialNav } from "../components/Layout";
 import { FeedContent } from "./Feed";
 import { ArticleContent } from "./Article";
 import { Empty } from "../components/common";
 import { ChatSidebar } from "./ChatSidebar";
+import { MyCountry } from "./MyCountry";
+import { Profile } from "./Profile";
+import { SubmissionForm } from "./SubmissionForm";
+const Globe = lazy(() =>
+  import("./Globe").then((module) => ({ default: module.Globe })),
+);
 export function Preview() {
   const { id } = useParams();
+  const { pathname } = useLocation();
+  const countryPage = pathname === "/preview/my-country";
+  const profilePage = pathname === "/preview/profile";
+  const submissionPage = pathname === "/preview/profile/new";
+  const globePage =
+    pathname === "/preview/globe" || pathname.startsWith("/preview/globe/");
   const articles = sample as Article[];
+  const previewItems = articles.map((article) => ({ article, reasons: [] }));
   const article = articles.find((a) => a.id === id);
   const [chatOpen, setChatOpen] = useState(
     () => window.matchMedia("(min-width: 1200px)").matches,
   );
-  const background = useRef<HTMLDivElement>(null);
   const closeChat = useCallback(() => setChatOpen(false), []);
   return (
     <>
       <div
-        ref={background}
         className={`reader-shell ${chatOpen ? "chat-open" : "chat-collapsed"}`}
       >
         <div className="demo-strip">
@@ -36,7 +47,15 @@ export function Preview() {
           </div>
         </header>
         <main className="container main-content">
-          {id ? (
+          {globePage ? (
+            <Globe preview />
+          ) : countryPage ? (
+            <MyCountry preview />
+          ) : profilePage ? (
+            <Profile preview />
+          ) : submissionPage ? (
+            <SubmissionForm preview />
+          ) : id ? (
             article ? (
               <ArticleContent article={article} related={articles} preview />
             ) : (
@@ -58,13 +77,14 @@ export function Preview() {
           </Link>
           <p>Contenido sintético para demostración académica.</p>
         </footer>
+        <EditorialNav preview countryAvailable globeAvailable />
       </div>
       <ChatSidebar
         open={chatOpen}
         onClose={closeChat}
         onOpen={() => setChatOpen(true)}
-        background={background}
         preview
+        previewItems={previewItems}
       />
     </>
   );
