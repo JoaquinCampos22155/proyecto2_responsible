@@ -19,7 +19,7 @@ export function MotionSurface({ children }: { children: ReactNode }) {
           const reveal = safe(() => {
             if (entered) return;
             const heading = root.current?.querySelector(
-              ".page-heading, .feed-heading, .article-header, .login-copy",
+              ".page-heading, .feed-heading, .article-header, .login-copy, .globe-heading, .globe-country-heading, .profile-heading, .submission-heading",
             );
             if (!heading) return;
             entered = true;
@@ -33,20 +33,20 @@ export function MotionSurface({ children }: { children: ReactNode }) {
               duration: 0.45,
               clearProps: "transform,opacity",
             });
-            const stories = root.current?.querySelectorAll(
-              ".featured-section .news-story",
+            const content = root.current?.querySelectorAll(
+              ".featured-section .news-story, .globe-map-section, .globe-news-list .globe-news-item, .my-country-featured, .my-country-more, .profile-stats, .profile-actions, .profile-posts, .submission-form, .admin-submission-filters, .admin-submission-card",
             );
-            if (stories?.length)
+            if (content?.length)
               timeline.from(
-                stories,
+                content,
                 {
-                  y: 16,
+                  y: 12,
                   opacity: 0,
-                  duration: 0.45,
-                  stagger: 0.07,
+                  duration: 0.36,
+                  stagger: 0.055,
                   clearProps: "transform,opacity",
                 },
-                "<.1",
+                "<.08",
               );
           });
           const observer = new MutationObserver(reveal);

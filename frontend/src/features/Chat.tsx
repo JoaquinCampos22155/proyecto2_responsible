@@ -1,4 +1,9 @@
-import { useState, useEffect, useRef, type FormEvent } from "react";
+import {
+  useState,
+  useEffect,
+  useRef,
+  type FormEvent,
+} from "react";
 import { Link } from "react-router-dom";
 import {
   ArrowRight,
@@ -8,6 +13,7 @@ import {
   RotateCcw,
   FileText,
   ChevronDown,
+  LoaderCircle,
 } from "lucide-react";
 import { useMutation } from "@tanstack/react-query";
 import { api } from "../auth/AuthProvider";
@@ -79,17 +85,33 @@ export function ChatSources({
     </div>
   );
 }
-export function Chat({ compact = false }: { compact?: boolean }) {
+export function Chat({
+  compact = false,
+  onKeyboardChange,
+}: {
+  compact?: boolean;
+  onKeyboardChange?: (open: boolean) => void;
+}) {
   const [question, setQuestion] = useState(""),
-    [messages, setMessages] = useState<Message[]>([]);
+    [messages, setMessages] = useState<Message[]>([]),
+    [pendingQuestion, setPendingQuestion] = useState("");
   const feed = useFeed(),
     profile = useMe();
   const bottom = useRef<HTMLDivElement>(null);
+  const composerInput = useRef<HTMLTextAreaElement>(null);
   const mutation = useMutation({
     mutationFn: api.chat,
+    onMutate: (sent) => {
+      setPendingQuestion(sent);
+      setQuestion("");
+    },
     onSuccess: (response, sent) => {
       setMessages((previous) => [...previous, { question: sent, response }]);
-      setQuestion("");
+      setPendingQuestion("");
+    },
+    onError: (_error, sent) => {
+      setPendingQuestion("");
+      setQuestion(sent);
     },
   });
   useEffect(() => {
@@ -103,8 +125,11 @@ export function Chat({ compact = false }: { compact?: boolean }) {
   }, [messages.length]);
   function submit(event: FormEvent) {
     event.preventDefault();
-    if (question.trim().length >= 3 && !mutation.isPending)
-      mutation.mutate(question.trim());
+    const sent = question.trim();
+    if (sent.length < 3 || mutation.isPending) return;
+    composerInput.current?.blur();
+    onKeyboardChange?.(false);
+    mutation.mutate(sent);
   }
   const edition = feed.data?.items ?? [];
   const local = edition.find(({ article }) => article.scope === "local");
@@ -207,9 +232,18 @@ export function Chat({ compact = false }: { compact?: boolean }) {
               </div>
             ))}
           </div>
+          {mutation.isPending && pendingQuestion && (
+            <div className="question-message">{pendingQuestion}</div>
+          )}
           {mutation.isPending && (
             <p className="chat-pending" role="status">
+              <LoaderCircle size={16} aria-hidden="true" />
               Consultando los reportes de esta edición…
+              <span className="chat-thinking-dots" aria-hidden="true">
+                <i />
+                <i />
+                <i />
+              </span>
             </p>
           )}
           {mutation.error && (
@@ -231,6 +265,7 @@ export function Chat({ compact = false }: { compact?: boolean }) {
             Tu pregunta sobre las noticias
           </label>
           <textarea
+            ref={composerInput}
             id="question"
             value={question}
             onChange={(e) => setQuestion(e.target.value)}
@@ -239,11 +274,12 @@ export function Chat({ compact = false }: { compact?: boolean }) {
             minLength={3}
             maxLength={1000}
             disabled={mutation.isPending}
+            onFocus={() => onKeyboardChange?.(true)}
+            onBlur={() => onKeyboardChange?.(false)}
             onKeyDown={(e) => {
               if (e.key === "Enter" && !e.shiftKey) {
                 e.preventDefault();
-                if (question.trim().length >= 3 && !mutation.isPending)
-                  mutation.mutate(question.trim());
+                e.currentTarget.form?.requestSubmit();
               }
             }}
           />
