@@ -24,22 +24,44 @@ const tokens = async (token: string) => {
     };
   throw new Error("invalid token");
 };
-const setup = (repo = new MemoryRepository([article("story")])) => ({
+const setup = (
+  repo = new MemoryRepository([article("story")]),
+  deleteStoredImage?: (path: string) => Promise<void>,
+) => ({
   app: createApp({
     repo,
     verifyToken: tokens,
     now,
     budgetUsd: 20,
     allowedOrigins: ["http://localhost:5173"],
+    deleteStoredImage,
   }),
   repo,
 });
 const auth = (role: "user" | "admin") => ({ Authorization: `Bearer ${role}` });
+const communitySubmission = {
+  submissionId: "123e4567-e89b-12d3-a456-426614174000",
+  title: "Una iniciativa comunitaria anuncia nuevas actividades",
+  summary: "El grupo local anunció nuevas actividades para este fin de semana.",
+  body: "El grupo comunitario compartió un reporte detallado con fechas, lugar y participantes. Esta información se incluye como ejemplo de una noticia enviada por una cuenta normal.",
+  originDate: "2026-09-25",
+  scope: "national",
+  country: "GT",
+  topics: ["community"],
+  source: {
+    name: "Anuncio de actividades",
+    publisher: "Medio Comunitario",
+    url: "https://community.example/report",
+    sourceType: "news",
+    stance: "supports",
+  },
+};
 
 describe("HTTP authentication and authorization", () => {
   it("rejects missing and invalid Firebase tokens", async () => {
     const { app } = setup();
     expect((await request(app).get("/v1/me")).status).toBe(401);
+    expect((await request(app).get("/v1/globe")).status).toBe(401);
     const invalid = await request(app)
       .get("/v1/me")
       .set("Authorization", "Bearer invalid");
@@ -98,6 +120,52 @@ describe("reader API", () => {
     expect(Array.isArray(feed.body.items[0].reasons)).toBe(true);
     const detail = await request(app).get("/v1/news/story").set(auth("user"));
     expect(detail.body.sources[0].url).toBeTruthy();
+  });
+
+  it("returns this Sunday-based week's country totals and the ten highest-priority stories", async () => {
+    const currentStories = Array.from({ length: 11 }, (_, index) =>
+      article(`week-${index}`, {
+        publishedAt: `2026-09-25T${String(index).padStart(2, "0")}:00:00.000Z`,
+      }),
+    );
+    currentStories.push(
+      article("top-priority", {
+        publishedAt: "2026-09-25T08:00:00.000Z",
+        editorialPriority: "high",
+        scope: "international",
+        countries: ["GT", "US"],
+      }),
+      article("previous-week", {
+        publishedAt: "2026-09-19T23:59:59.000Z",
+      }),
+      article("draft-this-week", {
+        publishedAt: "2026-09-25T09:00:00.000Z",
+        status: "draft",
+      }),
+    );
+    const { app } = setup(new MemoryRepository(currentStories));
+    const response = await request(app).get("/v1/globe").set(auth("user"));
+
+    expect(response.status).toBe(200);
+    expect(response.body.week).toEqual({
+      start: "2026-09-20",
+      end: "2026-09-27",
+    });
+    expect(response.body.countries.GT.count).toBe(12);
+    expect(response.body.countries.GT.items).toHaveLength(10);
+    expect(response.body.countries.GT.items[0].article.id).toBe("top-priority");
+    expect(response.body.countries.US).toMatchObject({ count: 1 });
+    expect(response.body.worldStory.article.id).toBe("top-priority");
+  });
+
+  it("leaves the world feature empty when the week has no international story", async () => {
+    const { app } = setup(
+      new MemoryRepository([article("local-only", { scope: "national" })]),
+    );
+    const response = await request(app).get("/v1/globe").set(auth("user"));
+
+    expect(response.status).toBe(200);
+    expect(response.body.worldStory).toBeNull();
   });
 
   it("tracks interaction and returns grounded chat citations", async () => {
@@ -199,6 +267,151 @@ describe("editor API", () => {
       .send({ country: "bad", latitude: 4 });
     expect(response.status).toBe(400);
     expect(response.body.error).toMatchObject({ code: "INVALID_INPUT" });
+  });
+});
+
+describe("community submissions and moderation", () => {
+  it("accepts a sourced report from the signed-in user and returns only that user's reports", async () => {
+    const { app, repo } = setup();
+    const created = await request(app)
+      .post("/v1/me/submissions")
+      .set(auth("user"))
+      .send(communitySubmission);
+
+    expect(created.status).toBe(201);
+    expect(created.body).toMatchObject({
+      status: "pending_review",
+      submittedByUid: "u1",
+      publishedAt: null,
+      originDate: "2026-09-25",
+      countries: ["GT"],
+      sources: [{ publisher: "Medio Comunitario" }],
+    });
+    const own = await request(app).get("/v1/me/submissions").set(auth("user"));
+    expect(own.body.items.map((item: { id: string }) => item.id)).toContain(
+      created.body.id,
+    );
+    expect(await repo.listSubmittedArticles("someone-else")).toEqual([]);
+    const adminDrafts = await request(app)
+      .get("/v1/admin/news")
+      .set(auth("admin"));
+    expect(
+      adminDrafts.body.items.map((item: { id: string }) => item.id),
+    ).not.toContain(created.body.id);
+  });
+
+  it("requires a source and rejects caller-supplied ownership", async () => {
+    const { app } = setup();
+    const missingSource = await request(app)
+      .post("/v1/me/submissions")
+      .set(auth("user"))
+      .send({ ...communitySubmission, source: undefined });
+    expect(missingSource.status).toBe(400);
+
+    const forgedOwner = await request(app)
+      .post("/v1/me/submissions")
+      .set(auth("user"))
+      .send({ ...communitySubmission, submittedByUid: "admin-1" });
+    expect(forgedOwner.status).toBe(400);
+  });
+
+  it("lets only admins review submissions and preserves the origin date on approval", async () => {
+    const { app } = setup();
+    const created = await request(app)
+      .post("/v1/me/submissions")
+      .set(auth("user"))
+      .send(communitySubmission);
+    const id = created.body.id as string;
+
+    expect(
+      (await request(app).get("/v1/admin/submissions").set(auth("user")))
+        .status,
+    ).toBe(403);
+    expect(
+      (
+        await request(app)
+          .post(`/v1/admin/submissions/${id}/approve`)
+          .set(auth("user"))
+          .send({ editorialPriority: "high" })
+      ).status,
+    ).toBe(403);
+
+    const approved = await request(app)
+      .post(`/v1/admin/submissions/${id}/approve`)
+      .set(auth("admin"))
+      .send({ editorialPriority: "high" });
+    expect(approved.status).toBe(200);
+    expect(approved.body).toMatchObject({
+      status: "published",
+      editorialPriority: "high",
+      originDate: "2026-09-25",
+      publishedAt: "2026-09-25T06:00:00.000Z",
+      humanReview: { reviewedBy: "admin-1" },
+    });
+    const publicNews = await request(app)
+      .get(`/v1/news/${id}`)
+      .set(auth("user"));
+    expect(publicNews.body.status).toBe("published");
+    expect(publicNews.body).not.toHaveProperty("submittedByUid");
+  });
+
+  it("filters the review queue by submission date and country", async () => {
+    const { app } = setup();
+    await request(app)
+      .post("/v1/me/submissions")
+      .set(auth("user"))
+      .send(communitySubmission);
+    const matching = await request(app)
+      .get(
+        "/v1/admin/submissions?status=pending_review&from=2026-09-26&to=2026-09-26&country=GT",
+      )
+      .set(auth("admin"));
+    const outsideRange = await request(app)
+      .get("/v1/admin/submissions?from=2026-09-27&country=GT")
+      .set(auth("admin"));
+
+    expect(matching.body.items).toHaveLength(1);
+    expect(outsideRange.body.items).toHaveLength(0);
+  });
+
+  it("permanently removes an approved or pending community post and its stored image", async () => {
+    const deletedPaths: string[] = [];
+    const { app, repo } = setup(new MemoryRepository(), async (path) => {
+      deletedPaths.push(path);
+    });
+    const objectPath = `user-submissions/u1/123e4567-e89b-12d3-a456-426614174000/image.jpg`;
+    const imageUrl = `https://firebasestorage.googleapis.com/v0/b/project2.firebasestorage.app/o/${encodeURIComponent(objectPath)}?alt=media&token=demo`;
+    const created = await request(app)
+      .post("/v1/me/submissions")
+      .set(auth("user"))
+      .send({
+        ...communitySubmission,
+        image: {
+          url: imageUrl,
+          provider: "firebase-storage",
+          originalUrl: null,
+          license: null,
+          attribution: "Imagen enviada por la comunidad",
+          generatedByAI: false,
+          alteredByAI: false,
+          retrievedAt: now(),
+          storagePath: objectPath,
+        },
+      });
+    expect(created.status).toBe(201);
+    const id = created.body.id as string;
+    const removal = await request(app)
+      .delete(`/v1/admin/submissions/${id}`)
+      .set(auth("admin"));
+
+    expect(removal.status).toBe(200);
+    expect(await repo.getArticle(id)).toBeNull();
+    expect(deletedPaths).toEqual([objectPath]);
+    expect((await repo.listAudit()).at(-1)).toMatchObject({
+      action: "delete_submission",
+      articleId: id,
+      actorUid: "admin-1",
+    });
   });
 });
 

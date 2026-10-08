@@ -24,8 +24,32 @@ export class FirestoreRepository implements Repository {
       (doc) => doc.data() as Article,
     );
   }
+  async listSubmittedArticles(uid?: string): Promise<Article[]> {
+    const collection = this.db.collection("news");
+    const snapshot = uid
+      ? await collection.where("submittedByUid", "==", uid).get()
+      : await collection.where("submittedByUid", "!=", "").get();
+    return snapshot.docs
+      .map((doc) => doc.data() as Article)
+      .filter((article) => Boolean(article.submittedByUid));
+  }
+  async listArticlesPublishedBetween(
+    start: string,
+    end: string,
+  ): Promise<Article[]> {
+    return (
+      await this.db
+        .collection("news")
+        .where("publishedAt", ">=", start)
+        .where("publishedAt", "<", end)
+        .get()
+    ).docs.map((doc) => doc.data() as Article);
+  }
   async saveArticle(article: Article): Promise<void> {
     await this.db.collection("news").doc(article.id).set(article);
+  }
+  async deleteArticle(id: string): Promise<void> {
+    await this.db.collection("news").doc(id).delete();
   }
   async getUser(uid: string): Promise<UserProfile | null> {
     return decode<UserProfile>(

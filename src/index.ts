@@ -1,6 +1,7 @@
 import { initializeApp, getApps } from "firebase-admin/app";
 import { getAuth } from "firebase-admin/auth";
 import { getFirestore } from "firebase-admin/firestore";
+import { getStorage } from "firebase-admin/storage";
 import { onRequest } from "firebase-functions/v2/https";
 import { defineSecret } from "firebase-functions/params";
 import type { Express } from "express";
@@ -23,8 +24,12 @@ export const api = onRequest(
   (request, response) => {
     if (!app) {
       const config = parseRuntimeConfig(process.env);
+      const storageBucket = process.env.FIREBASE_STORAGE_BUCKET;
       if (getApps().length === 0)
-        initializeApp({ projectId: config.projectId });
+        initializeApp({
+          projectId: config.projectId,
+          ...(storageBucket ? { storageBucket } : {}),
+        });
       const auth = getAuth();
       app = createApp({
         repo: new FirestoreRepository(getFirestore()),
@@ -39,6 +44,12 @@ export const api = onRequest(
           config.imageProvider === "pexels"
             ? new PexelsImageProvider(config.pexelsApiKey!)
             : undefined,
+        deleteStoredImage: async (path) => {
+          await getStorage()
+            .bucket(storageBucket)
+            .file(path)
+            .delete({ ignoreNotFound: true });
+        },
         verifyToken: async (token) => {
           const decoded = await auth.verifyIdToken(token);
           return {

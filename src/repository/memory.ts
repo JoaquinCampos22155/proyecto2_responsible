@@ -23,8 +23,35 @@ export class MemoryRepository implements Repository {
   async listArticles(): Promise<Article[]> {
     return structuredClone([...this.articles.values()]);
   }
+  async listSubmittedArticles(uid?: string): Promise<Article[]> {
+    return structuredClone(
+      [...this.articles.values()].filter(
+        (article) =>
+          article.submittedByUid &&
+          (uid === undefined || article.submittedByUid === uid),
+      ),
+    );
+  }
+  async listArticlesPublishedBetween(
+    start: string,
+    end: string,
+  ): Promise<Article[]> {
+    const startTime = Date.parse(start);
+    const endTime = Date.parse(end);
+    return structuredClone(
+      [...this.articles.values()].filter((article) => {
+        if (article.status !== "published" || !article.publishedAt)
+          return false;
+        const publishedAt = Date.parse(article.publishedAt);
+        return publishedAt >= startTime && publishedAt < endTime;
+      }),
+    );
+  }
   async saveArticle(article: Article): Promise<void> {
     this.articles.set(article.id, structuredClone(article));
+  }
+  async deleteArticle(id: string): Promise<void> {
+    this.articles.delete(id);
   }
   async getUser(uid: string): Promise<UserProfile | null> {
     return structuredClone(this.users.get(uid) ?? null);

@@ -5,6 +5,8 @@ import express, {
 } from "express";
 import { ZodError, z } from "zod";
 import { rankFeed } from "../domain/ranking.js";
+import { currentGlobeWeek, digestGlobeNews } from "../domain/globe.js";
+import type { Article } from "../domain/types.js";
 import type { Repository } from "../repository/repository.js";
 import {
   ChatService,
@@ -36,10 +38,15 @@ export interface AppOptions {
   allowedOrigins: string[];
   chatProvider?: ChatProvider;
   imageProvider?: ImageProvider;
+  deleteStoredImage?: (path: string) => Promise<void>;
 }
 export function createApp(options: AppOptions): Express {
   const app = express();
-  const news = new NewsService(options.repo, options.now);
+  const news = new NewsService(
+    options.repo,
+    options.now,
+    options.deleteStoredImage,
+  );
   const users = new UserService(options.repo, options.now);
   const usage = new UsageService(options.repo, options.budgetUsd, options.now);
   const chat = new ChatService(
@@ -55,6 +62,21 @@ export function createApp(options: AppOptions): Express {
   const identity = (locals: Record<string, unknown>) =>
     locals.identity as Identity;
   const asyncRoute = (handler: RequestHandler): RequestHandler => handler;
+  const publicArticle = (article: Article) => {
+    const copy = structuredClone(article);
+    delete copy.submittedByUid;
+    if (copy.image) delete copy.image.storagePath;
+    return copy;
+  };
+  const localDate = (timestamp: string) => {
+    const parts = new Intl.DateTimeFormat("en-US", {
+      timeZone: "America/Guatemala",
+      year: "numeric",
+      month: "2-digit",
+      day: "2-digit",
+    }).formatToParts(new Date(timestamp));
+    return `${parts.find((part) => part.type === "year")?.value}-${parts.find((part) => part.type === "month")?.value}-${parts.find((part) => part.type === "day")?.value}`;
+  };
 
   app.disable("x-powered-by");
   app.use(express.json({ limit: "128kb", strict: false }));
@@ -73,7 +95,7 @@ export function createApp(options: AppOptions): Express {
       );
       res.setHeader(
         "Access-Control-Allow-Methods",
-        "GET, POST, PUT, PATCH, OPTIONS",
+        "GET, POST, PUT, PATCH, DELETE, OPTIONS",
       );
     }
     if (req.method === "OPTIONS") return res.status(204).end();
@@ -119,6 +141,28 @@ export function createApp(options: AppOptions): Express {
       res.json(await users.setLocation(identity(res.locals).uid, req.body)),
     ),
   );
+  app.get(
+    "/v1/me/submissions",
+    asyncRoute(async (_req, res) => {
+      const items = await options.repo.listSubmittedArticles(
+        identity(res.locals).uid,
+      );
+      res.json({
+        items: items.sort((a, b) => b.createdAt.localeCompare(a.createdAt)),
+      });
+    }),
+  );
+  app.post(
+    "/v1/me/submissions",
+    asyncRoute(async (req, res) => {
+      const caller = identity(res.locals);
+      res
+        .status(201)
+        .json(
+          await news.submit(req.body, { uid: caller.uid, name: caller.name }),
+        );
+    }),
+  );
   app.get("/v1/locations", (_req, res) =>
     res.json({
       locations: [
@@ -155,13 +199,53 @@ export function createApp(options: AppOptions): Express {
         new Date(options.now()),
         limit,
       );
-      res.json({ items, nextCursor: null });
+      res.json({
+        items: items.map((item) => ({
+          ...item,
+          article: publicArticle(item.article),
+        })),
+        nextCursor: null,
+      });
+    }),
+  );
+  app.get(
+    "/v1/globe",
+    asyncRoute(async (_req, res) => {
+      const week = currentGlobeWeek(new Date(options.now()));
+      const articles = options.repo.listArticlesPublishedBetween
+        ? await options.repo.listArticlesPublishedBetween(
+            week.startAt,
+            week.endAt,
+          )
+        : await options.repo.listArticles();
+      const digest = digestGlobeNews(articles, week);
+      res.json({
+        ...digest,
+        countries: Object.fromEntries(
+          Object.entries(digest.countries).map(([country, data]) => [
+            country,
+            {
+              ...data,
+              items: data.items.map((item) => ({
+                ...item,
+                article: publicArticle(item.article),
+              })),
+            },
+          ]),
+        ),
+        worldStory: digest.worldStory
+          ? {
+              ...digest.worldStory,
+              article: publicArticle(digest.worldStory.article),
+            }
+          : null,
+      });
     }),
   );
   app.get(
     "/v1/news/:id",
     asyncRoute(async (req, res) =>
-      res.json(await news.getPublished(String(req.params.id))),
+      res.json(publicArticle(await news.getPublished(String(req.params.id)))),
     ),
   );
   app.post(
@@ -177,9 +261,85 @@ export function createApp(options: AppOptions): Express {
 
   app.use("/v1/admin", admin);
   app.get(
+    "/v1/admin/submissions",
+    asyncRoute(async (req, res) => {
+      const filters = z
+        .object({
+          status: z
+            .enum(["pending_review", "published", "archived", "all"])
+            .optional(),
+          from: z.iso.date().optional(),
+          to: z.iso.date().optional(),
+          country: z
+            .string()
+            .regex(/^[A-Z]{2}$/)
+            .optional(),
+        })
+        .strict()
+        .parse(req.query);
+      if (filters.from && filters.to && filters.from > filters.to)
+        throw new AppError(
+          "INVALID_INPUT",
+          "La fecha inicial debe ser anterior a la final.",
+          400,
+        );
+      const items = await options.repo.listSubmittedArticles();
+      res.json({
+        items: items
+          .filter((article) =>
+            filters.status && filters.status !== "all"
+              ? article.status === filters.status
+              : true,
+          )
+          .filter((article) =>
+            filters.country
+              ? article.countries.includes(filters.country)
+              : true,
+          )
+          .filter((article) => {
+            const day = localDate(article.createdAt);
+            return (
+              (!filters.from || day >= filters.from) &&
+              (!filters.to || day <= filters.to)
+            );
+          })
+          .sort((a, b) => b.createdAt.localeCompare(a.createdAt)),
+      });
+    }),
+  );
+  app.post(
+    "/v1/admin/submissions/:id/approve",
+    asyncRoute(async (req, res) => {
+      const { editorialPriority } = z
+        .object({ editorialPriority: z.enum(["normal", "high"]) })
+        .strict()
+        .parse(req.body);
+      const article = await news.approveSubmission(
+        String(req.params.id),
+        identity(res.locals).uid,
+        editorialPriority,
+      );
+      res.json(article);
+    }),
+  );
+  app.delete(
+    "/v1/admin/submissions/:id",
+    asyncRoute(async (req, res) => {
+      await news.deleteSubmission(
+        String(req.params.id),
+        identity(res.locals).uid,
+      );
+      res.json({ deleted: true });
+    }),
+  );
+  app.get(
     "/v1/admin/news",
     asyncRoute(async (_req, res) =>
-      res.json({ items: await options.repo.listArticles() }),
+      res.json({
+        items: (await options.repo.listArticles()).filter(
+          (article) => !article.submittedByUid,
+        ),
+      }),
     ),
   );
   app.get(

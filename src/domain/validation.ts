@@ -45,12 +45,32 @@ export const imageInput = z
     generatedByAI: z.boolean(),
     alteredByAI: z.boolean(),
     retrievedAt: z.iso.datetime(),
+    storagePath: z.string().trim().min(1).max(500).optional(),
   })
   .strict()
   .refine(
     (image) => !image.generatedByAI || image.provider.length > 0,
     "AI image provider required",
   );
+const countryCode = z.string().regex(/^[A-Z]{2}$/);
+export const submissionInput = z
+  .object({
+    submissionId: z.uuid(),
+    title: z.string().trim().min(5).max(250),
+    summary: z.string().trim().min(10).max(1000),
+    body: z.string().trim().min(20).max(20000),
+    originDate: z.iso.date(),
+    scope: z.enum(["local", "national", "international"]),
+    country: countryCode,
+    topics: z.array(topic).min(1).max(12),
+    source: sourceInput,
+    image: imageInput.optional(),
+    aiDisclosure: z
+      .object({ assisted: z.boolean(), note: z.string().max(500).nullable() })
+      .strict()
+      .optional(),
+  })
+  .strict();
 export const draftInput = z
   .object({
     title: z.string().trim().min(5).max(250),

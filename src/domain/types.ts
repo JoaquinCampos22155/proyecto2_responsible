@@ -5,7 +5,8 @@ export type VerificationStatus =
   | "corroborated"
   | "developing"
   | "conflicting_sources";
-export type ArticleStatus = "draft" | "published" | "archived";
+export type ArticleStatus =
+  "draft" | "pending_review" | "published" | "archived";
 export type EditorialPriority = "normal" | "high";
 export type SourceType =
   "news" | "wire" | "official" | "report" | "eyewitness" | "social" | "other";
@@ -38,6 +39,7 @@ export interface ImageRecord {
   generatedByAI: boolean;
   alteredByAI: boolean;
   retrievedAt: string;
+  storagePath?: string;
 }
 
 export interface Article {
@@ -63,6 +65,8 @@ export interface Article {
   status: ArticleStatus;
   humanReview: { reviewedBy: string; reviewedAt: string } | null;
   developing?: boolean;
+  submittedByUid?: string;
+  originDate?: string;
 }
 
 export interface UserProfile {
@@ -90,7 +94,15 @@ export interface AuditRecord {
   id: string;
   articleId: string;
   actorUid: string;
-  action: "create" | "edit" | "assess" | "publish" | "archive";
+  action:
+    | "create"
+    | "edit"
+    | "assess"
+    | "publish"
+    | "archive"
+    | "submit"
+    | "approve_submission"
+    | "delete_submission";
   timestamp: string;
   details?: Record<string, unknown>;
 }
