@@ -86,6 +86,9 @@ const actionLabel = {
   assess: "Evidencia evaluada",
   publish: "Revisión humana y publicación",
   archive: "Noticia archivada",
+  submit: "Reporte enviado por la comunidad",
+  approve_submission: "Reporte comunitario aprobado",
+  delete_submission: "Reporte comunitario eliminado",
 };
 export function AuditList({ articleId }: { articleId?: string }) {
   const query = useQuery({
@@ -120,7 +123,7 @@ export function AuditList({ articleId }: { articleId?: string }) {
                 })}
               </p>
               <small>Editor: {record.actorUid}</small>
-              {!articleId && (
+              {!articleId && record.action !== "delete_submission" && (
                 <Link
                   className="text-link"
                   to={`/admin/news/${record.articleId}`}
