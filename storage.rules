@@ -1,0 +1,40 @@
+rules_version = '2';
+service firebase.storage {
+  match /b/{bucket}/o {
+    function signedIn() {
+      return request.auth != null;
+    }
+    function owner(uid) {
+      return signedIn() && request.auth.uid == uid;
+    }
+    function admin() {
+      return signedIn() && request.auth.token.get('admin', false) == true;
+    }
+    function publishedSubmission(uid, submissionId) {
+      let path = /databases/(default)/documents/news/$(submissionId);
+      return firestore.exists(path)
+        && firestore.get(path).data.status == 'published'
+        && firestore.get(path).data.submittedByUid == uid;
+    }
+    function submissionDoesNotExist(submissionId) {
+      return !firestore.exists(
+        /databases/(default)/documents/news/$(submissionId)
+      );
+    }
+
+    match /user-submissions/{uid}/{submissionId}/{fileName} {
+      allow create: if owner(uid)
+        && submissionDoesNotExist(submissionId)
+        && fileName in ['image.jpg', 'image.png', 'image.webp']
+        && request.resource.size <= 5 * 1024 * 1024
+        && request.resource.contentType in [
+          'image/jpeg',
+          'image/png',
+          'image/webp'
+        ];
+      allow read: if owner(uid) || admin() || publishedSubmission(uid, submissionId);
+      allow update: if false;
+      allow delete: if owner(uid) && submissionDoesNotExist(submissionId);
+    }
+  }
+}

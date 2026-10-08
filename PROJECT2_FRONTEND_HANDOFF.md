@@ -2,7 +2,7 @@
 
 ## Status
 
-Frontend implemented and verified locally. Vite dev server runs on http://localhost:5173 against the deployed Project 2 API. A public read-only sample edition at /preview is generated from backend seed data, explicitly fictional and without tracking/personalization. No production deployment has been requested.
+Frontend implemented and verified locally. Vite dev server runs on http://localhost:5173 against the deployed Project 2 API. A public read-only sample edition at /preview is generated from backend seed data, explicitly fictional and without tracking/personalization. The community submission flow and admin moderation queue are implemented locally; no production deployment has been requested.
 
 ## Stack and boundary
 
@@ -10,11 +10,11 @@ React 19, TypeScript, Vite 7, Tailwind 4, React Router 7, TanStack Query 5, Fire
 
 ## Local commands
 
-From frontend/: npm ci; copy .env.example to .env.local and fill the Project 2 public Web SDK config; npm run dev (strict port 5173), npm run lint, npm run typecheck, npm test, npm run build. npm run preview serves the production bundle on 4173. Course policy keeps even the public Firebase API key in ignored local configuration. Never place Gemini, Pexels, service-account or billing credentials here.
+For local development, start the demo emulators from the repository root as described in README, then from frontend/ copy .env.example to .env.local; it uses dummy Firebase values, the demo project and local emulator/API URLs. Run npm ci, npm run dev (strict port 5173), npm run lint, npm run typecheck, npm test and npm run build. npm run preview serves the production bundle on 4173. Use a separate ignored file only when intentionally testing Project 2, and verify the target before starting the app. Course policy keeps even the public Firebase Web API key in ignored local configuration. Never place Gemini, Pexels, service-account or billing credentials in browser configuration.
 
 ## Routes
 
-/login: Google sign-in; /: backend feed with the session-only grounded chat sidebar open (initial authenticated screen); /feed: backend-ordered feed; /news/:id: article and provenance; /location: simulated region; /about: product transparency; /preview and /preview/news/:id: public fictional sample snapshot; /admin/news: state-filtered editorial list; /admin/news/new and /admin/news/:id: editor; /admin/audit: history; /admin/usage: actual estimated cost report. Reader requires authentication; editorial navigation checks custom claims and handles API 403.
+/login: Google sign-in; /: backend feed with the session-only grounded chat sidebar open (initial authenticated screen); /feed: backend-ordered feed; /news/:id: article and provenance; /location: simulated region; /profile: signed-in account grid backed by that account's submissions; /profile/new: authenticated sourced-report form; /about: product transparency; /preview and /preview/news/:id: public fictional sample snapshot; /preview/profile/new: visual-only composer preview; /admin/news: editorial CMS; /admin/submissions: community moderation with date/country filters, approval and permanent deletion; /admin/news/new and /admin/news/:id: editorial CMS; /admin/audit: history; /admin/usage: actual estimated cost report. Reader and submission require authentication; editorial navigation checks custom claims and handles API 403.
 
 ## Configuration and authentication
 
@@ -34,7 +34,7 @@ Manifest: standalone, Spanish, theme/background, 192/512 icons and maskable icon
 
 ## Emulator setup
 
-Root: build backend, start Firebase auth/firestore/functions for demo-project2-responsible; seed using FIREBASE_PROJECT_ID=demo-project2-responsible FIRESTORE_EMULATOR_HOST=127.0.0.1:8080 npm run seed. Frontend configuration uses VITE_USE_EMULATORS=true, the demo project, Auth at 9099 and API at 5001. Use --mode qa only with ignored .env.qa.local. Because the function binds GEMINI_API_KEY, mock emulator runs use an ignored .secret.local with an unused placeholder value (GEMINI_API_KEY=local-unused). Never copy a real key into browser configuration. Local QA on 5174 requires CORS_ORIGINS to include http://localhost:5174 in the ignored demo env. A DEV-only emulator account shortcut is unavailable in production builds. Real admin access requires operator-provisioned Firebase custom claim and token refresh.
+Root: build backend, start Firebase auth/firestore/functions/storage for demo-project2-responsible; seed using FIREBASE_PROJECT_ID=demo-project2-responsible FIRESTORE_EMULATOR_HOST=127.0.0.1:8080 npm run seed. Frontend configuration uses VITE_USE_EMULATORS=true, the demo project, Storage bucket, Auth at 9099, Storage at 9199 and API at 5001. The new composer requires VITE_FIREBASE_STORAGE_BUCKET; backend cleanup uses FIREBASE_STORAGE_BUCKET. Use --mode qa only with ignored .env.qa.local. Because the function binds GEMINI_API_KEY, mock emulator runs use an ignored .secret.local with an unused placeholder value (GEMINI_API_KEY=local-unused). Never copy a real key into browser configuration. Local QA on 5174 requires CORS_ORIGINS to include http://localhost:5174 in the ignored demo env. A DEV-only emulator account shortcut is unavailable in production builds. Real admin access requires operator-provisioned Firebase custom claim and token refresh.
 
 ## Deployment
 
@@ -94,7 +94,6 @@ The independent correction review found no material UI issues; its sole stale do
 
 Final lifecycle verification: emulator and QA Vite processes exited, ports 5174/8080/9099/5001/4400/9150 released. Only requested localhost5173 remains (npm4088 → Vite4114 → esbuild4119), owned by this development task for continued user preview. All three were idle during final check. The regular user Chrome session was preserved.
 
-
 ## Compact edition and citations — 2026-10-03
 
 Latest user-requested presentation: compact 28px Noticias header, combined section/filter toolbar, full-column supporting photographs, and an independent large lead for each nonempty section. Incoming backend order and twelve unique records are preserved. Shared newsTitle removes the [DEMO] prefix only from displayed titles (including citations, sharing and admin lists); stored records and factual content are unchanged. The feed keeps one small illustrative-edition note, while AI image labels and credit links remain on article detail rather than every card.
@@ -103,13 +102,11 @@ ChatSources replaces the large report list with up to three circular image links
 
 Verification for this revision: 25 frontend unit/component tests pass, lint/typecheck/build pass. Eight browser widths (320,390,620,768,920,1024,1280,1440) have no overflow, twelve headlines, four section leads and no legacy image-credit nodes. Evidence: .impeccable/review/compact-responsive.json and compact-desktop/mobile/guatemala.jpg. compact-chat-sources.jpg is an isolated fixture rendering the actual ChatSources component, explicitly labeled sample content; it verifies the 44px source row and loaded thumbnails, not a fresh production Gemini request. Temporary fixture entry files were removed after inspection. Prior backend/emulator/production AI checks remain historical evidence; no backend redeploy was needed. Requested localhost5173 remains running.
 
-
 ## Varied section hierarchy — 2026-10-03
 
 The accepted refinement replaces repeated subsection covers with semantic compositions. Destacadas keeps the photographic overlay cover. Country reporting uses a plain photographic feature with adjacent dispatches; a single country report splits image and text on wide screens. Internacional uses a full-width image/ink-text band with a row of supporting photographs beneath. Otras regiones uses a Newsreader feature beside a compact illustrated list containing all supporting reports. Interests use a softer feature and condensed rail. Each section's first returned report remains its lead; incoming order and uniqueness are unchanged. No new importance score, labels or factual claims were added.
 
 Containers below 620px stack the country/world feature; regional dispatches retain their illustrated list. The first browser pass found a real 768px overflow: the inherited secondary two-column grid squeezed the regional list. A one-column regional rail corrected it. Final eight-width browser checks preserve twelve headlines without overflow (varied-responsive.json). Desktop/mobile evidence is varied-desktop.jpg, varied-regions.jpg and varied-mobile.jpg in .impeccable/review. Temporary browsers/processes were not started; requested5173 is retained.
-
 
 ## Reading onward and persistent conversation — 2026-10-03
 

@@ -49,6 +49,7 @@ export const scopeLabel = {
 };
 export const statusLabel = {
   draft: "Borrador",
+  pending_review: "En revisión",
   published: "Publicada",
   archived: "Archivada",
 };
