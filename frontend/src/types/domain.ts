@@ -168,6 +168,7 @@ export type GlobeResponse = {
 };
 export type ChatResponse = {
   answer: string;
+  refused?: boolean;
   citations: {
     articleId: string;
     title: string;

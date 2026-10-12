@@ -39,6 +39,10 @@ beforeEach(async () => {
   });
 });
 afterAll(async () => {
+  // These rule fixtures intentionally omit article fields. Do not leak them
+  // into the subsequent Functions smoke suite sharing this emulator.
+  await environment?.clearFirestore();
+  await environment?.clearStorage();
   await environment?.cleanup();
 });
 

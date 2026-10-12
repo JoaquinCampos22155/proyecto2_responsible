@@ -48,6 +48,15 @@ export class FirestoreRepository implements Repository {
   async saveArticle(article: Article): Promise<void> {
     await this.db.collection("news").doc(article.id).set(article);
   }
+  async createArticle(article: Article): Promise<boolean> {
+    try {
+      await this.db.collection("news").doc(article.id).create(article);
+      return true;
+    } catch (error) {
+      if ((error as { code?: unknown }).code === 6) return false;
+      throw error;
+    }
+  }
   async deleteArticle(id: string): Promise<void> {
     await this.db.collection("news").doc(id).delete();
   }

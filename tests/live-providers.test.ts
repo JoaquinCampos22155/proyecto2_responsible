@@ -30,9 +30,7 @@ describe("live provider boundaries", () => {
           candidates: [
             {
               content: {
-                parts: [
-                  { text: "Según la noticia, comenzó una limpieza del río." },
-                ],
+                parts: [{ text: '{"indices":[0]}' }],
               },
             },
           ],
@@ -44,7 +42,7 @@ describe("live provider boundaries", () => {
     const repo = new MemoryRepository([
       article("river", {
         title: "River cleanup",
-        summary: "A classroom cleanup began.",
+        summary: "En la comunidad comenzó una limpieza del río.",
       }),
     ]);
     const service = new ChatService(
@@ -69,9 +67,9 @@ describe("live provider boundaries", () => {
     expect(payload.systemInstruction.parts[0].text).toContain(
       "Responde en español",
     );
-    expect(payload.contents[0].parts[0].text).toContain("Noticia 1:");
+    expect(payload.contents[0].parts[0].text).toContain('"index":0');
     expect(payload.contents[0].parts[0].text).toContain(
-      "A classroom cleanup began.",
+      "En la comunidad comenzó una limpieza del río.",
     );
     expect(payload.contents[0].parts[0].text).not.toContain('[{"articleId"');
     expect(payload.generationConfig.maxOutputTokens).toBeLessThanOrEqual(256);

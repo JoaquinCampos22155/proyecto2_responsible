@@ -24,7 +24,7 @@ export const api = onRequest(
   (request, response) => {
     if (!app) {
       const config = parseRuntimeConfig(process.env);
-      const storageBucket = process.env.FIREBASE_STORAGE_BUCKET;
+      const storageBucket = process.env.SUBMISSION_STORAGE_BUCKET;
       if (getApps().length === 0)
         initializeApp({
           projectId: config.projectId,
@@ -36,6 +36,7 @@ export const api = onRequest(
         now: () => new Date().toISOString(),
         budgetUsd: config.budgetUsd,
         allowedOrigins: config.allowedOrigins,
+        storageBucket,
         chatProvider:
           config.aiProvider === "gemini"
             ? new GeminiChatProvider(config.geminiApiKey!)

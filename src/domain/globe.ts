@@ -39,7 +39,9 @@ function dateKey({ year, month, day }: DateParts) {
 }
 
 function addCalendarDays(parts: DateParts, offset: number): DateParts {
-  const date = new Date(Date.UTC(parts.year, parts.month - 1, parts.day + offset));
+  const date = new Date(
+    Date.UTC(parts.year, parts.month - 1, parts.day + offset),
+  );
   return {
     year: date.getUTCFullYear(),
     month: date.getUTCMonth() + 1,
@@ -98,7 +100,9 @@ export function digestGlobeNews(
     if (Number.isNaN(publishedAt) || publishedAt < start || publishedAt >= end)
       continue;
     weeklyArticles.push(article);
-    for (const country of new Set(article.countries.map((code) => code.toUpperCase()))) {
+    for (const country of new Set(
+      article.countries.map((code) => code.toUpperCase()),
+    )) {
       const countryArticles = grouped.get(country) ?? [];
       countryArticles.push(article);
       grouped.set(country, countryArticles);

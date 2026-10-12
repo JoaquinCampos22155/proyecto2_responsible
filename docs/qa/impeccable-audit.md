@@ -8,14 +8,14 @@ Reviewed 2026-10-03. Scope: `frontend`, existing production CSS, and supplied br
 
 ## Audit health score
 
-| # | Dimension | Score | Key finding |
-|---|-----------|-------|-------------|
-| 1 | Accessibility | 3/4 | Placeholder contrast is approximately 3.18:1 |
-| 2 | Performance | 3/4 | Sensible loading/chunking; runtime performance not independently measured |
-| 3 | Responsive design | 3/4 | All 56 supplied overflow checks pass; image attribution target remains small |
-| 4 | Theming | 3/4 | Palette tokens consistently drive the intended light theme; a few secondary surface colors remain literal |
-| 5 | Implementation integrity | 3/4 | Image metadata clipping and fixed demo chat prompts undermine product promises |
-| **Total** | | **15/20** | **Good — address weak dimensions** |
+| #         | Dimension                | Score     | Key finding                                                                                               |
+| --------- | ------------------------ | --------- | --------------------------------------------------------------------------------------------------------- |
+| 1         | Accessibility            | 3/4       | Placeholder contrast is approximately 3.18:1                                                              |
+| 2         | Performance              | 3/4       | Sensible loading/chunking; runtime performance not independently measured                                 |
+| 3         | Responsive design        | 3/4       | All 56 supplied overflow checks pass; image attribution target remains small                              |
+| 4         | Theming                  | 3/4       | Palette tokens consistently drive the intended light theme; a few secondary surface colors remain literal |
+| 5         | Implementation integrity | 3/4       | Image metadata clipping and fixed demo chat prompts undermine product promises                            |
+| **Total** |                          | **15/20** | **Good — address weak dimensions**                                                                        |
 
 Scores reflect the inspected evidence, not a Lighthouse or full WCAG certification. Dark mode is not a brief requirement and its absence is not a defect.
 

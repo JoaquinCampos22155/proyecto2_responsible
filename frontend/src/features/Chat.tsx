@@ -1,9 +1,4 @@
-import {
-  useState,
-  useEffect,
-  useRef,
-  type FormEvent,
-} from "react";
+import { useState, useEffect, useRef, type FormEvent } from "react";
 import { Link } from "react-router-dom";
 import {
   ArrowRight,
@@ -207,11 +202,13 @@ export function Chat({
                   <p className="answer-text">{message.response.answer}</p>
                   <div className="answer-status">
                     <span className="answer-label">
-                      {!message.response.citations.length
-                        ? "Sin reportes relacionados"
-                        : message.response.providerMode === "mock"
-                          ? "Respuesta de demostración"
-                          : "Resumen asistido por IA"}
+                      {message.response.refused
+                        ? "Solo noticias"
+                        : !message.response.citations.length
+                          ? "Sin reportes relacionados"
+                          : message.response.providerMode === "mock"
+                            ? "Respuesta de demostración"
+                            : "Resumen asistido por IA"}
                     </span>
                     {message.response.citations.length > 0 && (
                       <Evidence status={message.response.uncertainty} />

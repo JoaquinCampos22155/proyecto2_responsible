@@ -87,7 +87,10 @@ export function ChatNewsCarousel({
           const deltaX = event.clientX - start.current.x;
           const deltaY = event.clientY - start.current.y;
           start.current = null;
-          if (Math.abs(deltaX) > 56 && Math.abs(deltaX) > Math.abs(deltaY) * 1.2)
+          if (
+            Math.abs(deltaX) > 56 &&
+            Math.abs(deltaX) > Math.abs(deltaY) * 1.2
+          )
             move(deltaX < 0 ? 1 : -1);
         }}
         onPointerCancel={() => {
@@ -122,7 +125,9 @@ export function ChatNewsCarousel({
           <Evidence status={article.verificationStatus} />
           {article.sources.length > 0 && (
             <details className="chat-news-card-sources">
-              <summary>Fuentes de esta noticia ({article.sources.length})</summary>
+              <summary>
+                Fuentes de esta noticia ({article.sources.length})
+              </summary>
               <ul>
                 {article.sources.map((source) => (
                   <li key={source.url}>

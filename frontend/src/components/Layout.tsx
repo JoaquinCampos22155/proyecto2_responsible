@@ -10,7 +10,6 @@ import {
   LogOut,
   Menu,
   X,
-  Download,
 } from "lucide-react";
 import { useAuth, emulator } from "../auth/AuthProvider";
 import { useMe } from "../api/queries";
@@ -32,7 +31,6 @@ export function Brand() {
     </Link>
   );
 }
-type InstallEvent = Event & { prompt: () => Promise<void> };
 export function EditorialNav({
   preview = false,
   countryAvailable = false,
@@ -140,8 +138,7 @@ export function EditorialNav({
 
 export function Layout() {
   const { user, admin, logout } = useAuth();
-  const [menu, setMenu] = useState(false),
-    [install, setInstall] = useState<InstallEvent | null>(null);
+  const [menu, setMenu] = useState(false);
   const profile = useMe();
   const path = useLocation().pathname;
   const [chatOpen, setChatOpen] = useState(
@@ -151,14 +148,6 @@ export function Layout() {
   useEffect(() => {
     setMenu(false);
   }, [path]);
-  useEffect(() => {
-    const handler = (event: Event) => {
-      event.preventDefault();
-      setInstall(event as InstallEvent);
-    };
-    window.addEventListener("beforeinstallprompt", handler);
-    return () => window.removeEventListener("beforeinstallprompt", handler);
-  }, []);
   return (
     <EventProvider>
       <div
@@ -222,17 +211,7 @@ export function Layout() {
               <p>{user?.displayName ?? "Tu cuenta"}</p>
               <small>{user?.email}</small>
               {admin && <Link to="/admin/news">Ir a la redacción</Link>}
-              {install && (
-                <button
-                  onClick={async () => {
-                    await install.prompt();
-                    setInstall(null);
-                  }}
-                >
-                  <Download size={16} />
-                  Instalar Perspectiva
-                </button>
-              )}
+              <Link to="/install">Instalar Perspectiva</Link>
               <button onClick={() => void logout()}>
                 <LogOut size={16} />
                 Cerrar sesión
@@ -246,6 +225,7 @@ export function Layout() {
         <footer className="site-footer container">
           <Brand />
           <p>Noticias con contexto. Fuentes a la vista.</p>
+          <Link to="/install">Instalar en mi teléfono</Link>
           <Link to="/about">
             Cómo funciona Perspectiva <ArrowUpRight size={14} />
           </Link>

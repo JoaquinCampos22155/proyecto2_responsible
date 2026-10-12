@@ -1,4 +1,10 @@
-import { fireEvent, render, screen, waitFor, within } from "@testing-library/react";
+import {
+  fireEvent,
+  render,
+  screen,
+  waitFor,
+  within,
+} from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { MemoryRouter, Routes, Route, useLocation } from "react-router-dom";
@@ -174,7 +180,9 @@ describe("reader workflows and disclosures", () => {
         "/preview/globe/gt",
       ),
     );
-    expect(screen.getByText("Noticias del país seleccionado")).toBeInTheDocument();
+    expect(
+      screen.getByText("Noticias del país seleccionado"),
+    ).toBeInTheDocument();
     expect(boundary.api.me).not.toHaveBeenCalled();
     expect(boundary.api.globe).not.toHaveBeenCalled();
   });
@@ -656,11 +664,7 @@ function SidebarHarness() {
         <button onClick={() => setOpen(true)}>Abrir conversación</button>
         <p>Contenido del feed</p>
       </div>
-      <ChatSidebar
-        open={open}
-        onClose={close}
-        onOpen={() => setOpen(true)}
-      />
+      <ChatSidebar open={open} onClose={close} onOpen={() => setOpen(true)} />
     </>
   );
 }
@@ -677,7 +681,9 @@ describe("chat sidebar lifecycle", () => {
     const opener = screen.getByRole("button", { name: "Abrir conversación" });
     await user.click(opener);
     expect(screen.getByRole("dialog")).not.toHaveAttribute("aria-modal");
-    expect(screen.getByTestId("reader-background")).not.toHaveAttribute("inert");
+    expect(screen.getByTestId("reader-background")).not.toHaveAttribute(
+      "inert",
+    );
     expect(document.body.style.overflow).toBe("");
     const close = screen.getByRole("button", {
       name: "Contraer conversación",
@@ -697,7 +703,9 @@ describe("chat sidebar lifecycle", () => {
     await screen.findByText("Respuesta con contexto conservado.");
     await user.click(close);
     expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
-    expect(screen.getByTestId("reader-background")).not.toHaveAttribute("inert");
+    expect(screen.getByTestId("reader-background")).not.toHaveAttribute(
+      "inert",
+    );
     expect(document.body.style.overflow).toBe("");
     expect(opener).toHaveFocus();
     await user.click(opener);
@@ -750,10 +758,14 @@ describe("chat sidebar lifecycle", () => {
     }
     const user = userEvent.setup();
     mount(<PreviewSidebarHarness />);
-    await user.click(screen.getByRole("button", { name: "Expandir conversación" }));
+    await user.click(
+      screen.getByRole("button", { name: "Expandir conversación" }),
+    );
 
     expect(screen.getByRole("dialog")).not.toHaveAttribute("aria-modal");
-    expect(screen.getByTestId("preview-background")).not.toHaveAttribute("inert");
+    expect(screen.getByTestId("preview-background")).not.toHaveAttribute(
+      "inert",
+    );
     expect(screen.getByText(/no se envían a Firebase/)).toBeInTheDocument();
     expect(
       screen.getByRole("heading", {
@@ -768,21 +780,27 @@ describe("chat sidebar lifecycle", () => {
         name: newsTitle(articles[1].title),
       }),
     ).toBeInTheDocument();
-    const input = screen.getByLabelText("Escribe una pregunta sobre las noticias");
+    const input = screen.getByLabelText(
+      "Escribe una pregunta sobre las noticias",
+    );
     await user.type(input, "¿Qué confirma la noticia?");
     expect(document.querySelector(".chat-layer")).toHaveClass(
       "is-keyboard-open",
     );
     await user.keyboard("{Enter}");
-    expect(
-      screen.getByText("¿Qué confirma la noticia?"),
-    ).toBeInTheDocument();
+    expect(screen.getByText("¿Qué confirma la noticia?")).toBeInTheDocument();
     expect(document.querySelector(".chat-layer")).not.toHaveClass(
       "is-keyboard-open",
     );
-    expect(screen.getByRole("status")).toHaveTextContent("Revisando el reporte");
+    expect(screen.getByRole("status")).toHaveTextContent(
+      "Revisando el reporte",
+    );
     expect(
-      await screen.findByText(/Esta es una respuesta de muestra/, {}, { timeout: 2000 }),
+      await screen.findByText(
+        /Esta es una respuesta de muestra/,
+        {},
+        { timeout: 2000 },
+      ),
     ).toBeInTheDocument();
     expect(boundary.api.chat).not.toHaveBeenCalled();
   });

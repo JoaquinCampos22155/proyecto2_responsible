@@ -16,6 +16,7 @@ export default defineConfig({
         "offline.html",
       ],
       manifest: {
+        id: "/",
         name: "Perspectiva · Noticias con contexto",
         short_name: "Perspectiva",
         description: "Noticias, fuentes y contexto. Responsible AI.",
@@ -48,7 +49,8 @@ export default defineConfig({
       },
       workbox: {
         navigateFallback: "/index.html",
-        globPatterns: ["**/*.{js,css,html,png,svg,woff2}"],
+        navigateFallbackDenylist: [/^\/__\//, /^\/v1\//],
+        globPatterns: ["**/*.{js,css,html,png,svg,webp,woff2}"],
         maximumFileSizeToCacheInBytes: 3500000,
       },
     }),
@@ -56,7 +58,7 @@ export default defineConfig({
   test: {
     environment: "jsdom",
     setupFiles: ["./src/test-setup.ts"],
-    exclude: ["**/node_modules/**", "**/dist/**", "**/e2e/**"],
+    exclude: ["**/node_modules/**", "**/dist/**", "**/e2e/**", "**/e2e-pwa/**"],
     restoreMocks: true,
   },
   server: { port: 5173, strictPort: true },

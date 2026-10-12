@@ -15,6 +15,8 @@ import { Loading } from "./components/common";
 import { ApiError } from "./api/client";
 import { Login } from "./features/Login";
 import { MotionSurface } from "./components/Motion";
+import { InstallProvider } from "./components/InstallProvider";
+import { Install } from "./features/Install";
 import { Feed } from "./features/Feed";
 import { MyCountry } from "./features/MyCountry";
 import { Article } from "./features/Article";
@@ -88,64 +90,70 @@ function UpdateNotice() {
 export function App() {
   return (
     <QueryClientProvider client={queryClient}>
-      <AuthProvider>
-        <BrowserRouter>
-          <MotionSurface>
-            <ScrollReset />
-            <UpdateNotice />
-            <Suspense fallback={<Loading label="Abriendo la sección…" />}>
-              <Routes>
-                <Route path="/login" element={<Login />} />
-                <Route path="/about" element={<About />} />
-                <Route path="/preview" element={<Preview />} />
-                <Route path="/preview/my-country" element={<Preview />} />
-                <Route path="/preview/profile" element={<Preview />} />
-                <Route path="/preview/profile/new" element={<Preview />} />
-                <Route path="/preview/globe" element={<Preview />} />
-                <Route
-                  path="/preview/globe/:countryCode"
-                  element={<Preview />}
-                />
-                <Route path="/preview/news/:id" element={<Preview />} />
-                <Route element={<Protected />}>
-                  <Route index element={<Feed />} />
-                  <Route path="/feed" element={<Feed />} />
-                  <Route path="/my-country" element={<MyCountry />} />
-                  <Route path="/profile" element={<Profile />} />
-                  <Route path="/profile/new" element={<SubmissionForm />} />
-                  <Route path="/globe" element={<Globe />} />
-                  <Route path="/globe/:countryCode" element={<Globe />} />
-                  <Route path="/news/:id" element={<Article />} />
-                  <Route path="/location" element={<Location />} />
-                  <Route path="/admin" element={<AdminGuard />}>
-                    <Route
-                      index
-                      element={<Navigate to="/admin/news" replace />}
-                    />
-                    <Route path="news" element={<AdminNews />} />
-                    <Route path="news/new" element={<AdminEditor />} />
-                    <Route path="news/:id" element={<AdminEditor />} />
-                    <Route path="submissions" element={<AdminSubmissions />} />
-                    <Route path="usage" element={<AdminUsage />} />
-                    <Route path="audit" element={<AdminAudit />} />
+      <InstallProvider>
+        <AuthProvider>
+          <BrowserRouter>
+            <MotionSurface>
+              <ScrollReset />
+              <UpdateNotice />
+              <Suspense fallback={<Loading label="Abriendo la sección…" />}>
+                <Routes>
+                  <Route path="/login" element={<Login />} />
+                  <Route path="/about" element={<About />} />
+                  <Route path="/install" element={<Install />} />
+                  <Route path="/preview" element={<Preview />} />
+                  <Route path="/preview/my-country" element={<Preview />} />
+                  <Route path="/preview/profile" element={<Preview />} />
+                  <Route path="/preview/profile/new" element={<Preview />} />
+                  <Route path="/preview/globe" element={<Preview />} />
+                  <Route
+                    path="/preview/globe/:countryCode"
+                    element={<Preview />}
+                  />
+                  <Route path="/preview/news/:id" element={<Preview />} />
+                  <Route element={<Protected />}>
+                    <Route index element={<Feed />} />
+                    <Route path="/feed" element={<Feed />} />
+                    <Route path="/my-country" element={<MyCountry />} />
+                    <Route path="/profile" element={<Profile />} />
+                    <Route path="/profile/new" element={<SubmissionForm />} />
+                    <Route path="/globe" element={<Globe />} />
+                    <Route path="/globe/:countryCode" element={<Globe />} />
+                    <Route path="/news/:id" element={<Article />} />
+                    <Route path="/location" element={<Location />} />
+                    <Route path="/admin" element={<AdminGuard />}>
+                      <Route
+                        index
+                        element={<Navigate to="/admin/news" replace />}
+                      />
+                      <Route path="news" element={<AdminNews />} />
+                      <Route path="news/new" element={<AdminEditor />} />
+                      <Route path="news/:id" element={<AdminEditor />} />
+                      <Route
+                        path="submissions"
+                        element={<AdminSubmissions />}
+                      />
+                      <Route path="usage" element={<AdminUsage />} />
+                      <Route path="audit" element={<AdminAudit />} />
+                    </Route>
                   </Route>
-                </Route>
-                <Route
-                  path="*"
-                  element={
-                    <main className="container state">
-                      <h1>Esta página no existe.</h1>
-                      <Link className="button" to="/">
-                        Volver al inicio
-                      </Link>
-                    </main>
-                  }
-                />
-              </Routes>
-            </Suspense>
-          </MotionSurface>
-        </BrowserRouter>
-      </AuthProvider>
+                  <Route
+                    path="*"
+                    element={
+                      <main className="container state">
+                        <h1>Esta página no existe.</h1>
+                        <Link className="button" to="/">
+                          Volver al inicio
+                        </Link>
+                      </main>
+                    }
+                  />
+                </Routes>
+              </Suspense>
+            </MotionSurface>
+          </BrowserRouter>
+        </AuthProvider>
+      </InstallProvider>
     </QueryClientProvider>
   );
 }

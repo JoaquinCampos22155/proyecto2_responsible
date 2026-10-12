@@ -12,6 +12,7 @@ export interface Repository {
   listSubmittedArticles(uid?: string): Promise<Article[]>;
   listArticlesPublishedBetween?(start: string, end: string): Promise<Article[]>;
   saveArticle(article: Article): Promise<void>;
+  createArticle(article: Article): Promise<boolean>;
   deleteArticle(id: string): Promise<void>;
   getUser(uid: string): Promise<UserProfile | null>;
   saveUser(user: UserProfile): Promise<void>;

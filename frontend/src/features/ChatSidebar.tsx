@@ -1,9 +1,5 @@
 import { useEffect, useRef, useState, type CSSProperties } from "react";
-import {
-  PanelRightClose,
-  PanelRightOpen,
-  MessageSquare,
-} from "lucide-react";
+import { PanelRightClose, PanelRightOpen, MessageSquare } from "lucide-react";
 import { useLocation } from "react-router-dom";
 import gsap from "gsap";
 import { useGSAP } from "@gsap/react";

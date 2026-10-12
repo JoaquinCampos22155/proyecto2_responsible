@@ -123,6 +123,7 @@ export function Login() {
       </main>
       <footer className="container login-footer">
         <span>Un proyecto universitario de Responsible AI.</span>
+        <Link to="/install">Instalar en mi teléfono</Link>
         <Link to="/about">
           Cómo funciona <ArrowUpRight size={14} />
         </Link>

@@ -6164,7 +6164,11 @@ textarea::placeholder {
     flex-direction: column;
     padding: max(12px, env(safe-area-inset-top, 12px)) 14px 10px;
     background:
-      radial-gradient(ellipse at 50% 0%, rgb(232 238 243 / 78%), transparent 58%),
+      radial-gradient(
+        ellipse at 50% 0%,
+        rgb(232 238 243 / 78%),
+        transparent 58%
+      ),
       var(--paper);
     opacity: 1;
     visibility: visible;
@@ -6192,7 +6196,7 @@ textarea::placeholder {
     color: var(--red);
     font-size: 9px;
     font-weight: 700;
-    letter-spacing: .09em;
+    letter-spacing: 0.09em;
   }
 
   .chat-news-carousel-header > div:first-child > span {
@@ -6222,7 +6226,7 @@ textarea::placeholder {
   }
 
   .chat-news-carousel-controls button:disabled {
-    opacity: .45;
+    opacity: 0.45;
   }
 
   .chat-news-card {
@@ -6291,7 +6295,7 @@ textarea::placeholder {
     margin: 0;
     font-size: 18px;
     line-height: 1.2;
-    letter-spacing: -.025em;
+    letter-spacing: -0.025em;
   }
 
   .chat-news-card-summary {
@@ -6360,7 +6364,7 @@ textarea::placeholder {
 
 @keyframes chat-news-card-enter {
   from {
-    opacity: .6;
+    opacity: 0.6;
     transform: translateX(7px);
   }
   to {
@@ -6482,5 +6486,89 @@ textarea::placeholder {
     animation-iteration-count: 1 !important;
     scroll-behavior: auto !important;
     transition-duration: 0.01ms !important;
+  }
+}
+
+/* Installation is available before sign-in and on browsers without a prompt. */
+.install-page {
+  max-width: 960px;
+  padding-block: 32px 80px;
+}
+.install-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 24px;
+}
+.install-intro {
+  max-width: 660px;
+  padding-block: clamp(40px, 8vw, 80px) 40px;
+}
+.install-intro img {
+  border-radius: 20px;
+  margin-bottom: 24px;
+}
+.install-intro h1 {
+  font-size: clamp(32px, 6vw, 56px);
+  line-height: 1.08;
+  letter-spacing: -0.04em;
+  margin-bottom: 20px;
+}
+.install-intro > p {
+  max-width: 560px;
+  font-size: 17px;
+  line-height: 1.65;
+  margin-bottom: 24px;
+}
+.install-platforms {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 32px;
+  border-block: 1px solid var(--line, #d6dfe7);
+  padding-block: 32px;
+}
+.install-platforms h2,
+.install-status {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.install-platforms h2 {
+  font-size: 22px;
+  margin-bottom: 20px;
+}
+.install-platforms ol {
+  list-style: decimal;
+  padding-left: 24px;
+  line-height: 1.7;
+}
+.install-platforms li {
+  padding-left: 6px;
+  margin-bottom: 14px;
+}
+.install-platforms li svg {
+  display: inline;
+  vertical-align: middle;
+}
+.install-details {
+  max-width: 660px;
+  padding-top: 32px;
+}
+.install-details h2 {
+  font-size: 22px;
+  margin-bottom: 16px;
+}
+.install-details p {
+  line-height: 1.7;
+  margin-bottom: 16px;
+}
+@media (max-width: 600px) {
+  .install-top {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+  .install-platforms {
+    grid-template-columns: 1fr;
+    gap: 24px;
   }
 }

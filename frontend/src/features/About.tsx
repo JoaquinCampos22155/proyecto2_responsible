@@ -50,10 +50,11 @@ export function About() {
       <h2>Contenido de demostración</h2>
       <p>
         Los reportes cuyo título empieza por [DEMO] son ficticios, creados para
-        una demostración académica. No describen hechos reales. En producción,
-        el chat y la búsqueda de fotografías siguen en modo de demostración.
-        Cada noticia de muestra tiene una ilustración generada con IA; no es una
-        fotografía del supuesto evento.
+        una demostración académica. No describen hechos reales. El chat
+        conectado usa únicamente noticias publicadas; rechaza tareas ajenas a
+        noticias y no devuelve texto libre del modelo. La vista de muestra usa
+        respuestas simuladas. Cada noticia de muestra tiene una ilustración
+        generada con IA; no es una fotografía del supuesto evento.
       </p>
     </main>
   );

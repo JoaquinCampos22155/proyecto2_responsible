@@ -52,14 +52,14 @@ The emulator API base is `http://127.0.0.1:5001/demo-project2-responsible/us-cen
 FIREBASE_PROJECT_ID=demo-project2-responsible FIRESTORE_EMULATOR_HOST=127.0.0.1:8080 npm run seed
 ```
 
-For a production redeployment, run `npm run deploy:project2`. This runs checks and targets `proyecto2responsibleai` explicitly for Functions, Firestore rules, and indexes; Google Sign-In is already enabled in the project. The ignored `.env.proyecto2responsibleai` file is production-only and allows `http://localhost:5173` plus the two Project 2 Firebase Hosting origins; if creating it from `.env.example`, explicitly replace the demo project ID and bucket with Project 2 values, then add the eventual frontend origin. Keep this file local and verify its target before any production command. Production API base: `https://us-central1-proyecto2responsibleai.cloudfunctions.net/api`; append `/v1`. Never run an untargeted `firebase deploy`.
+For a production redeployment, run `npm run deploy:project2`. This runs checks and targets `proyecto2responsibleai` explicitly for Functions, Firestore rules, and indexes; Google Sign-In is already enabled in the project. The ignored `.env.proyecto2responsibleai` file is production-only and allows `http://localhost:5173` plus the two Project 2 Firebase Hosting origins; if creating it from `.env.example`, replace the demo bucket with Project 2 values; let Functions inject GCLOUD_PROJECT (FIREBASE_* keys are reserved in dotenv files), then add the eventual frontend origin. Keep this file local and verify its target before any production command. Production API base: `https://us-central1-proyecto2responsibleai.cloudfunctions.net/api`; append `/v1`. Never run an untargeted `firebase deploy`.
 
 ## 5. Environment variables
 
 | Variable                      | Use                                                                                                                  |
 | ----------------------------- | -------------------------------------------------------------------------------------------------------------------- |
 | `FIREBASE_PROJECT_ID`         | Explicitly `proyecto2responsibleai`; use `demo-project2-responsible` only with emulators. Other IDs are rejected.    |
-| `FIREBASE_STORAGE_BUCKET`     | Project 2 Storage bucket for community-uploaded images and admin cleanup.                                            |
+| `SUBMISSION_STORAGE_BUCKET`   | Project 2 Storage bucket for community-uploaded images and admin cleanup.                                            |
 | `GCLOUD_PROJECT`              | Supplied by Cloud Functions; fallback for runtime project ID.                                                        |
 | `CORS_ORIGINS`                | Comma-separated exact browser origins, for example `http://localhost:5173`. Required for browser cross-origin calls. |
 | `AI_BUDGET_USD`               | Total allowed estimated API spend; defaults to `20`.                                                                 |
@@ -284,7 +284,7 @@ Send an event after an impression, article open, meaningful reading interval, sh
 
 ## 13. Chat and citations
 
-Chat is session-temporary: frontend holds messages in memory, and backend stores no transcript. Topic-free Spanish news requests use the deterministic personalized feed order. Specific questions use accent-normalized word matches and Spanish topic aliases, discard weak/incidental geographic matches, and select at most 3 published excerpts. With `AI_PROVIDER=mock`, a deterministic response uses those excerpts. With `AI_PROVIDER=gemini`, the server sends those excerpts to Gemini and records returned input/output tokens and estimated cost. With no relevant article, the server answers locally and sends nothing to Gemini. `citations[]` is built by the server from retrieved article IDs/titles and source name/URL/publisher. Link citations to article detail and the original source. Display `uncertainty` and `providerMode` alongside the answer. The deployed Project 2 environment uses Gemini as of 2026-10-03, with its key in Secret Manager.
+Chat is session-temporary: frontend holds messages in memory, and backend stores no transcript. Topic-free Spanish news requests use the deterministic personalized feed order. Specific questions use accent-normalized word matches and Spanish topic aliases, discard weak/incidental geographic matches, and select at most 3 published excerpts. With `AI_PROVIDER=mock`, a deterministic response uses those excerpts. With `AI_PROVIDER=gemini`, the server sends those excerpts as untrusted data and requests only a JSON array of report indices. It validates the response locally, bounds selections to the retrieved reports, and renders the answer on the server from approved excerpts. No freeform model text is returned. Invalid model output uses a deterministic evidence fallback. Returned input/output tokens and estimated cost are recorded. Requests for code, unrelated tasks or instruction overrides are rejected before retrieval/provider invocation with `refused: true`, no citations and no paid request. Suspicious instructions in stored text are excluded before retrieval; the filter is heuristic, while bounded server output is the enforcement boundary. With no relevant article, the server answers locally and sends nothing to Gemini. `citations[]` is built by the server from retrieved article IDs/titles and source name/URL/publisher. Link citations to article detail and the original source. Display `uncertainty` and `providerMode` alongside the answer. The deployed Project 2 environment uses Gemini as of 2026-10-03, with its key in Secret Manager.
 
 ## 14. Image workflow and AI labels
 
@@ -322,25 +322,25 @@ Use the Firebase Auth, Firestore, and Functions emulators with project `demo-pro
 
 ## 20. Known pending work and constraints
 
-- Verify a real Google ID token → deployed API → Firestore → feed flow on a phone. The deployed health and unauthenticated routes are verified; the full signed-in production path is not yet verified.
-- Configure a real frontend production domain in `CORS_ORIGINS` and Firebase authorized domains.
+- Verify real Google login, installed PWA launch, keyboard and sign-out on physical iOS and Android devices. The desktop Google flow was verified previously; the updated server was checked through emulators and a real Gemini provider call on 2026-10-12.
+- The deployed frontend is https://proyecto2responsibleai.web.app; its origin is already in CORS and Auth authorized domains. Custom domains need separate configuration.
 - Gemini chat is enabled in production with a Secret Manager binding; Pexels stock search remains mock.
-- Add an image-generation provider only if the team needs actual AI-generated images; placeholder assets are not for production.
+- Existing demo images are optimized generated illustrations. Publish current, sourced news for the weekly Globe; old demo dates are intentionally not rewritten.
 - Add transactional cost reservations and pagination before production scale; the current implementation is sized for a university demo.
 
-## 21. Frontend screen checklist
+## 21. Implemented frontend screens (physical-device acceptance still pending)
 
-- [ ] Login: Project 2 Firebase Google sign-in, token refresh, error handling.
-- [ ] Feed: `GET /v1/feed`, reasons, scope and editorial priority variety, location refresh.
-- [ ] Article: full body, source links, uncertainty, AI disclosure and image labels.
-- [ ] Location selector: use demo list and PUT location; no GPS.
-- [ ] Chat: temporary messages, mock marker, citations, no-evidence state.
-- [ ] Admin login: check refreshed `admin` claim; handle 403 from server.
-- [ ] Article editor: draft creation and PATCH with validated fields.
-- [ ] Source editor: multiple source records and stances.
-- [ ] Validation indicators: render evidence state; show human review before publication.
-- [ ] Image selector: nullable image, provenance/license, AI-generated/altered labels.
-- [ ] Cost dashboard: aggregate costs and remaining budget.
+- [x] Login: Project 2 Firebase Google sign-in, token refresh, error handling.
+- [x] Feed: `GET /v1/feed`, reasons, scope and editorial priority variety, location refresh.
+- [x] Article: full body, source links, uncertainty, AI disclosure and image labels.
+- [x] Location selector: use demo list and PUT location; no GPS.
+- [x] Chat: temporary messages, mock marker, citations, no-evidence state.
+- [x] Admin login: check refreshed `admin` claim; handle 403 from server.
+- [x] Article editor: draft creation and PATCH with validated fields.
+- [x] Source editor: multiple source records and stances.
+- [x] Validation indicators: render evidence state; show human review before publication.
+- [x] Image selector: nullable image, provenance/license, AI-generated/altered labels.
+- [x] Cost dashboard: aggregate costs and remaining budget.
 
 ## 22. Responsible AI presentation requirements
 
@@ -350,4 +350,8 @@ Show why a feed story is prominent using `reasons`. Show every source URL/publis
 
 The frontend can start now against the Auth, Firestore, and Functions emulators using the setup in section 4 and the API contract in sections 7–17. Use the Web app ID above and fetch its SDK config with the CLI command in section 3; do not commit the API key because of the course rule. For local Google sign-in against the real Project 2 Auth service, `localhost` is already an authorized domain. The deployed backend allows `http://localhost:5173` and the two Project 2 Firebase Hosting origins. Another frontend origin requires updating Firebase Auth authorized domains and `.env.proyecto2responsibleai`, then redeploying the function.
 
-Production Firestore now contains 12 published, explicitly fictional `demo-*` articles from the seed script. A desktop Chrome test completed Google Sign-In with provider `google.com`, retrieved a Firebase ID token, received HTTP 200 from `GET /v1/me` with the same UID, and received HTTP 200 from `GET /v1/feed` with all 12 demo articles. The frontend developer should repeat that chain in their app and on an actual phone. An operator must grant the test user's admin claim if the editorial portal will be exercised. Gemini production activation was verified on 2026-10-03 through the existing Google reader session and measured apiUsage tokens. Pexels production remains mock. The temporary Hosting test page was removed after testing; the Hosting root currently returns 404 until the frontend is deployed.
+Production Firestore now contains 12 published, explicitly fictional `demo-*` articles from the seed script. A desktop Chrome test completed Google Sign-In with provider `google.com`, retrieved a Firebase ID token, received HTTP 200 from `GET /v1/me` with the same UID, and received HTTP 200 from `GET /v1/feed` with all 12 demo articles. The frontend developer should repeat that chain in their app and on an actual phone. An operator must grant the test user's admin claim if the editorial portal will be exercised. Gemini production activation was verified on 2026-10-03 through the existing Google reader session and measured apiUsage tokens. Pexels production remains mock. That temporary Hosting test page was removed after testing. As of 2026-10-12 the full frontend is deployed to the default Hosting site, including /install.
+
+## Integration and PWA verification — 2026-10-12
+
+The six development commits through 0d2c30f are preserved in the main integration. See `docs/qa/integration-pwa-chat-2026-10-12.md` for reviewed risks, fixes, verification and remaining acceptance checks. Community submissions use atomic creation, and image URLs must match the configured Project 2 bucket and caller-owned path. Production bucket: `proyecto2responsibleai.firebasestorage.app`; use `SUBMISSION_STORAGE_BUCKET` on Functions and `VITE_FIREBASE_STORAGE_BUCKET` in the frontend. The Firebase Storage service agent has the standard Firestore cross-service rules role.

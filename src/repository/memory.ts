@@ -50,6 +50,11 @@ export class MemoryRepository implements Repository {
   async saveArticle(article: Article): Promise<void> {
     this.articles.set(article.id, structuredClone(article));
   }
+  async createArticle(article: Article): Promise<boolean> {
+    if (this.articles.has(article.id)) return false;
+    this.articles.set(article.id, structuredClone(article));
+    return true;
+  }
   async deleteArticle(id: string): Promise<void> {
     this.articles.delete(id);
   }

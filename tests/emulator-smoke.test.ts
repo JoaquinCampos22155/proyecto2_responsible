@@ -71,6 +71,7 @@ describe("Functions + Auth + Firestore emulator", () => {
     expect(profileRow.exists).toBe(true);
     expect(profileRow.data()).toEqual(profile);
     const feed = await fetch(`${base}/v1/feed?limit=50`, { headers });
+    expect(feed.status).toBe(200);
     const feedBody = (await feed.json()) as {
       items: Array<{ article: Article }>;
     };

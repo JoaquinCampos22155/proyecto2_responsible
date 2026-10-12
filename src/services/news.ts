@@ -14,6 +14,7 @@ export class NewsService {
     private repo: Repository,
     private now: () => string,
     private deleteStoredImage?: (path: string) => Promise<void>,
+    private storageBucket?: string,
   ) {}
   async submit(
     input: unknown,
@@ -65,7 +66,12 @@ export class NewsService {
       humanReview: null,
       submittedByUid: actor.uid,
     };
-    await this.repo.saveArticle(article);
+    if (!(await this.repo.createArticle(article)))
+      throw new AppError(
+        "CONFLICT",
+        "Este envío ya existe. Vuelve a intentarlo.",
+        409,
+      );
     await this.audit(article.id, actor.uid, "submit");
     return article;
   }
@@ -295,12 +301,26 @@ export class NewsService {
         400,
       );
     let urlPath: string;
+    if (!this.storageBucket)
+      throw new AppError(
+        "STORAGE_NOT_CONFIGURED",
+        "La carga de imágenes aún no está configurada.",
+        503,
+      );
     try {
       const url = new URL(image.url);
-      const match = url.pathname.match(/^\/v0\/b\/[^/]+\/o\/(.+)$/);
-      if (url.hostname !== "firebasestorage.googleapis.com" || !match)
+      const match = url.pathname.match(/^\/v0\/b\/([^/]+)\/o\/(.+)$/);
+      if (
+        url.protocol !== "https:" ||
+        url.hostname !== "firebasestorage.googleapis.com" ||
+        url.port ||
+        url.username ||
+        url.password ||
+        !match ||
+        decodeURIComponent(match[1]!) !== this.storageBucket
+      )
         throw new Error("Invalid Firebase Storage URL");
-      urlPath = decodeURIComponent(match[1]!);
+      urlPath = decodeURIComponent(match[2]!);
     } catch {
       throw new AppError(
         "INVALID_INPUT",

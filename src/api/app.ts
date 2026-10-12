@@ -39,6 +39,7 @@ export interface AppOptions {
   chatProvider?: ChatProvider;
   imageProvider?: ImageProvider;
   deleteStoredImage?: (path: string) => Promise<void>;
+  storageBucket?: string;
 }
 export function createApp(options: AppOptions): Express {
   const app = express();
@@ -46,6 +47,7 @@ export function createApp(options: AppOptions): Express {
     options.repo,
     options.now,
     options.deleteStoredImage,
+    options.storageBucket,
   );
   const users = new UserService(options.repo, options.now);
   const usage = new UsageService(options.repo, options.budgetUsd, options.now);
