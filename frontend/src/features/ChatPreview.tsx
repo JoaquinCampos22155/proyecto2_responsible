@@ -127,6 +127,9 @@ export function ChatPreview({
         <button
           type="submit"
           aria-label="Enviar pregunta"
+          onPointerDown={(event) => {
+            if (event.button === 0) event.preventDefault();
+          }}
           disabled={draft.trim().length < 3 || thinking}
         >
           <ArrowUp size={19} aria-hidden="true" />

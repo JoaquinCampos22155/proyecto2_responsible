@@ -151,6 +151,9 @@ export function Chat({
         <div className="conversation-tools">
           <button
             className="text-button"
+            onPointerDown={(event) => {
+              if (event.button === 0) event.preventDefault();
+            }}
             disabled={
               mutation.isPending || (!messages.length && !question.length)
             }
@@ -284,6 +287,9 @@ export function Chat({
             className="send-button"
             type="submit"
             aria-label="Enviar pregunta"
+            onPointerDown={(event) => {
+              if (event.button === 0) event.preventDefault();
+            }}
             disabled={question.trim().length < 3 || mutation.isPending}
           >
             <Send size={20} />

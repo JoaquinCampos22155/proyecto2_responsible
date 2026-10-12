@@ -5,7 +5,7 @@ import { setTimeout } from "node:timers";
 
 const execFileAsync = promisify(execFile);
 const testCommand =
-  "npm run test:rules:vitest && npm run test:smoke:vitest && npm --prefix frontend run test:emulator:vitest";
+  "npm run test:rules:vitest && npm run test:smoke:vitest && npm --prefix frontend run test:emulator:vitest && npm --prefix frontend run test:e2e -- --grep 'chat conectado'";
 // A dedicated process group proves ownership even if Java outlives the CLI.
 // Never discover or terminate processes by emulator name or project name.
 const child = spawn(

@@ -324,7 +324,7 @@ Use the Firebase Auth, Firestore, and Functions emulators with project `demo-pro
 
 - Verify real Google login, installed PWA launch, keyboard and sign-out on physical iOS and Android devices. The desktop Google flow was verified previously; the updated server was checked through emulators and a real Gemini provider call on 2026-10-12.
 - The deployed frontend is https://proyecto2responsibleai.web.app; its origin is already in CORS and Auth authorized domains. Custom domains need separate configuration.
-- Gemini chat is enabled in production with a Secret Manager binding; Pexels stock search remains mock.
+- Gemini chat and Pexels stock search are enabled in production with separate Secret Manager bindings as of 2026-10-12.
 - Existing demo images are optimized generated illustrations. Publish current, sourced news for the weekly Globe; old demo dates are intentionally not rewritten.
 - Add transactional cost reservations and pagination before production scale; the current implementation is sized for a university demo.
 
@@ -355,3 +355,7 @@ Production Firestore now contains 12 published, explicitly fictional `demo-*` ar
 ## Integration and PWA verification — 2026-10-12
 
 The six development commits through 0d2c30f are preserved in the main integration. See `docs/qa/integration-pwa-chat-2026-10-12.md` for reviewed risks, fixes, verification and remaining acceptance checks. Community submissions use atomic creation, and image URLs must match the configured Project 2 bucket and caller-owned path. Production bucket: `proyecto2responsibleai.firebasestorage.app`; use `SUBMISSION_STORAGE_BUCKET` on Functions and `VITE_FIREBASE_STORAGE_BUCKET` in the frontend. The Firebase Storage service agent has the standard Firestore cross-service rules role.
+
+## iOS and live Pexels follow-up — 2026-10-12
+
+Pexels is now active in production (`IMAGE_PROVIDER=pexels`, Secret Manager PEXELS_API_KEY:1); do not put its key in dotenv or browser configuration. A published fictional report with a real stock image was created and verified in Firestore. Earlier statements about Pexels remaining mock describe historical tests. See `docs/qa/ios-pwa-chat-pexels-2026-10-12.md` and `docs/qa/pexels-demo-verification.json`.

@@ -13,13 +13,14 @@ import { PexelsImageProvider } from "./services/images.js";
 
 let app: Express | undefined;
 const geminiApiKey = defineSecret("GEMINI_API_KEY");
+const pexelsApiKey = defineSecret("PEXELS_API_KEY");
 export const api = onRequest(
   {
     region: "us-central1",
     memory: "256MiB",
     maxInstances: 2,
     cors: false,
-    secrets: [geminiApiKey],
+    secrets: [geminiApiKey, pexelsApiKey],
   },
   (request, response) => {
     if (!app) {

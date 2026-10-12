@@ -1,6 +1,7 @@
 import { useRef, useState } from "react";
-import { ArrowLeft, ArrowRight, Newspaper } from "lucide-react";
-import { Evidence, External, NewsImage } from "../components/common";
+import { Link, useLocation } from "react-router-dom";
+import { ArrowLeft, ArrowRight, ArrowUpRight, Newspaper } from "lucide-react";
+import { NewsImage } from "../components/common";
 import type { FeedItem } from "../types/domain";
 import {
   countryLabel,
@@ -17,6 +18,7 @@ export function ChatNewsCarousel({
   covered?: boolean;
 }) {
   const [index, setIndex] = useState(0);
+  const { pathname } = useLocation();
   const start = useRef<{ x: number; y: number } | null>(null);
   if (!items.length) {
     return (
@@ -35,10 +37,7 @@ export function ChatNewsCarousel({
   const activeIndex = index % items.length;
   const { article } = items[activeIndex];
   const title = newsTitle(article.title);
-  const paragraphs = article.body
-    .split(/\n+/)
-    .map((paragraph) => paragraph.trim())
-    .filter(Boolean);
+  const href = `${pathname.startsWith("/preview") ? "/preview" : ""}/news/${article.id}`;
   const move = (step: number) => {
     setIndex((current) => (current + step + items.length) % items.length);
   };
@@ -50,7 +49,6 @@ export function ChatNewsCarousel({
     >
       <header className="chat-news-carousel-header">
         <div>
-          <p>LECTURA EN PARALELO</p>
           <span>Noticias</span>
         </div>
         <div className="chat-news-carousel-controls">
@@ -104,7 +102,12 @@ export function ChatNewsCarousel({
       >
         {article.image && (
           <div className="chat-news-card-image">
-            <NewsImage image={article.image} title={title} lead />
+            <NewsImage
+              image={article.image}
+              title={title}
+              lead
+              disclose={false}
+            />
           </div>
         )}
         <div className="chat-news-card-content">
@@ -115,30 +118,12 @@ export function ChatNewsCarousel({
               {dateLabel(article.publishedAt)}
             </time>
           </p>
-          <h2>{title}</h2>
-          <p className="chat-news-card-summary">{article.summary}</p>
-          <div className="chat-news-card-body">
-            {paragraphs.map((paragraph, paragraphIndex) => (
-              <p key={`${article.id}-${paragraphIndex}`}>{paragraph}</p>
-            ))}
-          </div>
-          <Evidence status={article.verificationStatus} />
-          {article.sources.length > 0 && (
-            <details className="chat-news-card-sources">
-              <summary>
-                Fuentes de esta noticia ({article.sources.length})
-              </summary>
-              <ul>
-                {article.sources.map((source) => (
-                  <li key={source.url}>
-                    <External href={source.url}>
-                      {source.publisher || source.name}
-                    </External>
-                  </li>
-                ))}
-              </ul>
-            </details>
-          )}
+          <h2>
+            <Link to={href}>{title}</Link>
+          </h2>
+          <Link className="chat-news-open" to={href}>
+            Leer noticia <ArrowUpRight size={13} aria-hidden="true" />
+          </Link>
         </div>
       </article>
     </section>

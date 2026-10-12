@@ -32,7 +32,10 @@ export function ChatSidebar({
   const [simulatedKeyboard, setSimulatedKeyboard] = useState(
     () => !window.matchMedia("(hover: none) and (pointer: coarse)").matches,
   );
-  const [nativeKeyboardBottom, setNativeKeyboardBottom] = useState(0);
+  const [viewportFrame, setViewportFrame] = useState<{
+    height: number;
+    top: number;
+  } | null>(null);
   const liveFeed = useFeed(!preview);
   const readingItems = preview ? previewItems : (liveFeed.data?.items ?? []);
   useEffect(() => {
@@ -51,12 +54,7 @@ export function ChatSidebar({
     const viewport = window.visualViewport;
     if (!viewport) return;
     const updateKeyboardFrame = () => {
-      setNativeKeyboardBottom(
-        Math.max(
-          0,
-          Math.round(window.innerHeight - viewport.height - viewport.offsetTop),
-        ),
-      );
+      setViewportFrame({ height: viewport.height, top: viewport.offsetTop });
     };
     viewport.addEventListener("resize", updateKeyboardFrame);
     viewport.addEventListener("scroll", updateKeyboardFrame);
@@ -132,7 +130,12 @@ export function ChatSidebar({
     };
   }, [open, onClose]);
   const panelStyle = {
-    "--chat-keyboard-bottom": `${nativeKeyboardBottom}px`,
+    ...(viewportFrame
+      ? {
+          "--chat-viewport-height": `${viewportFrame.height}px`,
+          "--chat-viewport-top": `${viewportFrame.top}px`,
+        }
+      : {}),
   } as CSSProperties;
   return (
     <>
@@ -177,6 +180,9 @@ export function ChatSidebar({
               className="icon-button chat-close"
               aria-label="Contraer conversación"
               title="Contraer conversación"
+              onPointerDown={(event) => {
+                if (event.button === 0) event.preventDefault();
+              }}
               onClick={onClose}
             >
               <PanelRightClose size={20} />
