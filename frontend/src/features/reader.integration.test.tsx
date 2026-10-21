@@ -937,6 +937,68 @@ function SidebarHarness() {
   );
 }
 describe("chat sidebar lifecycle", () => {
+  it("uses the selected reading card as prompt-time context without pinning later questions to it", async () => {
+    boundary.api.chat.mockResolvedValue({
+      answer: "Respuesta con la noticia seleccionada.",
+      citations: [
+        {
+          articleId: articles[0].id,
+          title: articles[0].title,
+          sources: [],
+        },
+      ],
+      uncertainty: "single_source",
+      providerMode: "mock",
+    });
+    const user = userEvent.setup();
+    mount(<SidebarHarness />);
+    await user.click(
+      screen.getByRole("button", { name: "Abrir conversación" }),
+    );
+
+    const activeContext = () =>
+      screen.getByText(
+        (_, element) =>
+          element?.classList.contains("chat-reading-context") ?? false,
+      );
+    await waitFor(() =>
+      expect(activeContext()).toHaveTextContent(
+        `Noticia activa: ${newsTitle(articles[0].title)}`,
+      ),
+    );
+
+    const input = screen.getByLabelText("Tu pregunta sobre las noticias");
+    await user.type(input, "¿Qué cuenta esta noticia?{Enter}");
+    await waitFor(() =>
+      expect(boundary.api.chat).toHaveBeenLastCalledWith(
+        "¿Qué cuenta esta noticia?",
+        [],
+        articles[0].id,
+      ),
+    );
+    await screen.findByText("Respuesta con la noticia seleccionada.");
+
+    await user.click(screen.getByRole("button", { name: "Siguiente noticia" }));
+    await waitFor(() =>
+      expect(activeContext()).toHaveTextContent(
+        `Noticia activa: ${newsTitle(articles[1].title)}`,
+      ),
+    );
+    await user.type(input, "¿Qué cuenta esta noticia?{Enter}");
+    await waitFor(() =>
+      expect(boundary.api.chat).toHaveBeenLastCalledWith(
+        "¿Qué cuenta esta noticia?",
+        [
+          {
+            question: "¿Qué cuenta esta noticia?",
+            articleIds: [articles[0].id],
+          },
+        ],
+        articles[1].id,
+      ),
+    );
+  });
+
   it("keeps the reader available behind the horizontal drawer and hides the keyboard on send", async () => {
     boundary.api.chat.mockResolvedValue({
       answer: "Respuesta con contexto conservado.",
@@ -1041,6 +1103,14 @@ describe("chat sidebar lifecycle", () => {
         name: newsTitle(articles[0].title),
       }),
     ).toBeInTheDocument();
+    const previewActiveContext = () =>
+      screen.getByText(
+        (_, element) =>
+          element?.classList.contains("chat-reading-context") ?? false,
+      );
+    expect(previewActiveContext()).toHaveTextContent(
+      `Noticia activa: ${newsTitle(articles[0].title)}`,
+    );
     await user.click(screen.getByRole("button", { name: "Siguiente noticia" }));
     expect(
       screen.getByRole("heading", {
@@ -1048,6 +1118,9 @@ describe("chat sidebar lifecycle", () => {
         name: newsTitle(articles[1].title),
       }),
     ).toBeInTheDocument();
+    expect(previewActiveContext()).toHaveTextContent(
+      `Noticia activa: ${newsTitle(articles[1].title)}`,
+    );
     const input = screen.getByLabelText(
       "Escribe una pregunta sobre las noticias",
     );

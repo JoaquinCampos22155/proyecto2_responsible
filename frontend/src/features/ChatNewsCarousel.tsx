@@ -1,4 +1,4 @@
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { ArrowLeft, ArrowRight, ArrowUpRight, Newspaper } from "lucide-react";
 import { NewsImage } from "../components/common";
@@ -13,13 +13,20 @@ import {
 export function ChatNewsCarousel({
   items,
   covered = false,
+  onActiveArticleChange,
 }: {
   items: FeedItem[];
   covered?: boolean;
+  onActiveArticleChange?: (articleId: string | undefined) => void;
 }) {
   const [index, setIndex] = useState(0);
   const { pathname } = useLocation();
   const start = useRef<{ x: number; y: number } | null>(null);
+  const activeIndex = items.length ? index % items.length : 0;
+  const activeArticleId = items[activeIndex]?.article.id;
+  useEffect(() => {
+    onActiveArticleChange?.(activeArticleId);
+  }, [activeArticleId, onActiveArticleChange]);
   if (!items.length) {
     return (
       <section
@@ -34,12 +41,13 @@ export function ChatNewsCarousel({
     );
   }
 
-  const activeIndex = index % items.length;
   const { article } = items[activeIndex];
   const title = newsTitle(article.title);
   const href = `${pathname.startsWith("/preview") ? "/preview" : ""}/news/${article.id}`;
   const move = (step: number) => {
-    setIndex((current) => (current + step + items.length) % items.length);
+    const nextIndex = (activeIndex + step + items.length) % items.length;
+    setIndex(nextIndex);
+    onActiveArticleChange?.(items[nextIndex]?.article.id);
   };
 
   return (

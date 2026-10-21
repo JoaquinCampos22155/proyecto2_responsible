@@ -5,12 +5,15 @@ import {
   isDisallowedChatRequest,
   NEWS_ONLY_REFUSAL,
 } from "../../../src/domain/chat-policy";
+import { newsTitle } from "../utils/presentation";
 
 type DemoMessage = { author: "reader" | "assistant"; text: string };
 
 export function ChatPreview({
+  activeArticleTitle,
   onKeyboardChange,
 }: {
+  activeArticleTitle?: string;
   onKeyboardChange: (open: boolean) => void;
 }) {
   const [draft, setDraft] = useState("");
@@ -56,6 +59,11 @@ export function ChatPreview({
 
   return (
     <div className="chat-preview-demo">
+      {activeArticleTitle && (
+        <p className="chat-reading-context">
+          Noticia activa: <strong>{newsTitle(activeArticleTitle)}</strong>
+        </p>
+      )}
       <div className="chat-preview-scroll" aria-live="polite">
         {!messages.length && (
           <div className="chat-preview-welcome">

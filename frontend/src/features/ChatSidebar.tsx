@@ -36,8 +36,12 @@ export function ChatSidebar({
     height: number;
     top: number;
   } | null>(null);
+  const [activeArticleId, setActiveArticleId] = useState<string>();
   const liveFeed = useFeed(!preview);
   const readingItems = preview ? previewItems : (liveFeed.data?.items ?? []);
+  const activeArticle = readingItems.find(
+    ({ article }) => article.id === activeArticleId,
+  )?.article;
   useEffect(() => {
     const query = window.matchMedia("(max-width: 1199px)");
     const change = () => setMobile(query.matches);
@@ -74,6 +78,7 @@ export function ChatSidebar({
   useEffect(() => {
     if (!open) {
       setKeyboardOpen(false);
+      setActiveArticleId(undefined);
       const previous = previousFocus.current;
       if (previous?.isConnected) previous.focus();
       previousFocus.current = null;
@@ -163,7 +168,11 @@ export function ChatSidebar({
         aria-hidden={!open}
       >
         {open && mobile && (
-          <ChatNewsCarousel items={readingItems} covered={keyboardOpen} />
+          <ChatNewsCarousel
+            items={readingItems}
+            covered={keyboardOpen}
+            onActiveArticleChange={setActiveArticleId}
+          />
         )}
         <div
           ref={panel}
@@ -189,9 +198,16 @@ export function ChatSidebar({
             </button>
           </div>
           {preview ? (
-            <ChatPreview onKeyboardChange={setKeyboardOpen} />
+            <ChatPreview
+              activeArticleTitle={activeArticle?.title}
+              onKeyboardChange={setKeyboardOpen}
+            />
           ) : (
-            <Chat compact onKeyboardChange={setKeyboardOpen} />
+            <Chat
+              compact
+              activeArticleId={activeArticleId}
+              onKeyboardChange={setKeyboardOpen}
+            />
           )}
         </div>
         {preview && simulatedKeyboard && mobile && keyboardOpen && (

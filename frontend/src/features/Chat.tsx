@@ -88,23 +88,30 @@ export function ChatSources({
 }
 export function Chat({
   compact = false,
+  activeArticleId,
   onKeyboardChange,
 }: {
   compact?: boolean;
+  activeArticleId?: string;
   onKeyboardChange?: (open: boolean) => void;
 }) {
   const [question, setQuestion] = useState(""),
     [messages, setMessages] = useState<Message[]>([]),
     [pendingQuestion, setPendingQuestion] = useState("");
   const { key: readingKey } = useLocation();
-  const currentArticleId = useMatch("/news/:id")?.params.id;
-  const currentArticle = useQuery({
-    queryKey: keys.article(currentArticleId ?? ""),
-    queryFn: () => api.news(currentArticleId!),
-    enabled: Boolean(currentArticleId),
-  });
+  const routeArticleId = useMatch("/news/:id")?.params.id;
+  const currentArticleId = activeArticleId ?? routeArticleId;
   const feed = useFeed(),
     profile = useMe();
+  const currentArticle = useQuery({
+    queryKey: keys.article(routeArticleId ?? ""),
+    queryFn: () => api.news(routeArticleId!),
+    enabled: Boolean(routeArticleId),
+  });
+  const contextArticle = activeArticleId
+    ? feed.data?.items.find(({ article }) => article.id === activeArticleId)
+        ?.article
+    : currentArticle.data;
   const bottom = useRef<HTMLDivElement>(null);
   const composerInput = useRef<HTMLTextAreaElement>(null);
   const mutation = useMutation({
@@ -205,11 +212,11 @@ export function Chat({
           </button>
         </div>
         <div className="chat-scroll">
-          {currentArticle.data && (
+          {contextArticle && (
             <p className="chat-reading-context">
-              Noticia abierta:{" "}
-              <Link to={`/news/${currentArticle.data.id}`}>
-                {newsTitle(currentArticle.data.title)}
+              {activeArticleId ? "Noticia activa:" : "Noticia abierta:"}{" "}
+              <Link to={`/news/${contextArticle.id}`}>
+                {newsTitle(contextArticle.title)}
               </Link>
             </p>
           )}
