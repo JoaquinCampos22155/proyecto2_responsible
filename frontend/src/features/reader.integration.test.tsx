@@ -111,7 +111,7 @@ beforeEach(() => {
     nextCursor: null,
   });
   boundary.api.globe.mockResolvedValue({
-    week: { start: "2026-10-04", end: "2026-10-11" },
+    range: { start: "2026-10-04", end: "2026-11-03" },
     countries: {},
     worldStory: null,
   });
@@ -191,6 +191,23 @@ describe("reader workflows and disclosures", () => {
     ).toBeInTheDocument();
     expect(boundary.api.me).not.toHaveBeenCalled();
     expect(boundary.api.globe).not.toHaveBeenCalled();
+  });
+
+  it("shows a rolling 30-day edition and international story in the globe preview", () => {
+    boundary.user = null;
+    mount(<Globe preview />, "/preview/globe");
+
+    expect(
+      screen.getByRole("heading", {
+        name: /Noticia mundial de los últimos 30 días/,
+      }),
+    ).toBeInTheDocument();
+    expect(screen.getByText(/Últimos 30 días ·/)).toBeInTheDocument();
+    expect(
+      screen.getByText(
+        "Se publica un ejercicio internacional de datos meteorológicos",
+      ),
+    ).toBeInTheDocument();
   });
 
   it("shows the sample profile and report form without signing in", async () => {
