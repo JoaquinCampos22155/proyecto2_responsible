@@ -46,4 +46,6 @@ Project 2 Firebase project: `proyecto2responsibleai`. Project 2 Web app ID: `1:5
 - [Engineering log](PROJECT2_ENGINEERING_LOG.md) — hypothesis, construction, test and correction evidence.
 - [Design](docs/superpowers/specs/2026-09-26-project2-backend-design.md) and [implementation plan](docs/superpowers/plans/2026-09-26-project2-backend.md).
 
-No production secret or service account key is committed. The Gemini and Pexels integrations are optional. Project 2 production chat uses Gemini with its key in Secret Manager; stock search still uses a mock. Do not run an untargeted Firebase deploy.
+No production secret or service account key is committed. The Gemini and Pexels integrations are optional. Project 2 production chat uses Gemini with its key in Secret Manager; stock search uses Pexels with a separate Secret Manager binding. Do not run an untargeted Firebase deploy.
+
+Conversational news chat: `npm run test:ai-ethics` runs the local scope, grounding and follow-up regression suite. `npm run test:ai-live` is an explicitly opted-in real-provider evaluation requiring `RUN_LIVE_CHAT_EVAL=1` and a server-side `GEMINI_API_KEY`; it makes paid requests and writes a QA report. Never place that key in frontend environment variables. See `docs/qa/chat-conversation-2026-10-20.md`.

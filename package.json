@@ -15,6 +15,8 @@
   "scripts": {
     "test": "vitest run tests --exclude tests/firestore-rules.test.ts --exclude tests/firestore-adapter.test.ts --exclude tests/emulator-smoke.test.ts",
     "test:watch": "vitest",
+    "test:ai-ethics": "vitest run tests/chat-safety.test.ts tests/chat-conversation.test.ts tests/spanish-chat.test.ts",
+    "test:ai-live": "tsx scripts/evaluate-chat.ts",
     "typecheck": "tsc --noEmit",
     "build": "tsc -p tsconfig.build.json",
     "format:check": "prettier --check .",

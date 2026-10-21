@@ -50,7 +50,7 @@ Built-bundle browser inspection found the manifest and confirmed the service-wor
 
 Impeccable detector ran once and returned []; independent review requested six focused fixes, applied in one batch and all scored resolved on valid recaptures (ship, scoped 17/20): disclosure clipping, placeholder contrast, contextual prompts, metadata placement, attribution targets, and persisted direction contract. Verdict details: docs/qa/impeccable-audit.md. The initial raster provenance scan covered four files; the current scan covers 40 rasters with zero missing origins/prompts.
 
-Production Gemini chat is active via a Secret Manager binding. Pexels stock search remains a mock. All 12 production demo articles now have real, distinct built-in image_gen illustrations in an isolated Project 2 Cloud Storage bucket, with URL metadata in Firestore and visible generated/illustrative labels. No native packaging was built.
+Production Gemini chat is active via a Secret Manager binding. Pexels stock search is enabled with its own Secret Manager binding as of 2026-10-12. All 12 production demo articles now have real, distinct built-in image_gen illustrations in an isolated Project 2 Cloud Storage bucket, with URL metadata in Firestore and visible generated/illustrative labels. No native packaging was built.
 
 ### Verified transport mismatch (2026-10-03)
 
@@ -118,10 +118,14 @@ Verification: 27 unit/component tests pass; lint and production build pass. New 
 
 ## Current integration status — 2026-10-12
 
-Full frontend Hosting: https://proyecto2responsibleai.web.app. Install: https://proyecto2responsibleai.web.app/install. Community image bucket: `proyecto2responsibleai.firebasestorage.app` (set VITE_FIREBASE_STORAGE_BUCKET in ignored production configuration). The backend uses SUBMISSION_STORAGE_BUCKET because FIREBASE_* dotenv keys are reserved. The chat API may return `refused: true`; show the news-only refusal without suggesting model-generated evidence. Answers are server-rendered from at most three published report excerpts; Gemini only selects bounded report indices. The public preview remains explicitly simulated.
+Full frontend Hosting: https://proyecto2responsibleai.web.app. Install: https://proyecto2responsibleai.web.app/install. Community image bucket: `proyecto2responsibleai.firebasestorage.app` (set VITE_FIREBASE_STORAGE_BUCKET in ignored production configuration). The backend uses SUBMISSION_STORAGE_BUCKET because FIREBASE_* dotenv keys are reserved. The chat API may return `refused: true`; show the news-only refusal without suggesting model-generated evidence. Gemini generates explanations grounded in at most three published reports; the server validates supporting quotes and constructs citations. See the 2026-10-20 section for the conversation contract. The public preview remains explicitly simulated.
 
 Current verification: 95 backend unit/API tests, 37 frontend tests, 4 browser tests passed (2 intentionally skipped matrix combinations), 12 Firestore/Storage/adapter tests, 2 emulator smoke tests, 3 frontend client/emulator tests; built and deployed PWA installability/offline checks passed. See `docs/qa/integration-pwa-chat-2026-10-12.md`. Earlier verification paragraphs are historical; physical iOS/Android Google login and installation are still pending.
 
 ## iOS PWA follow-up — 2026-10-12
 
 The mobile filter scrolls away, the chat launcher sits above navigation plus safe-area padding, and the chat uses the remaining screen below a compact report card. Keyboard sizing follows visualViewport; mobile inputs use 16px. Read full reports through the card link. Chromium and WebKit regressions cover safe areas, shifted viewport, and connected chat send-by-touch through emulators. Pexels is now live in production. See `docs/qa/ios-pwa-chat-pexels-2026-10-12.md`.
+
+## Conversational news assistant — 2026-10-20
+
+The authenticated chat sends the last four questions and cited report IDs for follow-ups. No generated assistant text, roles, article bodies or source URLs are accepted as history. The backend reloads published reports, handles references such as “esa noticia”, tolerates minor spelling/plural variation and generates supported explanations with Gemini. `answerMode` distinguishes generated explanations from deterministic “Extracto de noticias” fallback. Clear resets both visible messages and future request history. Conversation remains in memory only. Gemini output is screened for code, instructions, unsupported citations/quotes, unrelated vocabulary and numeric claims; these checks do not guarantee perfect semantic grounding. The public `/preview` chat remains explicitly simulated and makes no paid API calls. See `docs/qa/chat-conversation-2026-10-20.md` and the live evaluation JSON for current evidence; earlier selector-only descriptions are historical.

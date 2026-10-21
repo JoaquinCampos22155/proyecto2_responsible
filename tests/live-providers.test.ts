@@ -30,11 +30,29 @@ describe("live provider boundaries", () => {
           candidates: [
             {
               content: {
-                parts: [{ text: '{"indices":[0]}' }],
+                parts: [
+                  {
+                    text: JSON.stringify({
+                      status: "answered",
+                      paragraphs: [
+                        {
+                          text: "En la comunidad comenzó una limpieza del río.",
+                          index: 0,
+                          quote:
+                            "En la comunidad comenzó una limpieza del río.",
+                        },
+                      ],
+                    }),
+                  },
+                ],
               },
             },
           ],
-          usageMetadata: { promptTokenCount: 100, candidatesTokenCount: 20 },
+          usageMetadata: {
+            promptTokenCount: 100,
+            candidatesTokenCount: 20,
+            thoughtsTokenCount: 10,
+          },
         }),
         { status: 200, headers: { "Content-Type": "application/json" } },
       );
@@ -72,14 +90,14 @@ describe("live provider boundaries", () => {
       "En la comunidad comenzó una limpieza del río.",
     );
     expect(payload.contents[0].parts[0].text).not.toContain('[{"articleId"');
-    expect(payload.generationConfig.maxOutputTokens).toBeLessThanOrEqual(256);
+    expect(payload.generationConfig.maxOutputTokens).toBeLessThanOrEqual(2048);
     const usage = await repo.listUsage();
     expect(usage[0]).toMatchObject({
       provider: "gemini",
       model: "gemini-3.5-flash-lite",
       inputTokens: 100,
-      outputTokens: 20,
-      estimatedCostUsd: 0.00008,
+      outputTokens: 30,
+      estimatedCostUsd: 0.000105,
     });
     expect(JSON.stringify(result)).not.toContain("test-key");
   });

@@ -1,0 +1,12 @@
+{
+  "checkedAt": "2026-10-21T03:05:16.885Z",
+  "project": "proyecto2responsibleai",
+  "functionState": "ACTIVE",
+  "functionUpdateTime": "2026-10-21T03:04:48.346750606Z",
+  "revision": "api-00008-sez",
+  "healthStatus": 200,
+  "unauthenticatedChatStatus": 401,
+  "hostingStatus": 200,
+  "entryAsset": "/assets/index-CPUPB-wa.js",
+  "frontendHasNewChat": true
+}

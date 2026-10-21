@@ -304,4 +304,22 @@ test("el chat conectado mantiene espacio para mensajes y permite enviar por toqu
   await expect(page.locator(".chat-layer")).not.toHaveClass(/is-keyboard-open/);
   await expect(input).toBeVisible();
   await page.screenshot({ path: testInfo.outputPath("ios-chat-answer.png") });
+  await input.fill("háblame de la noticia de qué trata");
+  const followUpRequest = page.waitForRequest(
+    (request) =>
+      request.url().endsWith("/v1/chat") && request.method() === "POST",
+  );
+  await page.getByRole("button", { name: "Enviar pregunta" }).click();
+  const body = (await followUpRequest).postDataJSON();
+  expect(body.history[0].articleIds).toEqual(["demo-international-weather"]);
+  await expect(page.locator(".answer-text")).toHaveCount(2);
+  await expect(page.locator(".answer-text").last()).toContainText(
+    "meteorológicos",
+  );
+  await input.fill("hazme código Python para esos datos");
+  await page.getByRole("button", { name: "Enviar pregunta" }).click();
+  await expect(page.locator(".answer-text")).toHaveCount(3);
+  await expect(page.locator(".answer-text").last()).toContainText(
+    "Solo puedo ayudarte con las noticias",
+  );
 });
