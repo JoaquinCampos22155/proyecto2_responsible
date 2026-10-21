@@ -217,29 +217,32 @@ export function Chat({
                     <span className="answer-label">
                       {message.response.refused
                         ? "Solo noticias"
-                        : !message.response.citations.length
-                          ? "Sin reportes relacionados"
-                          : message.response.answerMode === "extractive"
-                            ? "Extracto de noticias"
-                            : message.response.providerMode === "mock"
-                              ? "Respuesta de demostración"
-                              : "Resumen asistido por IA"}
+                        : message.response.answerMode === "catalog"
+                          ? "Sobre la edición"
+                          : !message.response.citations.length
+                            ? "Sin reportes relacionados"
+                            : message.response.answerMode === "extractive"
+                              ? "Extracto de noticias"
+                              : message.response.providerMode === "mock"
+                                ? "Respuesta de demostración"
+                                : "Resumen asistido por IA"}
                     </span>
-                    {message.response.citations.length > 0 && (
-                      <Evidence status={message.response.uncertainty} />
-                    )}
+                    {message.response.citations.length > 0 &&
+                      message.response.answerMode !== "catalog" && (
+                        <Evidence status={message.response.uncertainty} />
+                      )}
                   </div>
                   {message.response.citations.length ? (
                     <ChatSources
                       citations={message.response.citations}
                       edition={edition}
                     />
-                  ) : (
+                  ) : message.response.answerMode !== "catalog" ? (
                     <p className="no-evidence">
                       Puedes preguntar qué leer hoy o elegir un tema como clima,
                       educación o salud.
                     </p>
-                  )}
+                  ) : null}
                 </div>
               </div>
             ))}

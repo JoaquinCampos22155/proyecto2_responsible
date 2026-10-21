@@ -169,7 +169,7 @@ export type GlobeResponse = {
 export type ChatResponse = {
   answer: string;
   refused?: boolean;
-  answerMode?: "generated" | "extractive" | "refused";
+  answerMode?: "generated" | "extractive" | "refused" | "catalog";
   citations: {
     articleId: string;
     title: string;

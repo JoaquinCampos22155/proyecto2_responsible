@@ -364,4 +364,6 @@ Pexels is now active in production (`IMAGE_PROVIDER=pexels`, Secret Manager PEXE
 
 ## Conversational API extension — 2026-10-20
 
-`POST /v1/chat` remains backward compatible with `{question}`. Optional `history` contains at most four strict `{question, articleIds}` objects, each with a 3–1000 character question and at most three ID strings. Current response adds `answerMode: "generated" | "extractive" | "refused"`. Keep history in memory, pass only cited article IDs and previous user questions, and clear it when the reader clears the conversation.
+`POST /v1/chat` remains backward compatible with `{question}`. Optional `history` contains at most four strict `{question, articleIds}` objects, each with a 3–1000 character question and at most three ID strings. Current response adds `answerMode: "generated" | "extractive" | "refused" | "catalog"`. Keep history in memory, pass only cited article IDs and previous user questions, and clear it when the reader clears the conversation.
+
+Edition metadata queries now return `answerMode: "catalog"` and inspect published demo labels directly without a Gemini call. The UI labels them “Sobre la edición”. Counts reflect the current repository; absence of a demo label does not certify factual accuracy. See `docs/qa/chat-catalog-2026-10-20.md`.

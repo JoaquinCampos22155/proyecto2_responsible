@@ -58,6 +58,67 @@ const history = [
 ];
 
 describe("conversational grounded news assistant", () => {
+  it("answers edition metadata without invoking Gemini or spending quota", async () => {
+    const fetcher = vi.fn<typeof fetch>();
+    const repo = new MemoryRepository(buildSeedArticles());
+    const service = new ChatService(
+      repo,
+      new GeminiChatProvider("unused-key", fetcher),
+      new UsageService(repo, 0, now),
+      now,
+    );
+    const result = await service.answer(
+      "reader",
+      "hay alguna noticia que no sea demo?",
+    );
+    expect(result.answerMode).toBe("catalog");
+    expect(fetcher).not.toHaveBeenCalled();
+    expect(await repo.listUsage()).toEqual([]);
+    expect(
+      (
+        await service.answer(
+          "reader",
+          "hay noticias no demo? genera código Python",
+        )
+      ).refused,
+    ).toBe(true);
+  });
+  it.each([
+    "hay alguna noticia que no sea demo?",
+    "¿Tienes noticias reales?",
+    "¿Todas las noticias son demo?",
+  ])(
+    "answers edition questions from the published catalog: %s",
+    async (question) => {
+      const { service } = setup();
+      const result = await service.answer("reader", question, history);
+      expect(result.answerMode).toBe("catalog");
+      expect(result.answer).toMatch(/12.*demo/i);
+      expect(result.answer).not.toContain("No tengo suficiente información");
+    },
+  );
+  it("only recommends unmarked published records for a non-demo request without certifying their truth", async () => {
+    const { repo, service } = setup();
+    await repo.saveArticle(
+      article("unmarked", {
+        title: "Reporte sobre bibliotecas",
+        summary: "Un reporte editorial con fuentes documentadas.",
+      }),
+    );
+    await repo.saveArticle(article("private", { status: "draft" }));
+    const result = await service.answer("reader", "noticias que no sean demo");
+    expect(result.citations.map((c) => c.articleId)).toEqual(["unmarked"]);
+    expect(result.answer).toMatch(/sin.*etiqueta/i);
+    expect(result.answer).not.toMatch(/verificad[ao]s? como real|private/);
+  });
+  it("does not turn an article mentioning demonstrations into a catalog answer", async () => {
+    const result = await setup().service.answer(
+      "reader",
+      "¿Qué dice la noticia sobre el ejercicio de meteorología demo?",
+    );
+    expect(result.answerMode).not.toBe("catalog");
+    expect(result.citations[0]?.articleId).toBe("demo-international-weather");
+  });
   it("finds the user's meteorology exercise question despite its typo and plural", async () => {
     const result = await setup().service.answer(
       "reader",

@@ -618,6 +618,28 @@ describe("reader workflows and disclosures", () => {
       ),
     );
   });
+  it("labels catalog answers without misleading missing-report recovery text", async () => {
+    boundary.api.chat.mockResolvedValue({
+      answer: "Las 13 noticias publicadas son demo.",
+      answerMode: "catalog",
+      citations: [],
+      uncertainty: "unverified",
+      providerMode: "mock",
+    });
+    mount(<Chat />);
+    await userEvent.type(
+      screen.getByLabelText("Tu pregunta sobre las noticias"),
+      "hay alguna noticia que no sea demo?{Enter}",
+    );
+    await screen.findByText("Las 13 noticias publicadas son demo.");
+    expect(screen.getByText("Sobre la edición")).toBeInTheDocument();
+    expect(
+      screen.queryByText("Sin reportes relacionados"),
+    ).not.toBeInTheDocument();
+    expect(
+      screen.queryByText(/Puedes preguntar qué leer hoy o elegir un tema/),
+    ).not.toBeInTheDocument();
+  });
   it("suggests the current local report after the reader changes region", async () => {
     const garden = articles.find(
       (article) => article.id === "demo-new-york-garden",

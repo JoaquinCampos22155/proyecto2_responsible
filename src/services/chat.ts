@@ -11,6 +11,7 @@ import {
   type ChatTurn,
 } from "../domain/retrieval.js";
 import { parseGroundedAnswer } from "../domain/chat-answer.js";
+import { answerCatalogQuestion } from "../domain/news-catalog.js";
 import { rankFeed } from "../domain/ranking.js";
 import type { VerificationStatus } from "../domain/types.js";
 import type { UsageService } from "./usage.js";
@@ -18,7 +19,7 @@ import { AppError } from "./errors.js";
 export interface ChatResponse {
   answer: string;
   refused?: boolean;
-  answerMode?: "generated" | "extractive" | "refused";
+  answerMode?: "generated" | "extractive" | "refused" | "catalog";
   citations: Array<{
     articleId: string;
     title: string;
@@ -227,6 +228,23 @@ export class ChatService {
           `${article.title} ${article.summary} ${article.body}`,
         ),
     );
+    const catalog = answerCatalogQuestion(articles, question);
+    if (catalog)
+      return {
+        answer: catalog.answer,
+        answerMode: "catalog",
+        providerMode: "mock",
+        uncertainty: "unverified",
+        citations: catalog.selected.map((article) => ({
+          articleId: article.id,
+          title: article.title,
+          sources: article.sources.map(({ name, url, publisher }) => ({
+            name,
+            url,
+            publisher,
+          })),
+        })),
+      };
     // Old turns are hints, never trusted evidence or assistant/system messages.
     const safeIds = new Set(articles.map((article) => article.id));
     const safeHistory = history
