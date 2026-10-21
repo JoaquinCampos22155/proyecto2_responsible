@@ -46,7 +46,6 @@ Real Gemini weather call returned a grounded Spanish answer. Created Secret Mana
 
 Independent full correction review found the latest grids, navigation and chat matched the accepted request. One stale Gemini status sentence was corrected and scored resolved; final disposition ship. QA emulators9943/Java10002 and Vite9990/npm9965/esbuild9995 exited gracefully; QA ports released. Requested5173 remains4088/4114/4119 at idle CPU. In-app delivery tab moved to5173/preview and viewport override reset; user's authenticated regular Chrome preserved. Sensitive Gemini staging file and task-owned temporary function/process records removed.
 
-
 ## Compact edition and citations — 2026-10-03
 
 Latest user-requested presentation: compact 28px Noticias header, combined section/filter toolbar, full-column supporting photographs, and an independent large lead for each nonempty section. Incoming backend order and twelve unique records are preserved. Shared newsTitle removes the [DEMO] prefix only from displayed titles (including citations, sharing and admin lists); stored records and factual content are unchanged. The feed keeps one small illustrative-edition note, while AI image labels and credit links remain on article detail rather than every card.
@@ -55,13 +54,11 @@ ChatSources replaces the large report list with up to three circular image links
 
 Verification for this revision: 25 frontend unit/component tests pass, lint/typecheck/build pass. Eight browser widths (320,390,620,768,920,1024,1280,1440) have no overflow, twelve headlines, four section leads and no legacy image-credit nodes. Evidence: .impeccable/review/compact-responsive.json and compact-desktop/mobile/guatemala.jpg. compact-chat-sources.jpg is an isolated fixture rendering the actual ChatSources component, explicitly labeled sample content; it verifies the 44px source row and loaded thumbnails, not a fresh production Gemini request. Temporary fixture entry files were removed after inspection. Prior backend/emulator/production AI checks remain historical evidence; no backend redeploy was needed. Requested localhost5173 remains running.
 
-
 ## Varied section hierarchy — 2026-10-03
 
 The accepted refinement replaces repeated subsection covers with semantic compositions. Destacadas keeps the photographic overlay cover. Country reporting uses a plain photographic feature with adjacent dispatches; a single country report splits image and text on wide screens. Internacional uses a full-width image/ink-text band with a row of supporting photographs beneath. Otras regiones uses a Newsreader feature beside a compact illustrated list containing all supporting reports. Interests use a softer feature and condensed rail. Each section's first returned report remains its lead; incoming order and uniqueness are unchanged. No new importance score, labels or factual claims were added.
 
 Containers below 620px stack the country/world feature; regional dispatches retain their illustrated list. The first browser pass found a real 768px overflow: the inherited secondary two-column grid squeezed the regional list. A one-column regional rail corrected it. Final eight-width browser checks preserve twelve headlines without overflow (varied-responsive.json). Desktop/mobile evidence is varied-desktop.jpg, varied-regions.jpg and varied-mobile.jpg in .impeccable/review. Temporary browsers/processes were not started; requested5173 is retained.
-
 
 ## Reading onward and persistent conversation — 2026-10-03
 

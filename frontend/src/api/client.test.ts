@@ -23,18 +23,16 @@ describe("authenticated API boundary", () => {
     expect(fetcher.mock.calls[1][1].headers.Authorization).toBe("Bearer new");
   });
   it("stops retrying unauthorized requests and preserves error details", async () => {
-    const fetcher = vi
-      .fn()
-      .mockImplementation(() =>
-        Promise.resolve(
-          new Response(
-            JSON.stringify({
-              error: { code: "UNAUTHENTICATED", message: "Sign in again" },
-            }),
-            { status: 401 },
-          ),
+    const fetcher = vi.fn().mockImplementation(() =>
+      Promise.resolve(
+        new Response(
+          JSON.stringify({
+            error: { code: "UNAUTHENTICATED", message: "Sign in again" },
+          }),
+          { status: 401 },
         ),
-      );
+      ),
+    );
     await expect(
       createClient("https://api.example", async () => "token", fetcher).request(
         "/v1/me",
@@ -43,20 +41,18 @@ describe("authenticated API boundary", () => {
     expect(fetcher).toHaveBeenCalledTimes(2);
   });
   it("does not retry forbidden writes or hide form validation details", async () => {
-    const fetcher = vi
-      .fn()
-      .mockResolvedValue(
-        new Response(
-          JSON.stringify({
-            error: {
-              code: "INVALID_INPUT",
-              message: "Invalid request",
-              details: [{ path: "title", message: "too short" }],
-            },
-          }),
-          { status: 400 },
-        ),
-      );
+    const fetcher = vi.fn().mockResolvedValue(
+      new Response(
+        JSON.stringify({
+          error: {
+            code: "INVALID_INPUT",
+            message: "Invalid request",
+            details: [{ path: "title", message: "too short" }],
+          },
+        }),
+        { status: 400 },
+      ),
+    );
     try {
       await createClient(
         "https://api.example",

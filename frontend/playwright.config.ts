@@ -31,6 +31,10 @@ export default defineConfig({
         viewport: { width: 390, height: 844 },
       },
     },
+    {
+      name: "mobile-webkit",
+      use: { ...devices["iPhone 13"], viewport: { width: 390, height: 844 } },
+    },
   ],
   webServer: {
     command: "npm exec vite -- --host 127.0.0.1 --port 5174 --strictPort",

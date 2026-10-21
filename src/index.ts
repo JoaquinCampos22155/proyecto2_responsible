@@ -13,18 +13,19 @@ import { PexelsImageProvider } from "./services/images.js";
 
 let app: Express | undefined;
 const geminiApiKey = defineSecret("GEMINI_API_KEY");
+const pexelsApiKey = defineSecret("PEXELS_API_KEY");
 export const api = onRequest(
   {
     region: "us-central1",
     memory: "256MiB",
     maxInstances: 2,
     cors: false,
-    secrets: [geminiApiKey],
+    secrets: [geminiApiKey, pexelsApiKey],
   },
   (request, response) => {
     if (!app) {
       const config = parseRuntimeConfig(process.env);
-      const storageBucket = process.env.FIREBASE_STORAGE_BUCKET;
+      const storageBucket = process.env.SUBMISSION_STORAGE_BUCKET;
       if (getApps().length === 0)
         initializeApp({
           projectId: config.projectId,
@@ -36,6 +37,7 @@ export const api = onRequest(
         now: () => new Date().toISOString(),
         budgetUsd: config.budgetUsd,
         allowedOrigins: config.allowedOrigins,
+        storageBucket,
         chatProvider:
           config.aiProvider === "gemini"
             ? new GeminiChatProvider(config.geminiApiKey!)

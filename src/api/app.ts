@@ -39,6 +39,7 @@ export interface AppOptions {
   chatProvider?: ChatProvider;
   imageProvider?: ImageProvider;
   deleteStoredImage?: (path: string) => Promise<void>;
+  storageBucket?: string;
 }
 export function createApp(options: AppOptions): Express {
   const app = express();
@@ -46,6 +47,7 @@ export function createApp(options: AppOptions): Express {
     options.repo,
     options.now,
     options.deleteStoredImage,
+    options.storageBucket,
   );
   const users = new UserService(options.repo, options.now);
   const usage = new UsageService(options.repo, options.budgetUsd, options.now);
@@ -251,11 +253,24 @@ export function createApp(options: AppOptions): Express {
   app.post(
     "/v1/chat",
     asyncRoute(async (req, res) => {
-      const { question } = z
-        .object({ question: z.string().min(3).max(1000) })
+      const { question, history } = z
+        .object({
+          question: z.string().trim().min(3).max(1000),
+          history: z
+            .array(
+              z
+                .object({
+                  question: z.string().trim().min(3).max(1000),
+                  articleIds: z.array(z.string().min(1).max(200)).max(3),
+                })
+                .strict(),
+            )
+            .max(4)
+            .default([]),
+        })
         .strict()
         .parse(req.body);
-      res.json(await chat.answer(identity(res.locals).uid, question));
+      res.json(await chat.answer(identity(res.locals).uid, question, history));
     }),
   );
 

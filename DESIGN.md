@@ -298,18 +298,15 @@ The twelve current synthetic stories use distinct generated illustrations from C
 - **Don't** use decorative pre-heading eyebrows, glyph icons or system display faces as the house style.
 - **Don't** advertise a dark theme or verified physical installation/sign-in without corresponding implementation and evidence.
 
-
 ## Accepted density correction — 2026-10-03
 
 The latest user screenshots supersede the earlier layout verdict. New browser evidence is `.impeccable/review/compact-desktop.jpg`, `compact-mobile.jpg`, `compact-guatemala.jpg` and `compact-responsive.json`. Eight actual widths from 320 to 1440px retained twelve headlines and four section leads without horizontal overflow. `compact-chat-sources.jpg` is an explicitly isolated visual fixture of the real ChatSources component, not a production Gemini answer. Its closed source row measured 44px, all three images loaded, and the native disclosure opened with Enter. Current frontend lint, typecheck, build and 25 unit/component tests pass. No fresh backend deployment or production AI call was needed for these presentation corrections.
-
 
 ## Varied section hierarchy — 2026-10-03
 
 The accepted refinement replaces repeated subsection covers with semantic compositions. Destacadas keeps the photographic overlay cover. Country reporting uses a plain photographic feature with adjacent dispatches; a single country report splits image and text on wide screens. Internacional uses a full-width image/ink-text band with a row of supporting photographs beneath. Otras regiones uses a Newsreader feature beside a compact illustrated list containing all supporting reports. Interests use a softer feature and condensed rail. Each section's first returned report remains its lead; incoming order and uniqueness are unchanged. No new importance score, labels or factual claims were added.
 
 Containers below 620px stack the country/world feature; regional dispatches retain their illustrated list. The first browser pass found a real 768px overflow: the inherited secondary two-column grid squeezed the regional list. A one-column regional rail corrected it. Final eight-width browser checks preserve twelve headlines without overflow (varied-responsive.json). Desktop/mobile evidence is varied-desktop.jpg, varied-regions.jpg and varied-mobile.jpg in .impeccable/review. Temporary browsers/processes were not started; requested5173 is retained.
-
 
 ## Reading onward and persistent conversation — 2026-10-03
 

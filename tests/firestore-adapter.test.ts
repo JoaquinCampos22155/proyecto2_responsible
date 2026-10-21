@@ -34,6 +34,17 @@ afterAll(async () => {
 });
 
 describe("Firestore repository", () => {
+  it("creates a submission atomically and never replaces an existing owner", async () => {
+    const first = article("unique-submission", { submittedByUid: "first" });
+    const second = article("unique-submission", { submittedByUid: "second" });
+    const results = await Promise.all([
+      repo.createArticle(first),
+      repo.createArticle(second),
+    ]);
+    expect(results.filter(Boolean)).toHaveLength(1);
+    const stored = await repo.getArticle(first.id);
+    expect(stored?.submittedByUid).toBe(results[0] ? "first" : "second");
+  });
   it("persists usage from a mock chat with no token counts", async () => {
     await repo.saveArticle(article("river", { title: "River cleanup" }));
     const now = () => "2026-09-26T12:00:00.000Z";

@@ -1,9 +1,4 @@
-import {
-  useState,
-  useEffect,
-  useRef,
-  type FormEvent,
-} from "react";
+import { useState, useEffect, useRef, type FormEvent } from "react";
 import { Link } from "react-router-dom";
 import {
   ArrowRight,
@@ -100,7 +95,16 @@ export function Chat({
   const bottom = useRef<HTMLDivElement>(null);
   const composerInput = useRef<HTMLTextAreaElement>(null);
   const mutation = useMutation({
-    mutationFn: api.chat,
+    mutationFn: (sent: string) =>
+      api.chat(
+        sent,
+        messages.slice(-4).map((message) => ({
+          question: message.question,
+          articleIds: message.response.citations.map(
+            (citation) => citation.articleId,
+          ),
+        })),
+      ),
     onMutate: (sent) => {
       setPendingQuestion(sent);
       setQuestion("");
@@ -156,6 +160,9 @@ export function Chat({
         <div className="conversation-tools">
           <button
             className="text-button"
+            onPointerDown={(event) => {
+              if (event.button === 0) event.preventDefault();
+            }}
             disabled={
               mutation.isPending || (!messages.length && !question.length)
             }
@@ -176,7 +183,8 @@ export function Chat({
               <p>
                 Pide un resumen, consulta un tema o descubre qué leer hoy.
                 <br className="desktop-only" /> Las respuestas se basan en las
-                noticias de esta edición.
+                noticias de esta edición. Puedes seguir preguntando sobre un
+                reporte.
               </p>
             </header>
           )}
@@ -207,27 +215,34 @@ export function Chat({
                   <p className="answer-text">{message.response.answer}</p>
                   <div className="answer-status">
                     <span className="answer-label">
-                      {!message.response.citations.length
-                        ? "Sin reportes relacionados"
-                        : message.response.providerMode === "mock"
-                          ? "Respuesta de demostración"
-                          : "Resumen asistido por IA"}
+                      {message.response.refused
+                        ? "Solo noticias"
+                        : message.response.answerMode === "catalog"
+                          ? "Sobre la edición"
+                          : !message.response.citations.length
+                            ? "Sin reportes relacionados"
+                            : message.response.answerMode === "extractive"
+                              ? "Extracto de noticias"
+                              : message.response.providerMode === "mock"
+                                ? "Respuesta de demostración"
+                                : "Resumen asistido por IA"}
                     </span>
-                    {message.response.citations.length > 0 && (
-                      <Evidence status={message.response.uncertainty} />
-                    )}
+                    {message.response.citations.length > 0 &&
+                      message.response.answerMode !== "catalog" && (
+                        <Evidence status={message.response.uncertainty} />
+                      )}
                   </div>
                   {message.response.citations.length ? (
                     <ChatSources
                       citations={message.response.citations}
                       edition={edition}
                     />
-                  ) : (
+                  ) : message.response.answerMode !== "catalog" ? (
                     <p className="no-evidence">
                       Puedes preguntar qué leer hoy o elegir un tema como clima,
                       educación o salud.
                     </p>
-                  )}
+                  ) : null}
                 </div>
               </div>
             ))}
@@ -287,6 +302,9 @@ export function Chat({
             className="send-button"
             type="submit"
             aria-label="Enviar pregunta"
+            onPointerDown={(event) => {
+              if (event.button === 0) event.preventDefault();
+            }}
             disabled={question.trim().length < 3 || mutation.isPending}
           >
             <Send size={20} />

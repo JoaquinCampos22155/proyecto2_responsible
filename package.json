@@ -15,6 +15,8 @@
   "scripts": {
     "test": "vitest run tests --exclude tests/firestore-rules.test.ts --exclude tests/firestore-adapter.test.ts --exclude tests/emulator-smoke.test.ts",
     "test:watch": "vitest",
+    "test:ai-ethics": "vitest run tests/chat-safety.test.ts tests/chat-conversation.test.ts tests/spanish-chat.test.ts",
+    "test:ai-live": "tsx scripts/evaluate-chat.ts",
     "typecheck": "tsc --noEmit",
     "build": "tsc -p tsconfig.build.json",
     "format:check": "prettier --check .",
@@ -28,7 +30,7 @@
     "test:smoke:vitest": "vitest run tests/emulator-smoke.test.ts",
     "pretest:smoke": "npm run build",
     "test:smoke": "firebase emulators:exec --project demo-project2-responsible --only auth,firestore,functions \"npm run test:smoke:vitest\"",
-    "test:presentation": "npm run lint && npm run typecheck && npm test && npm --prefix frontend run typecheck && npm --prefix frontend run lint && npm --prefix frontend test && npm --prefix frontend run test:e2e && npm --prefix frontend run build && npm run test:emulators",
+    "test:presentation": "npm run lint && npm run typecheck && npm test && npm --prefix frontend run typecheck && npm --prefix frontend run lint && npm --prefix frontend test && npm --prefix frontend run test:e2e && npm --prefix frontend run build && npm --prefix frontend run test:pwa && npm run test:emulators",
     "deploy:project2": "npm run check && firebase deploy --project proyecto2responsibleai --only functions,firestore:rules,firestore:indexes,storage",
     "seed": "tsx scripts/seed.ts",
     "admin:claim": "tsx scripts/admin-claim.ts"

@@ -384,7 +384,9 @@ export function AdminSubmissions() {
                 aria-hidden="true"
               />
             )}
-            {mutation.isPending ? "Eliminando…" : "Sí, eliminar permanentemente"}
+            {mutation.isPending
+              ? "Eliminando…"
+              : "Sí, eliminar permanentemente"}
           </button>
         </Modal>
       )}

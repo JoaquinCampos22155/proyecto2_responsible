@@ -594,6 +594,69 @@ describe("reader workflows and disclosures", () => {
       screen.queryByText("A summary grounded in stored reports."),
     ).not.toBeInTheDocument();
   });
+  it("sends previous questions and cited IDs for follow-ups and clears them with the conversation", async () => {
+    boundary.api.chat.mockResolvedValue({
+      answer: "Una explicación nueva.",
+      answerMode: "generated",
+      citations: [
+        { articleId: articles[0].id, title: articles[0].title, sources: [] },
+      ],
+      uncertainty: "single_source",
+      providerMode: "gemini",
+    });
+    mount(<Chat />);
+    const user = userEvent.setup();
+    const input = screen.getByLabelText("Tu pregunta sobre las noticias");
+    await user.type(input, "noticias de meteorología{Enter}");
+    await screen.findByText("Una explicación nueva.");
+    await user.type(input, "hablame de esa noticia{Enter}");
+    await waitFor(() =>
+      expect(boundary.api.chat).toHaveBeenLastCalledWith(
+        "hablame de esa noticia",
+        [
+          {
+            question: "noticias de meteorología",
+            articleIds: [articles[0].id],
+          },
+        ],
+      ),
+    );
+    await waitFor(() =>
+      expect(screen.getAllByText("Una explicación nueva.")).toHaveLength(2),
+    );
+    await user.click(
+      screen.getByRole("button", { name: "Limpiar conversación" }),
+    );
+    await user.type(input, "noticias de salud{Enter}");
+    await waitFor(() =>
+      expect(boundary.api.chat).toHaveBeenLastCalledWith(
+        "noticias de salud",
+        [],
+      ),
+    );
+  });
+  it("labels catalog answers without misleading missing-report recovery text", async () => {
+    boundary.api.chat.mockResolvedValue({
+      answer: "Las 13 noticias publicadas son demo.",
+      answerMode: "catalog",
+      citations: [],
+      uncertainty: "unverified",
+      providerMode: "mock",
+    });
+    mount(<Chat />);
+    await userEvent.type(
+      screen.getByLabelText("Tu pregunta sobre las noticias"),
+      "hay alguna noticia que no sea demo?{Enter}",
+    );
+    await screen.findByText("Las 13 noticias publicadas son demo.");
+    expect(screen.getByText("Sobre la edición")).toBeInTheDocument();
+    expect(
+      screen.queryByText("Sin reportes relacionados"),
+    ).not.toBeInTheDocument();
+    expect(
+      screen.queryByText(/Puedes preguntar qué leer hoy o elegir un tema/),
+    ).not.toBeInTheDocument();
+  });
   it("suggests the current local report after the reader changes region", async () => {
     const garden = articles.find(
       (article) => article.id === "demo-new-york-garden",

@@ -1,0 +1,19 @@
+{
+  "project": "proyecto2responsibleai",
+  "articleId": "117e2022-a0a0-4ffe-940f-0f2eee9d21b0",
+  "articleUrl": "https://proyecto2responsibleai.web.app/news/117e2022-a0a0-4ffe-940f-0f2eee9d21b0",
+  "fictional": true,
+  "provider": "pexels",
+  "searchResults": 5,
+  "photoUrl": "https://images.pexels.com/photos/37165246/pexels-photo-37165246.jpeg?auto=compress&cs=tinysrgb&fit=crop&h=627&w=1200",
+  "sourcePageUrl": "https://www.pexels.com/photo/cozy-library-bookshelf-with-diverse-collection-37165246/",
+  "attribution": "Photo by Melike on Pexels",
+  "license": "Pexels License",
+  "imageBytes": 125897,
+  "generatedByAI": false,
+  "alteredByAI": false,
+  "steps": ["create", "edit", "edit", "assess", "publish"],
+  "readBackVerified": true,
+  "workflow": "Real service classes with operator-authenticated Firestore REST; not a browser admin session",
+  "timestamp": "2026-10-12T22:53:26.131Z"
+}

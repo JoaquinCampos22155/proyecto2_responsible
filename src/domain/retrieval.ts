@@ -12,17 +12,17 @@ function tokens(text: string): string[] {
 
 const stopwords = new Set(
   tokens(
-    "the and for what in on to is are a an of about happened que qué los las el la un una unos unas de del con por para como cómo cual cuál hay es son sobre en al se me mi mis tus sus esta este estas estos noticias noticia news hoy today debo puedo deberia paso ocurrio ocurre sucedio cuentame explicame explica",
+    "the and for what in on to is are a an of about happened que qué los las el la un una unos unas de del con por para como cómo cual cuál hay es son sobre en al se me mi mis tus sus esta este estas estos noticias noticia news hoy today debo puedo deberia paso ocurrio ocurre sucedio cuentame explicame explica quiero aprender entender saber hablame trata recomiendas",
   ),
 );
 const briefingWords = new Set(
   tokens(
-    "noticias noticia titulares novedades actualidad news briefing resumen resumir dame dar dime mostrar muestra cuentame leer leo lectura debo deberia puedo recomiendame recomienda recomiendas recomendarias recomendar recomendaciones importantes principales recientes ultima ultimas ultimo ultimos hoy today daily quiero necesito ver informacion",
+    "noticias noticia reportes reporte titulares novedades actualidad news briefing resumen resumir dame dar dime mostrar muestra cuentame leer leo lectura debo deberia puedo recomiendame recomienda recomiendas recomendarias recomendar recomendaciones importantes principales recientes ultima ultimas ultimo ultimos hoy today daily quiero necesito ver informacion",
   ),
 );
 const briefingMarkers = new Set(
   tokens(
-    "noticias noticia titulares novedades actualidad news briefing resumen",
+    "noticias noticia reportes reporte titulares novedades actualidad news briefing resumen",
   ),
 );
 
@@ -32,7 +32,73 @@ export function isGeneralNewsQuestion(query: string): boolean {
   const words = tokens(query);
   return (
     words.some((word) => briefingMarkers.has(word)) &&
-    words.every((word) => stopwords.has(word) || briefingWords.has(word))
+    words.every(
+      (word) =>
+        stopwords.has(word) || briefingWords.has(word) || /^\d+$/.test(word),
+    )
+  );
+}
+
+export interface ChatTurn {
+  question: string;
+  articleIds: string[];
+}
+
+// Follow-ups may reuse IDs, but never reuse client-supplied article content.
+// A named new subject such as "y sobre volcanes" must start a new search.
+export function isFollowUpQuestion(query: string): boolean {
+  const value = tokens(query).join(" ");
+  if (
+    /\b(?:sobre|acerca de)\s+(?!(?:esa|ese|esta|este|la noticia|el reporte)\b)/.test(
+      value,
+    )
+  )
+    return false;
+  return /\b(?:esa|ese|esta|este|dicha|dicho|la|el)\s+(?:noticia|reporte|articulo|historia|tema|ejercicio)\b|\b(?:eso|ello|lo anterior|que fuentes|cuales fuentes|sus fuentes|sus consecuencias|de que trata|hablame mas|explicame mas|explicalo|dime mas|que mas|por que|cuanto costo|quienes participaron|cuando ocurrio|donde ocurrio|que significa|profundiza|continua|resumela|resumelo)\b/.test(
+    value,
+  );
+}
+
+function stem(word: string): string {
+  return word.length > 4 && word.endsWith("s") ? word.slice(0, -1) : word;
+}
+
+// Bounded edit distance tolerates minor misspellings; short words stay exact.
+function matches(left: string, right: string): boolean {
+  const a = stem(left),
+    b = stem(right);
+  if (a === b) return true;
+  const budget = Math.min(a.length, b.length) >= 9 ? 2 : 1;
+  if (
+    Math.min(a.length, b.length) < 5 ||
+    Math.abs(a.length - b.length) > budget
+  )
+    return false;
+  let row = Array.from({ length: b.length + 1 }, (_, i) => i);
+  for (let i = 1; i <= a.length; i++) {
+    const next = [i];
+    for (let j = 1; j <= b.length; j++)
+      next[j] = Math.min(
+        next[j - 1]! + 1,
+        row[j]! + 1,
+        row[j - 1]! + (a[i - 1] === b[j - 1] ? 0 : 1),
+      );
+    if (Math.min(...next) > budget) return false;
+    row = next;
+  }
+  return row[b.length]! <= budget;
+}
+
+function contains(words: Set<string>, word: string): boolean {
+  return (
+    words.has(word) || [...words].some((candidate) => matches(word, candidate))
+  );
+}
+
+function textMatchesTopic(topic: string, text: Set<string>): boolean {
+  // "Tiempo" may mean travel time, not weather; only use it in the question.
+  return topicAliases[topic]!.some(
+    (alias) => alias !== "tiempo" && contains(text, alias),
   );
 }
 
@@ -65,6 +131,7 @@ export function retrieveContext(
   articleId: string;
   title: string;
   excerpt: string;
+  body: string;
   sources: SourceRecord[];
   verificationStatus: Article["verificationStatus"];
 }> {
@@ -89,7 +156,9 @@ export function retrieveContext(
     ];
     if (words.length === 0) return [];
     const queryTopics = Object.entries(topicAliases)
-      .filter(([, aliases]) => words.some((word) => aliases.includes(word)))
+      .filter(([, aliases]) =>
+        words.some((word) => aliases.some((alias) => matches(word, alias))),
+      )
       .map(([topic]) => topic);
     const ranked = published
       .map((article) => {
@@ -103,11 +172,11 @@ export function retrieveContext(
           ),
         );
         const matchesTopic = queryTopics.some(
-          (topic) =>
-            topics.has(topic) ||
-            topicAliases[topic]!.some((alias) => text.has(alias)),
+          (topic) => topics.has(topic) || textMatchesTopic(topic, text),
         );
-        const matchedWords = words.filter((word) => text.has(word)).length;
+        const matchedWords = words.filter((word) =>
+          contains(text, word),
+        ).length;
         // Geographic or incidental overlap cannot answer a different topic.
         const relevant =
           queryTopics.length > 0
@@ -116,11 +185,15 @@ export function retrieveContext(
         const score =
           words.reduce(
             (sum, word) =>
-              sum + (title.has(word) ? 3 : 0) + (text.has(word) ? 1 : 0),
+              sum +
+              (contains(title, word) ? 3 : 0) +
+              (contains(text, word) ? 1 : 0),
             0,
           ) +
           queryTopics.reduce(
-            (sum, topic) => sum + (topics.has(topic) ? 4 : 0),
+            (sum, topic) =>
+              sum +
+              (topics.has(topic) || textMatchesTopic(topic, text) ? 4 : 0),
             0,
           );
         return { article, score, relevant };
@@ -138,7 +211,8 @@ export function retrieveContext(
   return selected.map((article) => ({
     articleId: article.id,
     title: article.title,
-    excerpt: article.summary || article.body.slice(0, 500),
+    excerpt: (article.summary || article.body.slice(0, 500)).slice(0, 1500),
+    body: article.body.slice(0, 6000),
     sources: article.sources,
     verificationStatus: article.verificationStatus,
   }));

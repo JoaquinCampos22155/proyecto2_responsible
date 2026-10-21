@@ -15,7 +15,9 @@
   --soft: #eaf0f5;
   --blue: #214b73;
   --radius: 12px;
-  --editorial-nav-height: calc(65px + env(safe-area-inset-bottom));
+  --app-safe-top: env(safe-area-inset-top, 0px);
+  --app-safe-bottom: env(safe-area-inset-bottom, 0px);
+  --editorial-nav-height: calc(65px + var(--app-safe-bottom));
   font-family: "DM Sans", sans-serif;
   color: var(--ink);
   background: var(--paper);
@@ -4026,7 +4028,7 @@ textarea::placeholder {
 }
 @media (max-width: 1199px) {
   .chat-rail {
-    inset: auto 16px max(80px, calc(16px + env(safe-area-inset-bottom))) auto;
+    inset: auto 16px calc(var(--editorial-nav-height) + 12px) auto;
     width: auto;
     height: auto;
     background: var(--ink);
@@ -5801,38 +5803,53 @@ textarea::placeholder {
 /* The reading drawer stays horizontal on small screens, with a native or
    simulated keyboard taking only the space it actually needs. */
 @media (max-width: 1199px) {
+  .feed-toolbar {
+    position: static;
+  }
+  .feed-toolbar-condensed .topic-navigation {
+    flex-basis: auto;
+    max-width: none;
+    opacity: 1;
+    pointer-events: auto;
+  }
   .chat-layer.is-open {
-    --chat-drawer-height: clamp(280px, 40dvh, 360px);
+    position: fixed;
+    z-index: 102;
+    inset: var(--app-safe-top) 0 var(--editorial-nav-height);
+    display: flex;
+    flex-direction: column;
+    pointer-events: none;
   }
 
   .chat-layer.is-open .chat-panel {
-    inset: auto 0 var(--editorial-nav-height);
+    position: relative;
+    inset: auto;
     width: 100%;
-    height: var(--chat-drawer-height);
+    height: auto;
+    flex: 1;
     min-height: 0;
     max-width: none;
+    pointer-events: auto;
     border: 0;
     border-top: 1px solid var(--line);
     border-radius: 20px 20px 0 0;
     box-shadow: 0 -14px 38px rgb(16 36 58 / 14%);
-    transition:
-      height 240ms ease,
-      bottom 240ms ease,
-      border-radius 240ms ease;
   }
 
-  .chat-layer.is-open.is-keyboard-open .chat-panel {
-    inset: auto 0 var(--chat-keyboard-bottom, 0px);
+  .chat-layer.is-open.is-keyboard-open {
+    top: max(var(--app-safe-top), var(--chat-viewport-top, 0px));
+    bottom: auto;
     height: calc(
-      100dvh - env(safe-area-inset-top, 0px) - var(--chat-keyboard-bottom, 0px)
+      var(--chat-viewport-height, 100dvh) -
+        max(0px, var(--app-safe-top) - var(--chat-viewport-top, 0px))
     );
-    min-height: 0;
+  }
+  .chat-layer.is-open.is-keyboard-open .chat-panel {
     border-radius: 18px 18px 0 0;
     box-shadow: none;
   }
-
   .chat-layer--preview[data-keyboard-mode="simulated"].is-keyboard-open {
-    --chat-keyboard-bottom: clamp(238px, 36dvh, 294px);
+    height: calc(100dvh - var(--app-safe-top) - clamp(238px, 36dvh, 294px));
   }
 
   .chat-layer.is-open .chat-panel .chat-panel-header {
@@ -5878,6 +5895,7 @@ textarea::placeholder {
   }
 
   .chat-layer.is-open .chat-compact .chat-composer textarea {
+    font-size: 16px;
     min-height: 46px;
     height: 46px;
   }
@@ -6043,7 +6061,7 @@ textarea::placeholder {
   background: transparent;
   color: var(--ink);
   font: inherit;
-  font-size: 13px;
+  font-size: 16px;
   line-height: 1.4;
 }
 
@@ -6156,15 +6174,21 @@ textarea::placeholder {
 
 @media (max-width: 1199px) {
   .chat-layer.is-open .chat-news-carousel {
-    position: fixed;
-    z-index: 99;
-    inset: 0 0 calc(var(--editorial-nav-height) + var(--chat-drawer-height));
+    position: relative;
+    z-index: auto;
+    inset: auto;
     display: flex;
+    flex: 0 0 clamp(150px, 23dvh, 196px);
     min-height: 0;
     flex-direction: column;
-    padding: max(12px, env(safe-area-inset-top, 12px)) 14px 10px;
+    pointer-events: auto;
+    padding: 8px 14px 12px;
     background:
-      radial-gradient(ellipse at 50% 0%, rgb(232 238 243 / 78%), transparent 58%),
+      radial-gradient(
+        ellipse at 50% 0%,
+        rgb(232 238 243 / 78%),
+        transparent 58%
+      ),
       var(--paper);
     opacity: 1;
     visibility: visible;
@@ -6172,9 +6196,7 @@ textarea::placeholder {
   }
 
   .chat-layer.is-open .chat-news-carousel.is-covered {
-    opacity: 0;
-    visibility: hidden;
-    pointer-events: none;
+    display: none;
   }
 
   .chat-news-carousel-header {
@@ -6192,7 +6214,7 @@ textarea::placeholder {
     color: var(--red);
     font-size: 9px;
     font-weight: 700;
-    letter-spacing: .09em;
+    letter-spacing: 0.09em;
   }
 
   .chat-news-carousel-header > div:first-child > span {
@@ -6222,14 +6244,14 @@ textarea::placeholder {
   }
 
   .chat-news-carousel-controls button:disabled {
-    opacity: .45;
+    opacity: 0.45;
   }
 
   .chat-news-card {
-    display: flex;
+    display: grid;
+    grid-template-columns: minmax(88px, 30%) minmax(0, 1fr);
     flex: 1;
     min-height: 0;
-    flex-direction: column;
     overflow-y: auto;
     overscroll-behavior: contain;
     touch-action: pan-y;
@@ -6250,8 +6272,17 @@ textarea::placeholder {
     margin: 0;
   }
 
+  .chat-news-card-image {
+    min-height: 0;
+  }
+  .chat-news-card-image .news-image,
   .chat-news-card-image .image-frame {
-    aspect-ratio: 2.35;
+    height: 100%;
+    min-height: 110px;
+    aspect-ratio: auto;
+  }
+  .chat-news-card:not(:has(.chat-news-card-image)) {
+    grid-template-columns: 1fr;
   }
 
   .chat-news-card-image .news-image img {
@@ -6289,9 +6320,20 @@ textarea::placeholder {
 
   .chat-news-card-content h2 {
     margin: 0;
-    font-size: 18px;
-    line-height: 1.2;
-    letter-spacing: -.025em;
+    font-size: 15px;
+    line-height: 1.25;
+    letter-spacing: -0.025em;
+  }
+  .chat-news-card-content h2 a {
+    display: block;
+  }
+  .chat-news-card-content .chat-news-open {
+    display: inline-flex;
+    min-height: 32px;
+    align-items: center;
+    gap: 5px;
+    font-size: 11px;
+    color: var(--blue);
   }
 
   .chat-news-card-summary {
@@ -6360,7 +6402,7 @@ textarea::placeholder {
 
 @keyframes chat-news-card-enter {
   from {
-    opacity: .6;
+    opacity: 0.6;
     transform: translateX(7px);
   }
   to {
@@ -6482,5 +6524,89 @@ textarea::placeholder {
     animation-iteration-count: 1 !important;
     scroll-behavior: auto !important;
     transition-duration: 0.01ms !important;
+  }
+}
+
+/* Installation is available before sign-in and on browsers without a prompt. */
+.install-page {
+  max-width: 960px;
+  padding-block: 32px 80px;
+}
+.install-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 24px;
+}
+.install-intro {
+  max-width: 660px;
+  padding-block: clamp(40px, 8vw, 80px) 40px;
+}
+.install-intro img {
+  border-radius: 20px;
+  margin-bottom: 24px;
+}
+.install-intro h1 {
+  font-size: clamp(32px, 6vw, 56px);
+  line-height: 1.08;
+  letter-spacing: -0.04em;
+  margin-bottom: 20px;
+}
+.install-intro > p {
+  max-width: 560px;
+  font-size: 17px;
+  line-height: 1.65;
+  margin-bottom: 24px;
+}
+.install-platforms {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 32px;
+  border-block: 1px solid var(--line, #d6dfe7);
+  padding-block: 32px;
+}
+.install-platforms h2,
+.install-status {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.install-platforms h2 {
+  font-size: 22px;
+  margin-bottom: 20px;
+}
+.install-platforms ol {
+  list-style: decimal;
+  padding-left: 24px;
+  line-height: 1.7;
+}
+.install-platforms li {
+  padding-left: 6px;
+  margin-bottom: 14px;
+}
+.install-platforms li svg {
+  display: inline;
+  vertical-align: middle;
+}
+.install-details {
+  max-width: 660px;
+  padding-top: 32px;
+}
+.install-details h2 {
+  font-size: 22px;
+  margin-bottom: 16px;
+}
+.install-details p {
+  line-height: 1.7;
+  margin-bottom: 16px;
+}
+@media (max-width: 600px) {
+  .install-top {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+  .install-platforms {
+    grid-template-columns: 1fr;
+    gap: 24px;
   }
 }

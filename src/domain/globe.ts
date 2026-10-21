@@ -92,6 +92,7 @@ export function digestGlobeNews(
     if (Number.isNaN(publishedAt) || publishedAt < start || publishedAt >= end)
       continue;
     inRangeArticles.push(article);
+
     for (const country of new Set(
       article.countries.map((code) => code.toUpperCase()),
     )) {

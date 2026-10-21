@@ -1,6 +1,11 @@
 import { useEffect, useRef, useState, type FormEvent } from "react";
 import { ArrowUp, BookOpen, Sparkles } from "lucide-react";
 
+import {
+  isDisallowedChatRequest,
+  NEWS_ONLY_REFUSAL,
+} from "../../../src/domain/chat-policy";
+
 type DemoMessage = { author: "reader" | "assistant"; text: string };
 
 export function ChatPreview({
@@ -26,7 +31,10 @@ export function ChatPreview({
     const question = draft.trim();
     if (question.length < 3 || thinking) return;
 
-    setMessages((previous) => [...previous, { author: "reader", text: question }]);
+    setMessages((previous) => [
+      ...previous,
+      { author: "reader", text: question },
+    ]);
     setDraft("");
     setThinking(true);
     input.current?.blur();
@@ -37,7 +45,9 @@ export function ChatPreview({
         ...previous,
         {
           author: "assistant",
-          text: "Esta es una respuesta de muestra. En el chat conectado, la respuesta se apoyará en los reportes disponibles y mostrará sus fuentes.",
+          text: isDisallowedChatRequest(question)
+            ? NEWS_ONLY_REFUSAL
+            : "Esta es una respuesta de muestra. En el chat conectado, la respuesta se apoyará en los reportes disponibles y mostrará sus fuentes.",
         },
       ]);
       setThinking(false);
@@ -117,6 +127,9 @@ export function ChatPreview({
         <button
           type="submit"
           aria-label="Enviar pregunta"
+          onPointerDown={(event) => {
+            if (event.button === 0) event.preventDefault();
+          }}
           disabled={draft.trim().length < 3 || thinking}
         >
           <ArrowUp size={19} aria-hidden="true" />

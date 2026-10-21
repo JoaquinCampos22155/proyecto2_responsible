@@ -31,12 +31,28 @@ describe("live provider boundaries", () => {
             {
               content: {
                 parts: [
-                  { text: "Según la noticia, comenzó una limpieza del río." },
+                  {
+                    text: JSON.stringify({
+                      status: "answered",
+                      paragraphs: [
+                        {
+                          text: "En la comunidad comenzó una limpieza del río.",
+                          index: 0,
+                          quote:
+                            "En la comunidad comenzó una limpieza del río.",
+                        },
+                      ],
+                    }),
+                  },
                 ],
               },
             },
           ],
-          usageMetadata: { promptTokenCount: 100, candidatesTokenCount: 20 },
+          usageMetadata: {
+            promptTokenCount: 100,
+            candidatesTokenCount: 20,
+            thoughtsTokenCount: 10,
+          },
         }),
         { status: 200, headers: { "Content-Type": "application/json" } },
       );
@@ -44,7 +60,7 @@ describe("live provider boundaries", () => {
     const repo = new MemoryRepository([
       article("river", {
         title: "River cleanup",
-        summary: "A classroom cleanup began.",
+        summary: "En la comunidad comenzó una limpieza del río.",
       }),
     ]);
     const service = new ChatService(
@@ -69,19 +85,19 @@ describe("live provider boundaries", () => {
     expect(payload.systemInstruction.parts[0].text).toContain(
       "Responde en español",
     );
-    expect(payload.contents[0].parts[0].text).toContain("Noticia 1:");
+    expect(payload.contents[0].parts[0].text).toContain('"index":0');
     expect(payload.contents[0].parts[0].text).toContain(
-      "A classroom cleanup began.",
+      "En la comunidad comenzó una limpieza del río.",
     );
     expect(payload.contents[0].parts[0].text).not.toContain('[{"articleId"');
-    expect(payload.generationConfig.maxOutputTokens).toBeLessThanOrEqual(256);
+    expect(payload.generationConfig.maxOutputTokens).toBeLessThanOrEqual(2048);
     const usage = await repo.listUsage();
     expect(usage[0]).toMatchObject({
       provider: "gemini",
       model: "gemini-3.5-flash-lite",
       inputTokens: 100,
-      outputTokens: 20,
-      estimatedCostUsd: 0.00008,
+      outputTokens: 30,
+      estimatedCostUsd: 0.000105,
     });
     expect(JSON.stringify(result)).not.toContain("test-key");
   });

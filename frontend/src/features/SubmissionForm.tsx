@@ -480,7 +480,11 @@ export function SubmissionForm({ preview = false }: { preview?: boolean }) {
             >
               {submit.isPending ? "Enviando reporte…" : "Enviar para revisión"}
               {submit.isPending ? (
-                <LoaderCircle className="action-spinner" size={16} aria-hidden="true" />
+                <LoaderCircle
+                  className="action-spinner"
+                  size={16}
+                  aria-hidden="true"
+                />
               ) : (
                 <Check size={16} aria-hidden="true" />
               )}

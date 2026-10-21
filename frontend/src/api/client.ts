@@ -2,6 +2,7 @@ import type {
   Article,
   AuditRecord,
   ChatResponse,
+  ChatTurn,
   DraftInput,
   EventInput,
   FeedItem,
@@ -109,8 +110,11 @@ export function createClient(
           ...(topic ? { topic } : {}),
         },
       }),
-    chat: (question: string) =>
-      request<ChatResponse>("/v1/chat", { method: "POST", body: { question } }),
+    chat: (question: string, history: ChatTurn[] = []) =>
+      request<ChatResponse>("/v1/chat", {
+        method: "POST",
+        body: { question, ...(history.length ? { history } : {}) },
+      }),
     mySubmissions: () => request<{ items: Article[] }>("/v1/me/submissions"),
     submitNews: (body: SubmissionInput) =>
       request<Article>("/v1/me/submissions", { method: "POST", body }),

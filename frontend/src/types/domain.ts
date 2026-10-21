@@ -168,6 +168,8 @@ export type GlobeResponse = {
 };
 export type ChatResponse = {
   answer: string;
+  refused?: boolean;
+  answerMode?: "generated" | "extractive" | "refused" | "catalog";
   citations: {
     articleId: string;
     title: string;
@@ -176,6 +178,7 @@ export type ChatResponse = {
   uncertainty: VerificationStatus;
   providerMode: "mock" | "gemini";
 };
+export type ChatTurn = { question: string; articleIds: string[] };
 export type Usage = {
   totalUsd: number;
   remainingUsd: number;
