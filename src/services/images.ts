@@ -8,6 +8,55 @@ export interface ImageProvider {
 export interface GeneratedImageProvider {
   generate(keywords: string, now: string): Promise<ImageRecord>;
 }
+
+const imageSearchStopWords = new Set(
+  [
+    "a about al an and anuncia anuncian as at by comienza comienzan con de del desde el en entre esta este for from in inicia inician is la las los mas new nuevo nueva nuevos nuevas of on or para por presenta presentan proyecto realiza realizan se sobre su sus the to tras un una with y",
+    "prueba prueban instala instalan",
+  ]
+    .join(" ")
+    .split(" "),
+);
+
+const topicSearchTerms: Record<string, string> = {
+  climate: "clima",
+  weather: "clima",
+  education: "educación",
+  health: "salud",
+  science: "ciencia",
+  energy: "energía",
+  transport: "transporte",
+  culture: "cultura",
+  community: "comunidad",
+  environment: "ambiente",
+  technology: "tecnología",
+  economy: "economía",
+  sports: "deportes",
+  politics: "política",
+  politica: "política",
+  government: "gobierno",
+};
+
+function normalizeSearchTerm(value: string): string {
+  return value.normalize("NFD").replace(/\p{M}/gu, "").toLocaleLowerCase("es");
+}
+
+function searchTerms(text: string): string[] {
+  return (text.toLocaleLowerCase("es").match(/\p{L}{3,}/gu) ?? []).filter(
+    (term) => !imageSearchStopWords.has(normalizeSearchTerm(term)),
+  );
+}
+
+function uniqueSearchTerms(terms: string[]): string[] {
+  const seen = new Set<string>();
+  return terms.filter((term) => {
+    const key = normalizeSearchTerm(term);
+    if (seen.has(key)) return false;
+    seen.add(key);
+    return true;
+  });
+}
+
 export class MockStockImageProvider implements ImageProvider {
   readonly mode = "mock-stock";
   async search(_keywords: string, now: string): Promise<ImageRecord[]> {
@@ -35,6 +84,8 @@ export class PexelsImageProvider implements ImageProvider {
     const url = new URL("https://api.pexels.com/v1/search");
     url.searchParams.set("query", keywords);
     url.searchParams.set("per_page", "5");
+    url.searchParams.set("orientation", "landscape");
+    url.searchParams.set("locale", "es-ES");
     let response: Response;
     try {
       response = await this.fetcher(url, {
@@ -114,41 +165,40 @@ export class ImageService {
 
 // Neutral stock subjects illustrate a topic, never reconstruct the reported event.
 export function stockQuery(
-  article: Pick<Article, "title" | "topics" | "countries">,
+  article: Pick<Article, "title" | "summary" | "body" | "topics" | "countries">,
 ): string {
-  const text = article.title
-    .normalize("NFD")
-    .replace(/\p{M}/gu, "")
-    .toLowerCase();
-  if (
-    article.topics.some((topic) =>
-      /^(politics|politica|government)$/.test(topic),
-    )
-  )
-    return article.countries.includes("US") ||
-      /ee\.?\s?uu|estados unidos|trump|washington/.test(text)
-      ? "United States Capitol building"
-      : "government parliament building";
-  const subjects: Record<string, string> = {
-    climate: "weather clouds",
-    weather: "weather clouds",
-    education: "school classroom",
-    health: "hospital healthcare",
-    science: "science laboratory",
-    energy: "solar panels",
-    transport: "public transport",
-    culture: "museum art",
-    community: "community public park",
-    environment: "nature forest",
-    technology: "technology computer",
-    economy: "business finance",
-    sports: "sports stadium",
-  };
-  return (
-    article.topics.map((topic) => subjects[topic]).find(Boolean) ??
-    article.title
-      .replace(/^\s*\[DEMO\]\s*/i, "")
-      .trim()
-      .slice(0, 100)
+  const title = article.title.replace(/^\s*\[DEMO\]\s*/i, "");
+  const titleTerms = searchTerms(title).slice(0, 5);
+  const summaryTerms = searchTerms(article.summary).slice(0, 6);
+  const bodyTerms = searchTerms(article.body.slice(0, 800)).slice(0, 4);
+  const countryNames = new Intl.DisplayNames(["es"], { type: "region" });
+  const locations = article.countries.flatMap((code) => {
+    const name = countryNames.of(code.toUpperCase());
+    return name && name.toUpperCase() !== code.toUpperCase()
+      ? searchTerms(name)
+      : [];
+  });
+  const topicFallback = uniqueSearchTerms(
+    article.topics.flatMap((topic) => {
+      const term = topicSearchTerms[normalizeSearchTerm(topic)];
+      return term ? [term] : [];
+    }),
   );
+  const contentTerms = uniqueSearchTerms([...titleTerms, ...summaryTerms]);
+  const candidates = [
+    ...titleTerms,
+    ...summaryTerms.slice(0, 4),
+    ...(contentTerms.length < 4 ? topicFallback : []),
+    ...locations,
+    ...summaryTerms.slice(4),
+    ...bodyTerms,
+    ...topicFallback,
+  ];
+  const selected: string[] = [];
+  for (const candidate of uniqueSearchTerms(candidates)) {
+    if (selected.length >= 10) break;
+    const next = [...selected, candidate].join(" ");
+    if (next.length <= 100) selected.push(candidate);
+  }
+  return selected.join(" ") || title.trim().slice(0, 100);
 }

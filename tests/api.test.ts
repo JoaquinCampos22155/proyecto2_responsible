@@ -489,11 +489,15 @@ describe("community submissions and moderation", () => {
     "automatically attaches a stock image with provenance when %s has no image",
     async (operation) => {
       const row = article("automatic-photo", {
+        title: "Estudiantes prueban autobuses eléctricos en Quetzaltenango",
+        summary:
+          "Un proyecto de transporte público instala cargadores para la flota local.",
+        body: "La municipalidad prueba nuevos vehículos eléctricos y estaciones de carga.",
         status: operation === "approve" ? "pending_review" : "draft",
         submittedByUid: operation === "approve" ? "u1" : undefined,
         originDate: "2026-09-25",
-        topics: ["politics"],
-        countries: ["US"],
+        topics: ["transport"],
+        countries: ["GT"],
         image: null,
       });
       delete row.submittedByUid;
@@ -529,7 +533,14 @@ describe("community submissions and moderation", () => {
         .set(auth("admin"))
         .send(operation === "approve" ? { editorialPriority: "normal" } : {});
       expect(response.status).toBe(200);
-      expect(search).toHaveBeenCalled();
+      expect(search).toHaveBeenCalledWith(
+        expect.stringContaining("autobuses"),
+        expect.any(String),
+      );
+      expect(search.mock.calls[0]?.[0].toLowerCase()).toContain(
+        "quetzaltenango",
+      );
+      expect(search.mock.calls[0]?.[0]).toContain("cargadores");
       expect(response.body.image).toEqual(photo);
       expect((await repo.getArticle(row.id))?.image).toEqual(photo);
       expect(

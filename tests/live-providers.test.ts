@@ -165,9 +165,11 @@ describe("live provider boundaries", () => {
       "river cleanup",
       now(),
     );
-    expect(requests[0]?.url).toBe(
-      "https://api.pexels.com/v1/search?query=river+cleanup&per_page=5",
-    );
+    const searchUrl = new URL(requests[0]!.url);
+    expect(searchUrl.searchParams.get("query")).toBe("river cleanup");
+    expect(searchUrl.searchParams.get("per_page")).toBe("5");
+    expect(searchUrl.searchParams.get("orientation")).toBe("landscape");
+    expect(searchUrl.searchParams.get("locale")).toBe("es-ES");
     expect(
       (requests[0]?.init.headers as Record<string, string>).Authorization,
     ).toBe("test-key");
