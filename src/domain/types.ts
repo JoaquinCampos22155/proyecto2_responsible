@@ -100,6 +100,7 @@ export interface AuditRecord {
     | "assess"
     | "publish"
     | "archive"
+    | "reopen"
     | "submit"
     | "approve_submission"
     | "delete_submission";

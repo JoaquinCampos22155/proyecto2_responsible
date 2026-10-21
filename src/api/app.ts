@@ -43,12 +43,6 @@ export interface AppOptions {
 }
 export function createApp(options: AppOptions): Express {
   const app = express();
-  const news = new NewsService(
-    options.repo,
-    options.now,
-    options.deleteStoredImage,
-    options.storageBucket,
-  );
   const users = new UserService(options.repo, options.now);
   const usage = new UsageService(options.repo, options.budgetUsd, options.now);
   const chat = new ChatService(
@@ -60,6 +54,14 @@ export function createApp(options: AppOptions): Express {
   const images = new ImageService(
     options.imageProvider ?? new MockStockImageProvider(),
     options.now,
+    usage,
+  );
+  const news = new NewsService(
+    options.repo,
+    options.now,
+    options.deleteStoredImage,
+    options.storageBucket,
+    (article, actorUid) => images.forArticle(article, actorUid),
   );
   const identity = (locals: Record<string, unknown>) =>
     locals.identity as Identity;
@@ -394,6 +396,17 @@ export function createApp(options: AppOptions): Express {
     ),
   );
   app.post(
+    "/v1/admin/news/:id/reopen",
+    asyncRoute(async (req, res) => {
+      z.object({})
+        .strict()
+        .parse(req.body ?? {});
+      res.json(
+        await news.reopen(String(req.params.id), identity(res.locals).uid),
+      );
+    }),
+  );
+  app.post(
     "/v1/admin/news/:id/sources",
     asyncRoute(async (req, res) =>
       res.json(
@@ -447,7 +460,9 @@ export function createApp(options: AppOptions): Express {
     "/v1/admin/images/search",
     asyncRoute(async (req, res) => {
       const keywords = z.string().min(2).max(100).parse(req.query.keywords);
-      res.json({ images: await images.search(keywords) });
+      res.json({
+        images: await images.search(keywords, identity(res.locals).uid),
+      });
     }),
   );
   app.get(

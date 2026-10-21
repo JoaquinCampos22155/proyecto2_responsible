@@ -1,6 +1,6 @@
 import { randomUUID } from "node:crypto";
 import { assessEvidence } from "../domain/evidence.js";
-import type { Article, SourceRecord } from "../domain/types.js";
+import type { Article, ImageRecord, SourceRecord } from "../domain/types.js";
 import {
   draftInput,
   imageInput,
@@ -15,6 +15,10 @@ export class NewsService {
     private now: () => string,
     private deleteStoredImage?: (path: string) => Promise<void>,
     private storageBucket?: string,
+    private illustration?: (
+      article: Article,
+      actorUid: string,
+    ) => Promise<ImageRecord | null>,
   ) {}
   async submit(
     input: unknown,
@@ -111,6 +115,28 @@ export class NewsService {
     await this.audit(id, actorUid, "edit");
     return article;
   }
+  async reopen(id: string, actorUid: string): Promise<Article> {
+    const current = await this.repo.getArticle(id);
+    if (!current) throw new AppError("NOT_FOUND", "Article not found", 404);
+    if (current.status !== "published" && current.status !== "archived")
+      throw new AppError(
+        "PRECONDITION_FAILED",
+        "Only published or archived reports can return to draft",
+        409,
+      );
+    const article: Article = {
+      ...current,
+      status: "draft",
+      humanReview: null,
+      verificationStatus: "unverified",
+      updatedAt: this.now(),
+    };
+    await this.repo.saveArticle(article);
+    await this.audit(id, actorUid, "reopen", {
+      previousStatus: current.status,
+    });
+    return article;
+  }
   async addSource(
     id: string,
     input: unknown,
@@ -175,8 +201,9 @@ export class NewsService {
         current.sources,
         current.developing ?? false,
       ),
+      image: await this.publicationImage(current, actorUid),
       status: "published",
-      publishedAt: timestamp,
+      publishedAt: current.publishedAt ?? timestamp,
       updatedAt: timestamp,
       humanReview: { reviewedBy: actorUid, reviewedAt: timestamp },
     };
@@ -236,6 +263,7 @@ export class NewsService {
         current.developing ?? false,
       ),
       editorialPriority,
+      image: await this.publicationImage(current, actorUid),
       status: "published",
       publishedAt,
       updatedAt: timestamp,
@@ -272,6 +300,14 @@ export class NewsService {
     if (!article || article.status !== "published")
       throw new AppError("NOT_FOUND", "Article not found", 404);
     return article;
+  }
+  private async publicationImage(
+    article: Article,
+    actorUid: string,
+  ): Promise<ImageRecord | null> {
+    if (article.image || !this.illustration) return article.image;
+    const image = await this.illustration(article, actorUid);
+    return image ? imageInput.parse(image) : null;
   }
   private async getDraft(id: string): Promise<Article> {
     const article = await this.repo.getArticle(id);
@@ -344,6 +380,7 @@ export class NewsService {
       | "assess"
       | "publish"
       | "archive"
+      | "reopen"
       | "submit"
       | "approve_submission"
       | "delete_submission",

@@ -1,5 +1,113 @@
 import { expect, test } from "@playwright/test";
 
+test("el editor conectado corrige una noticia publicada y exige una nueva revisión humana", async ({
+  page,
+}, testInfo) => {
+  test.skip(
+    process.env.FRONTEND_EMULATOR_TEST !== "1",
+    "Requiere Auth, Functions y Firestore locales.",
+  );
+  const api = "http://127.0.0.1:5001/demo-project2-responsible/us-central1/api";
+  const login = await page.request.post(
+    "http://127.0.0.1:9099/identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key=demo",
+    {
+      data: {
+        email: "editor@demo.test",
+        password: "local-demo-only",
+        returnSecureToken: true,
+      },
+    },
+  );
+  const { idToken } = await login.json();
+  const headers = { Authorization: `Bearer ${idToken}` };
+  const created = await page.request.post(`${api}/v1/admin/news`, {
+    headers,
+    data: {
+      title: `[DEMO] Exposición de cerámica ${testInfo.project.name}`,
+      body: "Reporte ficticio de una exposición de cerámica para probar una corrección editorial.",
+      canonicalUrl: "https://example.com/editor-regression",
+      scope: "national",
+      countries: ["GT"],
+      regions: [],
+      topics: ["culture"],
+      editorialPriority: "normal",
+    },
+  });
+  expect(created.status()).toBe(201);
+  const { id } = await created.json();
+  expect(
+    (
+      await page.request.post(`${api}/v1/admin/news/${id}/sources`, {
+        headers,
+        data: {
+          name: "Fuente ficticia para prueba",
+          publisher: "Mesa de pruebas",
+          url: "https://example.com/editor-source",
+          sourceType: "report",
+          stance: "supports",
+        },
+      })
+    ).ok(),
+  ).toBe(true);
+  const initial = await page.request.post(
+    `${api}/v1/admin/news/${id}/publish`,
+    { headers },
+  );
+  const original = await initial.json();
+  await page.goto("http://localhost:5174/login");
+  await page
+    .getByRole("button", { name: "Entrar como editor de prueba local" })
+    .click();
+  await expect(page.getByRole("heading", { name: "Noticias." })).toBeVisible();
+  await page.goto(`http://localhost:5174/admin/news/${id}`);
+  const title = page.getByRole("textbox", { name: "Titular *" });
+  await expect(title).toBeDisabled();
+  await page.getByRole("button", { name: "Editar como borrador" }).click();
+  await expect(
+    page.getByRole("dialog", { name: "Volver a borrador para editar" }),
+  ).toContainText("dejará de estar disponible");
+  await page
+    .getByRole("button", { name: "Confirmar edición como borrador" })
+    .click();
+  await expect(title).toBeEnabled();
+  expect(
+    (await page.request.get(`${api}/v1/news/${id}`, { headers })).status(),
+  ).toBe(404);
+  const corrected = `[DEMO] Cerámica: texto corregido ${testInfo.project.name}`;
+  await title.fill(corrected);
+  await page.getByRole("button", { name: "Guardar cambios" }).click();
+  await expect(page.getByText("Cambio editorial guardado.")).toBeVisible();
+  const saved = await page.request.get(`${api}/v1/admin/news/${id}`, {
+    headers,
+  });
+  expect((await saved.json()).title).toBe(corrected);
+  await page.getByRole("button", { name: "Revisar y publicar" }).click();
+  const confirm = page.getByRole("button", {
+    name: "Confirmar publicación humana",
+  });
+  await expect(confirm).toBeDisabled();
+  await page.getByRole("checkbox", { name: /He revisado el texto/ }).check();
+  await confirm.click();
+  await expect(
+    page.getByRole("button", { name: "Editar como borrador" }),
+  ).toBeVisible();
+  await expect(title).toBeDisabled();
+  const visible = await page.request.get(`${api}/v1/news/${id}`, { headers });
+  expect(await visible.json()).toMatchObject({
+    title: corrected,
+    publishedAt: original.publishedAt,
+  });
+  await page.screenshot({
+    path: testInfo.outputPath("editor-correction-published.png"),
+    fullPage: true,
+  });
+  expect(
+    (
+      await page.request.post(`${api}/v1/admin/news/${id}/archive`, { headers })
+    ).ok(),
+  ).toBe(true);
+});
+
 async function expectNoHorizontalOverflow(
   page: import("@playwright/test").Page,
 ) {

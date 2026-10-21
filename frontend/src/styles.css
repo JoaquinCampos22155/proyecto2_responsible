@@ -1668,6 +1668,22 @@ fieldset {
   font-size: 12px;
   margin-bottom: 25px;
 }
+.editor-reopen-note {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 16px;
+  padding: 16px;
+  margin-bottom: 24px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: var(--soft);
+}
+.editor-reopen-note p {
+  flex: 1 1 240px;
+  margin: 0;
+  font-size: 14px;
+}
 .editor-actions {
   border-top: 1px solid var(--line);
   margin-top: 45px;

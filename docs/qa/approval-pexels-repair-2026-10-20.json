@@ -1,0 +1,24 @@
+{
+  "project": "proyecto2responsibleai",
+  "articleId": "fa322af5-deb1-4564-8662-76be04092be0",
+  "checkedAt": "2026-10-21T04:25:56.638Z",
+  "query": "United States Capitol building",
+  "image": {
+    "url": "https://images.pexels.com/photos/20417783/pexels-photo-20417783.jpeg?auto=compress&cs=tinysrgb&fit=crop&h=627&w=1200",
+    "provider": "pexels",
+    "originalUrl": "https://images.pexels.com/photos/20417783/pexels-photo-20417783.jpeg",
+    "sourcePageUrl": "https://www.pexels.com/photo/us-capitol-in-washington-dc-20417783/",
+    "license": "Pexels License",
+    "attribution": "Photo by Ivan Dražić on Pexels",
+    "generatedByAI": false,
+    "alteredByAI": false,
+    "retrievedAt": "2026-10-21T04:25:55.069Z"
+  },
+  "status": "published",
+  "assetStatus": 200,
+  "assetType": "image/jpeg",
+  "auditId": "4785e3f5-ef5b-4e8a-adc5-da00edb40f89",
+  "usageId": "3bc8a9bf-e2b2-4eca-84f4-0a023d3ba410",
+  "estimatedCostUsd": 0,
+  "optimisticConcurrency": true
+}

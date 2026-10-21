@@ -30,6 +30,10 @@ const boundary = vi.hoisted(() => ({
     event: vi.fn(),
     chat: vi.fn(),
     adminNews: vi.fn(),
+    adminArticle: vi.fn(),
+    reopen: vi.fn(),
+    edit: vi.fn(),
+    publish: vi.fn(),
     mySubmissions: vi.fn(),
     submitNews: vi.fn(),
     adminSubmissions: vi.fn(),
@@ -61,6 +65,7 @@ import { Chat } from "./Chat";
 import { ChatSidebar } from "./ChatSidebar";
 import { Location } from "./Location";
 import { AdminNews } from "./Admin";
+import { AdminEditor } from "./AdminEditor";
 import { EventProvider } from "./EventProvider";
 import { newsTitle } from "../utils/presentation";
 import { NewsImage } from "../components/common";
@@ -142,6 +147,71 @@ beforeEach(() => {
   });
 });
 describe("reader workflows and disclosures", () => {
+  it("unlocks a published report through a confirmed draft transition, saves edits and requires human review to republish", async () => {
+    const original = articles[0];
+    const reopened = {
+      ...original,
+      status: "draft",
+      humanReview: null,
+    } as Article;
+    boundary.api.adminArticle.mockResolvedValue(original);
+    boundary.api.reopen.mockResolvedValue(reopened);
+    boundary.api.edit.mockResolvedValue({
+      ...reopened,
+      title: "Titular corregido para publicación",
+    });
+    boundary.api.publish.mockResolvedValue({
+      ...original,
+      title: "Titular corregido para publicación",
+    });
+    mount(
+      <Routes>
+        <Route path="/admin/news/:id" element={<AdminEditor />} />
+      </Routes>,
+      `/admin/news/${original.id}`,
+    );
+    const user = userEvent.setup();
+    const title = await screen.findByRole("textbox", { name: "Titular *" });
+    expect(title).toBeDisabled();
+    await user.click(
+      screen.getByRole("button", { name: "Editar como borrador" }),
+    );
+    expect(screen.getByRole("dialog")).toHaveTextContent(
+      /dejará de estar disponible/,
+    );
+    await user.click(
+      screen.getByRole("button", { name: "Confirmar edición como borrador" }),
+    );
+    await waitFor(() => expect(title).toBeEnabled());
+    expect(
+      screen.queryByRole("button", { name: "Archivar" }),
+    ).not.toBeInTheDocument();
+    await user.clear(title);
+    await user.type(title, "Titular corregido para publicación");
+    await user.click(screen.getByRole("button", { name: "Guardar cambios" }));
+    await waitFor(() =>
+      expect(boundary.api.edit).toHaveBeenCalledWith(
+        original.id,
+        expect.objectContaining({
+          title: "Titular corregido para publicación",
+        }),
+      ),
+    );
+    await user.click(
+      screen.getByRole("button", { name: "Revisar y publicar" }),
+    );
+    const publish = screen.getByRole("button", {
+      name: "Confirmar publicación humana",
+    });
+    expect(publish).toBeDisabled();
+    await user.click(
+      screen.getByRole("checkbox", { name: /He revisado el texto/ }),
+    );
+    await user.click(publish);
+    await waitFor(() =>
+      expect(boundary.api.publish).toHaveBeenCalledWith(original.id),
+    );
+  });
   it("opens a country when its clickable map shape is tapped", async () => {
     boundary.user = null;
     boundary.admin = false;

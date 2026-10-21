@@ -1,4 +1,4 @@
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 import request from "supertest";
 import { createApp } from "../src/api/app.js";
 import { MemoryRepository } from "../src/repository/memory.js";
@@ -289,6 +289,105 @@ describe("reader API", () => {
 });
 
 describe("editor API", () => {
+  it.each(["published", "archived"] as const)(
+    "reopens a %s report for editing, hides it, and republishes without changing its original date",
+    async (status) => {
+      const original = article("correction", {
+        status,
+        originDate: "2026-09-25",
+        submittedByUid: "u1",
+      });
+      const { app, repo } = setup(new MemoryRepository([original]));
+      expect(
+        (
+          await request(app)
+            .patch("/v1/admin/news/correction")
+            .set(auth("admin"))
+            .send({ title: "Changed too early" })
+        ).status,
+      ).toBe(409);
+      expect(
+        (
+          await request(app)
+            .post("/v1/admin/news/correction/reopen")
+            .set(auth("user"))
+        ).status,
+      ).toBe(403);
+      const reopened = await request(app)
+        .post("/v1/admin/news/correction/reopen")
+        .set(auth("admin"));
+      expect(reopened.status).toBe(200);
+      expect(reopened.body).toMatchObject({
+        status: "draft",
+        humanReview: null,
+        verificationStatus: "unverified",
+        sources: original.sources,
+        submittedByUid: "u1",
+        originDate: "2026-09-25",
+        publishedAt: original.publishedAt,
+      });
+      expect(
+        (await request(app).get("/v1/news/correction").set(auth("user")))
+          .status,
+      ).toBe(404);
+      const saved = await request(app)
+        .patch("/v1/admin/news/correction")
+        .set(auth("admin"))
+        .send({ title: "Corrected editorial title" });
+      expect(saved.status).toBe(200);
+      expect(saved.body.title).toBe("Corrected editorial title");
+      const published = await request(app)
+        .post("/v1/admin/news/correction/publish")
+        .set(auth("admin"));
+      expect(published.status).toBe(200);
+      expect(published.body).toMatchObject({
+        status: "published",
+        publishedAt: original.publishedAt,
+        humanReview: { reviewedBy: "admin-1" },
+      });
+      expect(
+        (await request(app).get("/v1/news/correction").set(auth("user"))).body
+          .title,
+      ).toBe("Corrected editorial title");
+      expect((await repo.listAudit()).map((row) => row.action)).toEqual([
+        "reopen",
+        "edit",
+        "publish",
+      ]);
+    },
+  );
+  it("rejects reopening drafts, pending reviews, missing reports and supplied state fields", async () => {
+    const { app } = setup(
+      new MemoryRepository([
+        article("draft", { status: "draft" }),
+        article("pending", { status: "pending_review" }),
+        article("published"),
+      ]),
+    );
+    for (const id of ["draft", "pending"])
+      expect(
+        (
+          await request(app)
+            .post(`/v1/admin/news/${id}/reopen`)
+            .set(auth("admin"))
+        ).status,
+      ).toBe(409);
+    expect(
+      (
+        await request(app)
+          .post("/v1/admin/news/missing/reopen")
+          .set(auth("admin"))
+      ).status,
+    ).toBe(404);
+    expect(
+      (
+        await request(app)
+          .post("/v1/admin/news/published/reopen")
+          .set(auth("admin"))
+          .send({ status: "published" })
+      ).status,
+    ).toBe(400);
+  });
   it("creates and publishes a sourced draft as an administrator", async () => {
     const { app } = setup();
     const created = await request(app)
@@ -367,6 +466,132 @@ describe("editor API", () => {
 });
 
 describe("community submissions and moderation", () => {
+  it("allows image-free publication when stock search has no matches", async () => {
+    const repo = new MemoryRepository([
+      article("no-stock", { status: "draft", image: null }),
+    ]);
+    const app = createApp({
+      repo,
+      verifyToken: tokens,
+      now,
+      budgetUsd: 20,
+      allowedOrigins: [],
+      imageProvider: { search: async () => [] },
+    });
+    const response = await request(app)
+      .post("/v1/admin/news/no-stock/publish")
+      .set(auth("admin"));
+    expect(response.status).toBe(200);
+    expect(response.body.image).toBeNull();
+    expect(response.body.status).toBe("published");
+  });
+  it.each(["approve", "publish"])(
+    "automatically attaches a stock image with provenance when %s has no image",
+    async (operation) => {
+      const row = article("automatic-photo", {
+        status: operation === "approve" ? "pending_review" : "draft",
+        submittedByUid: operation === "approve" ? "u1" : undefined,
+        originDate: "2026-09-25",
+        topics: ["politics"],
+        countries: ["US"],
+        image: null,
+      });
+      delete row.submittedByUid;
+      if (operation === "approve") row.submittedByUid = "u1";
+      const photo = {
+        url: "https://images.pexels.com/photos/123/pexels-photo-123.jpeg",
+        provider: "pexels",
+        originalUrl:
+          "https://images.pexels.com/photos/123/pexels-photo-123.jpeg",
+        sourcePageUrl: "https://www.pexels.com/photo/123/",
+        license: "Pexels License",
+        attribution: "Photo by Example on Pexels",
+        generatedByAI: false,
+        alteredByAI: false,
+        retrievedAt: now(),
+      };
+      const search = vi.fn().mockResolvedValue([photo]);
+      const repo = new MemoryRepository([row]);
+      const app = createApp({
+        repo,
+        verifyToken: tokens,
+        now,
+        budgetUsd: 20,
+        allowedOrigins: [],
+        imageProvider: { search },
+      });
+      const path =
+        operation === "approve"
+          ? "/v1/admin/submissions/automatic-photo/approve"
+          : "/v1/admin/news/automatic-photo/publish";
+      const response = await request(app)
+        .post(path)
+        .set(auth("admin"))
+        .send(operation === "approve" ? { editorialPriority: "normal" } : {});
+      expect(response.status).toBe(200);
+      expect(search).toHaveBeenCalled();
+      expect(response.body.image).toEqual(photo);
+      expect((await repo.getArticle(row.id))?.image).toEqual(photo);
+      expect(
+        (await repo.listUsage()).some((record) => record.feature === "image"),
+      ).toBe(true);
+    },
+  );
+  it("does not replace a supplied image and leaves an approval pending if the stock provider fails", async () => {
+    const photo = {
+      url: "https://images.example/photo.webp",
+      provider: "editorial",
+      originalUrl: null,
+      license: null,
+      attribution: "Community",
+      generatedByAI: false,
+      alteredByAI: false,
+      retrievedAt: now(),
+    };
+    const repo = new MemoryRepository([
+      article("with-photo", {
+        status: "pending_review",
+        submittedByUid: "u1",
+        originDate: "2026-09-25",
+        image: photo,
+      }),
+      article("no-photo", {
+        status: "pending_review",
+        submittedByUid: "u1",
+        originDate: "2026-09-25",
+        image: null,
+      }),
+    ]);
+    const search = vi
+      .fn()
+      .mockRejectedValue(new Error("Stock provider unavailable"));
+    const app = createApp({
+      repo,
+      verifyToken: tokens,
+      now,
+      budgetUsd: 20,
+      allowedOrigins: [],
+      imageProvider: { search },
+    });
+    expect(
+      (
+        await request(app)
+          .post("/v1/admin/submissions/with-photo/approve")
+          .set(auth("admin"))
+          .send({ editorialPriority: "normal" })
+      ).body.image,
+    ).toEqual(photo);
+    expect(search).not.toHaveBeenCalled();
+    expect(
+      (
+        await request(app)
+          .post("/v1/admin/submissions/no-photo/approve")
+          .set(auth("admin"))
+          .send({ editorialPriority: "normal" })
+      ).status,
+    ).toBe(500);
+    expect((await repo.getArticle("no-photo"))?.status).toBe("pending_review");
+  });
   it("rejects image URLs from another Firebase project even when their path matches", async () => {
     const { app } = setup();
     const path = `user-submissions/u1/${communitySubmission.submissionId}/image.jpg`;

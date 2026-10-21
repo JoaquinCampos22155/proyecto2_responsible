@@ -86,6 +86,7 @@ const actionLabel = {
   assess: "Evidencia evaluada",
   publish: "Revisión humana y publicación",
   archive: "Noticia archivada",
+  reopen: "Reporte devuelto a borrador para corrección",
   submit: "Reporte enviado por la comunidad",
   approve_submission: "Reporte comunitario aprobado",
   delete_submission: "Reporte comunitario eliminado",

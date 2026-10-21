@@ -34,6 +34,64 @@ afterAll(async () => {
 });
 
 describe("Firestore repository", () => {
+  it("keeps learned interests in Firestore across a new API instance and boosts future matching news", async () => {
+    const identity = {
+      uid: "returning-reader",
+      admin: false,
+      name: "Reader",
+      email: "reader@example.test",
+      picture: null,
+    };
+    const options = {
+      verifyToken: async () => identity,
+      now: () => "2026-09-26T12:00:00.000Z",
+      budgetUsd: 20,
+      allowedOrigins: ["http://localhost:5173"],
+    };
+    const api = createApp({ ...options, repo });
+    await repo.saveArticle(article("training", { topics: ["science"] }));
+    await repo.saveArticle(article("a-other", { topics: ["culture"] }));
+    for (let n = 0; n < 3; n++)
+      expect(
+        (
+          await request(api)
+            .post("/v1/events")
+            .set("Authorization", "Bearer reader")
+            .send({ type: "share", articleId: "training" })
+        ).status,
+      ).toBe(201);
+    const stored = await getFirestore(app)
+      .collection("users")
+      .doc(identity.uid)
+      .get();
+    expect(stored.get("interestWeights.science")).toBe(6);
+    await repo.saveArticle(article("future-science", { topics: ["science"] }));
+    const returning = createApp({
+      ...options,
+      repo: new FirestoreRepository(getFirestore(app)),
+    });
+    const me = await request(returning)
+      .get("/v1/me")
+      .set("Authorization", "Bearer new-session-token");
+    expect(me.body.interestWeights).toEqual({ science: 6 });
+    const feed = await request(returning)
+      .get("/v1/feed?limit=50")
+      .set("Authorization", "Bearer new-session-token");
+    const ids = feed.body.items.map(
+      (row: { article: { id: string } }) => row.article.id,
+    );
+    expect(ids.indexOf("future-science")).toBeLessThan(ids.indexOf("a-other"));
+    const other = await request(
+      createApp({
+        ...options,
+        repo,
+        verifyToken: async () => ({ ...identity, uid: "another-reader" }),
+      }),
+    )
+      .get("/v1/feed?limit=50")
+      .set("Authorization", "Bearer other");
+    expect(other.body.items[0].article.id).toBe("a-other");
+  });
   it("creates a submission atomically and never replaces an existing owner", async () => {
     const first = article("unique-submission", { submittedByUid: "first" });
     const second = article("unique-submission", { submittedByUid: "second" });
@@ -290,6 +348,11 @@ describe("Firestore repository", () => {
       .set("Authorization", "Bearer admin")
       .send({ editorialPriority: "high" });
     expect(approved.status).toBe(200);
+    expect(approved.body.image).toMatchObject({
+      provider: "mock-stock",
+      generatedByAI: false,
+      alteredByAI: false,
+    });
     expect(approved.body).toMatchObject({
       id,
       status: "published",

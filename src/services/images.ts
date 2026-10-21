@@ -1,12 +1,15 @@
-import type { ImageRecord } from "../domain/types.js";
+import type { Article, ImageRecord } from "../domain/types.js";
 import { AppError } from "./errors.js";
+import type { UsageService } from "./usage.js";
 export interface ImageProvider {
+  readonly mode?: string;
   search(keywords: string, now: string): Promise<ImageRecord[]>;
 }
 export interface GeneratedImageProvider {
   generate(keywords: string, now: string): Promise<ImageRecord>;
 }
 export class MockStockImageProvider implements ImageProvider {
+  readonly mode = "mock-stock";
   async search(_keywords: string, now: string): Promise<ImageRecord[]> {
     return [
       {
@@ -23,6 +26,7 @@ export class MockStockImageProvider implements ImageProvider {
   }
 }
 export class PexelsImageProvider implements ImageProvider {
+  readonly mode = "pexels";
   constructor(
     private apiKey: string,
     private fetcher: typeof fetch = fetch,
@@ -80,14 +84,71 @@ export class ImageService {
   constructor(
     private provider: ImageProvider,
     private now: () => string,
+    private usage?: UsageService,
   ) {}
-  async search(keywords: string): Promise<ImageRecord[]> {
+  async search(keywords: string, actorUid?: string): Promise<ImageRecord[]> {
     if (keywords.trim().length < 2 || keywords.length > 100)
       throw new AppError(
         "INVALID_INPUT",
         "Keywords must contain 2–100 characters",
         400,
       );
-    return this.provider.search(keywords, this.now());
+    const images = await this.provider.search(keywords, this.now());
+    await this.usage?.record({
+      provider: this.provider.mode ?? images[0]?.provider ?? "stock",
+      model: "stock-search",
+      feature: "image",
+      estimatedCostUsd: 0,
+      ...(actorUid ? { actorUid } : {}),
+      correlationId: this.now(),
+    });
+    return images;
   }
+  async forArticle(
+    article: Article,
+    actorUid: string,
+  ): Promise<ImageRecord | null> {
+    return (await this.search(stockQuery(article), actorUid))[0] ?? null;
+  }
+}
+
+// Neutral stock subjects illustrate a topic, never reconstruct the reported event.
+export function stockQuery(
+  article: Pick<Article, "title" | "topics" | "countries">,
+): string {
+  const text = article.title
+    .normalize("NFD")
+    .replace(/\p{M}/gu, "")
+    .toLowerCase();
+  if (
+    article.topics.some((topic) =>
+      /^(politics|politica|government)$/.test(topic),
+    )
+  )
+    return article.countries.includes("US") ||
+      /ee\.?\s?uu|estados unidos|trump|washington/.test(text)
+      ? "United States Capitol building"
+      : "government parliament building";
+  const subjects: Record<string, string> = {
+    climate: "weather clouds",
+    weather: "weather clouds",
+    education: "school classroom",
+    health: "hospital healthcare",
+    science: "science laboratory",
+    energy: "solar panels",
+    transport: "public transport",
+    culture: "museum art",
+    community: "community public park",
+    environment: "nature forest",
+    technology: "technology computer",
+    economy: "business finance",
+    sports: "sports stadium",
+  };
+  return (
+    article.topics.map((topic) => subjects[topic]).find(Boolean) ??
+    article.title
+      .replace(/^\s*\[DEMO\]\s*/i, "")
+      .trim()
+      .slice(0, 100)
+  );
 }

@@ -114,9 +114,29 @@ describe.runIf(enabled)(
         (await editor.image(draft.id, images.images[0])).image?.provider,
       ).toBe("mock-stock");
       expect((await editor.image(draft.id, null)).image).toBeNull();
+      await editor.image(draft.id, images.images[0]);
       const published = await editor.publish(draft.id);
       expect(published.humanReview?.reviewedBy).toBeTruthy();
       expect((await reader.news(draft.id)).status).toBe("published");
+      await expect(reader.reopen(draft.id)).rejects.toMatchObject({
+        status: 403,
+      });
+      const reediting = await editor.reopen(draft.id);
+      expect(reediting.status).toBe("draft");
+      expect(reediting.sources).toHaveLength(2);
+      expect(reediting.image).toEqual(images.images[0]);
+      expect(reediting.humanReview).toBeNull();
+      await expect(reader.news(draft.id)).rejects.toMatchObject({
+        status: 404,
+      });
+      await editor.edit(draft.id, {
+        title: "[DEMO] Corrected integration classroom report",
+      });
+      const republished = await editor.publish(draft.id);
+      expect(republished.publishedAt).toBe(published.publishedAt);
+      expect((await reader.news(draft.id)).title).toBe(
+        "[DEMO] Corrected integration classroom report",
+      );
       expect((await editor.archive(draft.id)).status).toBe("archived");
       await expect(reader.news(draft.id)).rejects.toMatchObject({
         status: 404,
@@ -129,6 +149,7 @@ describe.runIf(enabled)(
           "assess",
           "publish",
           "archive",
+          "reopen",
         ]),
       );
       const usage = await editor.usage();

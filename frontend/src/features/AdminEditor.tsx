@@ -206,9 +206,9 @@ export function AdminEditor() {
   const [tab, setTab] = useState("Texto"),
     [notice, setNotice] = useState(""),
     [dirty, setDirty] = useState(false),
-    [confirmation, setConfirmation] = useState<"publish" | "archive" | null>(
-      null,
-    ),
+    [confirmation, setConfirmation] = useState<
+      "publish" | "archive" | "reopen" | null
+    >(null),
     [reviewed, setReviewed] = useState(false),
     [keywords, setKeywords] = useState("");
   const query = useQuery({
@@ -224,9 +224,13 @@ export function AdminEditor() {
         client.invalidateQueries({ queryKey: keys.adminNews, exact: true }),
         client.invalidateQueries({ queryKey: ["admin", "audit"] }),
         client.invalidateQueries({ queryKey: keys.feed }),
+        client.invalidateQueries({ queryKey: keys.globe }),
+        client.invalidateQueries({ queryKey: keys.mySubmissions }),
+        client.invalidateQueries({ queryKey: ["admin", "submissions"] }),
         client.invalidateQueries({ queryKey: keys.article(article.id) }),
       ]);
       setNotice("Cambio editorial guardado.");
+      if (confirmation === "reopen") setTab("Texto");
       setConfirmation(null);
       setReviewed(false);
       setDirty(false);
@@ -288,6 +292,22 @@ export function AdminEditor() {
         </p>
       )}
       {mutation.error && <ErrorState error={mutation.error} />}
+      {article &&
+        (article.status === "published" || article.status === "archived") && (
+          <div className="editor-reopen-note">
+            <p>
+              Para corregir este reporte, vuelve a borrador. Después de guardar
+              los cambios, revisa sus fuentes y vuelve a publicarlo.
+            </p>
+            <button
+              className="button secondary"
+              disabled={mutation.isPending}
+              onClick={() => setConfirmation("reopen")}
+            >
+              Editar como borrador
+            </button>
+          </div>
+        )}
       <div className="tabs" role="group" aria-label="Secciones del editor">
         {["Texto", "Fuentes", "Imagen", "Vista previa", "Historial"].map(
           (section) => (
@@ -560,7 +580,7 @@ export function AdminEditor() {
               Revisar y publicar <ArrowUpRight size={16} />
             </button>
           )}
-          {article.status !== "archived" && (
+          {article.status === "published" && (
             <button
               className="button secondary"
               disabled={mutation.isPending || dirty}
@@ -576,7 +596,9 @@ export function AdminEditor() {
           title={
             confirmation === "publish"
               ? "Revisión humana antes de publicar"
-              : "Archivar este reporte"
+              : confirmation === "reopen"
+                ? "Volver a borrador para editar"
+                : "Archivar este reporte"
           }
           onClose={() => {
             if (!mutation.isPending) setConfirmation(null);
@@ -619,6 +641,24 @@ export function AdminEditor() {
                 {mutation.isPending
                   ? "Publicando…"
                   : "Confirmar publicación humana"}
+              </button>
+            </>
+          ) : confirmation === "reopen" ? (
+            <>
+              <p>
+                El reporte dejará de estar disponible para los lectores mientras
+                lo corriges. Se conservarán sus fuentes, imagen, fecha original
+                e historial. Para mostrarlo de nuevo tendrás que revisar y
+                publicar los cambios.
+              </p>
+              <button
+                className="button"
+                disabled={mutation.isPending}
+                onClick={() => act(() => api.reopen(article.id))}
+              >
+                {mutation.isPending
+                  ? "Preparando borrador…"
+                  : "Confirmar edición como borrador"}
               </button>
             </>
           ) : (

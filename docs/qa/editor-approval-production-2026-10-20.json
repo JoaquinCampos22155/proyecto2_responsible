@@ -1,0 +1,12 @@
+{
+  "checkedAt": "2026-10-21T04:28:09.173Z",
+  "project": "proyecto2responsibleai",
+  "state": "ACTIVE",
+  "revision": "api-00012-cip",
+  "updateTime": "2026-10-21T04:27:17.126132020Z",
+  "imageProvider": "pexels",
+  "healthStatus": 200,
+  "unauthenticatedReopenStatus": 401,
+  "hostingHasReopenEditor": true,
+  "signedInProductionEditorialTested": false
+}

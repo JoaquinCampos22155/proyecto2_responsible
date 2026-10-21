@@ -163,6 +163,8 @@ export function createClient(
       }),
     publish: (id: string) =>
       request<Article>(`${articlePath(id)}/publish`, { method: "POST" }),
+    reopen: (id: string) =>
+      request<Article>(`${articlePath(id)}/reopen`, { method: "POST" }),
     archive: (id: string) =>
       request<Article>(`${articlePath(id)}/archive`, { method: "POST" }),
     audit: (id?: string) =>
