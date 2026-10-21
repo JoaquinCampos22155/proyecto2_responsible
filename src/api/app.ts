@@ -5,7 +5,7 @@ import express, {
 } from "express";
 import { ZodError, z } from "zod";
 import { rankFeed } from "../domain/ranking.js";
-import { currentGlobeWeek, digestGlobeNews } from "../domain/globe.js";
+import { currentGlobeRange, digestGlobeNews } from "../domain/globe.js";
 import type { Article } from "../domain/types.js";
 import type { Repository } from "../repository/repository.js";
 import {
@@ -211,14 +211,14 @@ export function createApp(options: AppOptions): Express {
   app.get(
     "/v1/globe",
     asyncRoute(async (_req, res) => {
-      const week = currentGlobeWeek(new Date(options.now()));
+      const range = currentGlobeRange(new Date(options.now()));
       const articles = options.repo.listArticlesPublishedBetween
         ? await options.repo.listArticlesPublishedBetween(
-            week.startAt,
-            week.endAt,
+            range.startAt,
+            range.endAt,
           )
         : await options.repo.listArticles();
-      const digest = digestGlobeNews(articles, week);
+      const digest = digestGlobeNews(articles, range);
       res.json({
         ...digest,
         countries: Object.fromEntries(

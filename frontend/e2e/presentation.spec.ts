@@ -32,7 +32,7 @@ test("mantiene el ancho del contenido en móvil, tablet y escritorio", async ({
   }
 });
 
-test("navega por noticias, Mi país, globo semanal y perfil sin desbordarse", async ({
+test("navega por noticias, Mi país, globo de 30 días y perfil sin desbordarse", async ({
   page,
 }) => {
   const apiRequests: string[] = [];
@@ -65,10 +65,12 @@ test("navega por noticias, Mi país, globo semanal y perfil sin desbordarse", as
     page.getByRole("heading", { name: "Mapa de noticias." }),
   ).toBeVisible();
   await expect(
-    page.getByRole("heading", { name: "Noticia mundial de la semana." }),
+    page.getByRole("heading", {
+      name: /Noticia mundial de los últimos 30 días/,
+    }),
   ).toBeVisible();
   const guatemala = page.getByRole("button", {
-    name: /Guatemala: .*noticias esta semana\. Abrir noticias\./,
+    name: /Guatemala: .*noticias en los últimos 30 días\. Abrir noticias\./,
   });
   await expect(guatemala).toBeVisible();
   const unavailableCountries = page.locator(
@@ -87,7 +89,9 @@ test("navega por noticias, Mi país, globo semanal y perfil sin desbordarse", as
   await page.getByRole("button", { name: "Volver al globo" }).click();
   await expect(page).toHaveURL(/\/preview\/globe$/);
   await expect(
-    page.getByRole("heading", { name: "Noticia mundial de la semana." }),
+    page.getByRole("heading", {
+      name: /Noticia mundial de los últimos 30 días/,
+    }),
   ).toBeVisible();
   await expectNoHorizontalOverflow(page);
 

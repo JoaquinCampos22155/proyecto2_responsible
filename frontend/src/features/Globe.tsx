@@ -78,13 +78,10 @@ function addCalendarDays(parts: DateParts, offset: number): DateParts {
   };
 }
 
-function currentWeek(now = new Date()) {
+function currentRange(now = new Date()) {
   const today = localDateParts(now);
-  const weekday = new Date(
-    Date.UTC(today.year, today.month - 1, today.day),
-  ).getUTCDay();
-  const start = addCalendarDays(today, -weekday);
-  const end = addCalendarDays(start, 7);
+  const start = addCalendarDays(today, -29);
+  const end = addCalendarDays(today, 1);
   return { today: dateKey(today), start: dateKey(start), end: dateKey(end) };
 }
 
@@ -187,23 +184,29 @@ function newsHeatColor(count: number) {
   return `rgb(${color.join(" ")})`;
 }
 
-function demoItemsForCurrentWeek(window: ReturnType<typeof currentWeek>) {
+function demoItemsForCurrentRange(window: ReturnType<typeof currentRange>) {
   const source = (demoNews as Article[]).filter(
     (article) => article.status === "published",
   );
   const start = partsFromKey(window.start);
   const today = partsFromKey(window.today);
-  const throughToday = Math.max(
-    0,
-    Math.floor(
-      (Date.UTC(today.year, today.month - 1, today.day) -
-        Date.UTC(start.year, start.month - 1, start.day)) /
-        86_400_000,
+  const throughToday = Math.min(
+    29,
+    Math.max(
+      0,
+      Math.floor(
+        (Date.UTC(today.year, today.month - 1, today.day) -
+          Date.UTC(start.year, start.month - 1, start.day)) /
+          86_400_000,
+      ),
     ),
   );
 
   return source.map((article, index) => {
-    const dayOffset = Math.min(index, throughToday);
+    const dayOffset =
+      source.length > 1
+        ? Math.floor((index * throughToday) / (source.length - 1))
+        : 0;
     const publishedAt = new Date(
       Date.UTC(start.year, start.month - 1, start.day + dayOffset, 16),
     ).toISOString();
@@ -262,12 +265,12 @@ export function Globe({ preview = false }: { preview?: boolean }) {
     }
   }, [countryCode, initialState, preview, profile.data]);
 
-  const [week, setWeek] = useState(() => currentWeek());
+  const [range, setRange] = useState(() => currentRange());
   useEffect(() => {
     const timer = window.setInterval(
       () =>
-        setWeek((previous) => {
-          const next = currentWeek();
+        setRange((previous) => {
+          const next = currentRange();
           return previous.today === next.today ? previous : next;
         }),
       60_000,
@@ -275,8 +278,8 @@ export function Globe({ preview = false }: { preview?: boolean }) {
     return () => window.clearInterval(timer);
   }, []);
   const demoItems = useMemo(
-    () => (preview ? demoItemsForCurrentWeek(week) : []),
-    [preview, week],
+    () => (preview ? demoItemsForCurrentRange(range) : []),
+    [preview, range],
   );
   const demoCountrySummaries = useMemo(
     () => summarizeDemoItems(demoItems),
@@ -303,10 +306,10 @@ export function Globe({ preview = false }: { preview?: boolean }) {
       ),
     [countrySummaries],
   );
-  const weekStart = preview
-    ? week.start
-    : (globe.data?.week.start ?? week.start);
-  const weekEnd = preview ? week.end : (globe.data?.week.end ?? week.end);
+  const rangeStart = preview
+    ? range.start
+    : (globe.data?.range?.start ?? range.start);
+  const rangeEnd = preview ? range.end : (globe.data?.range?.end ?? range.end);
   const selectedFeature = useMemo(
     () => featureForCountry(countryCode),
     [countryCode],
@@ -466,14 +469,14 @@ export function Globe({ preview = false }: { preview?: boolean }) {
             <span>Volver al globo</span>
           </button>
           <header className="globe-country-heading">
-            <p className="globe-kicker">Noticias por país · semana actual</p>
+            <p className="globe-kicker">Noticias por país · últimos 30 días</p>
             <h1>
               {selectedName}
               <span className="red-dot">.</span>
             </h1>
             <p>
               {formatCountryCount(selectedDigest?.count ?? 0)} ·{" "}
-              {rangeLabel(weekStart, weekEnd)}
+              {rangeLabel(rangeStart, rangeEnd)}
               {selectedItems.length === MAX_COUNTRY_STORIES &&
               (selectedDigest?.count ?? 0) > MAX_COUNTRY_STORIES
                 ? " · selección de las 10 más importantes"
@@ -506,8 +509,8 @@ export function Globe({ preview = false }: { preview?: boolean }) {
             </section>
           ) : (
             <Empty title={`Aún no hay noticias de ${selectedName}`}>
-              En esta semana no hay noticias publicadas para este país. Puedes
-              volver al globo y explorar otro.
+              En los últimos 30 días no hay noticias publicadas para este país.
+              Puedes volver al globo y explorar otro.
             </Empty>
           )}
         </>
@@ -520,12 +523,13 @@ export function Globe({ preview = false }: { preview?: boolean }) {
                 Mapa de noticias<span className="red-dot">.</span>
               </h1>
               <p className="globe-intro">
-                Explora el mundo y abre la selección semanal de cada país.
+                Explora el mundo y abre la selección de noticias de los últimos
+                30 días.
               </p>
             </div>
             <div className="globe-week-chip">
               <CalendarDays size={15} aria-hidden="true" />
-              <span>{rangeLabel(weekStart, weekEnd)}</span>
+              <span>Últimos 30 días · {rangeLabel(rangeStart, rangeEnd)}</span>
             </div>
           </header>
 
@@ -603,7 +607,7 @@ export function Globe({ preview = false }: { preview?: boolean }) {
                         aria-hidden={isClickable ? undefined : true}
                         aria-label={
                           isClickable
-                            ? `${name}: ${count > MAX_COUNTRY_STORIES ? "10 o más" : count} noticias esta semana. Abrir noticias.`
+                            ? `${name}: ${count > MAX_COUNTRY_STORIES ? "10 o más" : count} noticias en los últimos 30 días. Abrir noticias.`
                             : undefined
                         }
                         onKeyDown={
@@ -661,7 +665,7 @@ export function Globe({ preview = false }: { preview?: boolean }) {
               </span>
               <div
                 className="globe-legend"
-                aria-label="Intensidad: de cero a diez o más noticias"
+                aria-label="Intensidad: de cero a diez o más noticias en los últimos 30 días"
               >
                 <span>0</span>
                 <span className="globe-legend-ramp" aria-hidden="true" />
@@ -676,10 +680,11 @@ export function Globe({ preview = false }: { preview?: boolean }) {
           >
             <div className="globe-weekly-story-heading">
               <p className="globe-kicker">
-                Selección editorial · {rangeLabel(weekStart, weekEnd)}
+                Selección editorial · {rangeLabel(rangeStart, rangeEnd)}
               </p>
               <h2 id="globe-weekly-story-heading">
-                Noticia mundial de la semana<span className="red-dot">.</span>
+                Noticia mundial de los últimos 30 días
+                <span className="red-dot">.</span>
               </h2>
             </div>
             {worldStory ? (
@@ -700,7 +705,8 @@ export function Globe({ preview = false }: { preview?: boolean }) {
               </div>
             ) : (
               <div className="globe-weekly-story-empty">
-                Aún no hay noticias internacionales publicadas esta semana.
+                Aún no hay noticias internacionales publicadas en los últimos 30
+                días.
               </div>
             )}
           </section>
