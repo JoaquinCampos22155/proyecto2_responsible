@@ -15,7 +15,7 @@ Regression tests were observed failing before implementation for absent current-
 Final `npm run test:presentation` passed:
 
 - Backend/API: **145 tests**.
-- Frontend: **42 tests**.
+- Frontend: **43 tests** after integrating the concurrent main update.
 - Browser presentation: **12 passed**, with platform/environment-specific skips.
 - Installable manifest and offline installation page: **1 passed**.
 - Emulator Firestore/Storage rules and adapter: **12 passed**.
@@ -34,3 +34,9 @@ The expanded evaluation used the real production provider credential with an iso
 The final round passed **27/27**, including open-article first questions, switching to another subject, following that subject, returning to the open article and news-only restrictions. Evidence is retained in `chat-open-article-live-eval-2026-10-20.json` and the `round1` report. The rounds made 15 Gemini calls each, with total estimated token cost **$0.0114786**. All 30 measured usage records were imported into Project 2 `apiUsage` using deterministic document IDs; the commit was acknowledged at `2026-10-21T04:00:56.591324Z`. No credentials were written to these artifacts.
 
 Temporary browser servers and emulator processes were managed by the test runners; no development service is intentionally retained.
+
+## Concurrent main integration
+
+During final deployment, `origin/main` advanced to `441cc1a`, incorporating the rolling 30-day globe edition from `8ff4d5a`. It was merged without conflicts into this work, preserving the new globe/API range contract. The complete presentation gate, formatting check and 84-case dedicated AI suite were repeated successfully against the combined tree. Real Gemini evaluation remains applicable because that main update did not change chat selection or generation. The initial deployment was followed by a full Functions/Hosting deployment from the combined tree so the older globe behavior is not left in production.
+
+Final verification at `2026-10-21T04:06:19.017Z` confirmed Functions revision `api-00011-faq`, ACTIVE state, health HTTP 200, unauthenticated chat HTTP 401 and Hosting HTTP 200. The released assets contain both open-article context and the 30-day globe. See `chat-open-article-production-2026-10-20.json`. This establishes deployment/authentication and released asset presence; the signed-in browser interaction was tested against emulators, and generation against the real Gemini API with an isolated corpus. No signed-in production chat run is claimed.

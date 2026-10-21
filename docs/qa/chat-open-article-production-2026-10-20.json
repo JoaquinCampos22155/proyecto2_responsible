@@ -1,0 +1,14 @@
+{
+  "checkedAt": "2026-10-21T04:06:19.017Z",
+  "project": "proyecto2responsibleai",
+  "state": "ACTIVE",
+  "revision": "api-00011-faq",
+  "updateTime": "2026-10-21T04:05:13.486776704Z",
+  "healthStatus": 200,
+  "unauthenticatedChatStatus": 401,
+  "hostingStatus": 200,
+  "frontendHasOpenContext": true,
+  "frontendHas30DayGlobe": true,
+  "sourceCommit": "6b7e525",
+  "signedInProductionChatTested": false
+}
