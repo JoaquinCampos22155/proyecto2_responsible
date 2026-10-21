@@ -34,6 +34,64 @@ afterAll(async () => {
 });
 
 describe("Firestore repository", () => {
+  it("persists per-topic decay anchors across new API sessions without refreshing inactive interests", async () => {
+    let time = "2026-10-01T12:00:00.000Z";
+    const who = {
+      uid: "decay-reader",
+      admin: false,
+      name: "Reader",
+      email: "reader@example.test",
+      picture: null,
+    };
+    const options = {
+      verifyToken: async () => who,
+      now: () => time,
+      budgetUsd: 20,
+      allowedOrigins: [],
+    };
+    await repo.saveUser({
+      uid: who.uid,
+      displayName: who.name,
+      email: who.email,
+      photoURL: null,
+      simulatedLocation: { country: "GT" },
+      interestWeights: { climate: 8 },
+      createdAt: time,
+      updatedAt: time,
+    });
+    await repo.saveArticle(article("old-climate", { topics: ["climate"] }));
+    await repo.saveArticle(article("recent-culture", { topics: ["culture"] }));
+    const first = createApp({ ...options, repo });
+    await request(first)
+      .get("/v1/me")
+      .set("Authorization", "Bearer first-session");
+    time = "2026-10-15T12:00:00.000Z";
+    const returning = createApp({
+      ...options,
+      repo: new FirestoreRepository(getFirestore(app)),
+    });
+    const shared = await request(returning)
+      .post("/v1/events")
+      .set("Authorization", "Bearer second-session")
+      .send({ type: "share", articleId: "recent-culture" });
+    expect(shared.body.profile.interestUpdatedAt).toEqual({
+      climate: "2026-10-01T12:00:00.000Z",
+      culture: time,
+    });
+    await request(returning)
+      .post("/v1/events")
+      .set("Authorization", "Bearer second-session")
+      .send({ type: "share", articleId: "recent-culture" });
+    const feed = await request(returning)
+      .get("/v1/feed?limit=2")
+      .set("Authorization", "Bearer second-session");
+    expect(feed.body.items[0].article.id).toBe("recent-culture");
+    const row = await getFirestore(app).collection("users").doc(who.uid).get();
+    expect(row.get("interestWeights.climate")).toBe(8);
+    expect(row.get("interestUpdatedAt.climate")).toBe(
+      "2026-10-01T12:00:00.000Z",
+    );
+  });
   it("keeps learned interests in Firestore across a new API instance and boosts future matching news", async () => {
     const identity = {
       uid: "returning-reader",

@@ -76,6 +76,7 @@ export interface UserProfile {
   photoURL: string | null;
   simulatedLocation: { country: string; region?: string };
   interestWeights: Record<string, number>;
+  interestUpdatedAt?: Record<string, string>;
   createdAt: string;
   updatedAt: string;
 }

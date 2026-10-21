@@ -1,0 +1,15 @@
+{
+  "checkedAt": "2026-10-21T22:31:22.610Z",
+  "project": "proyecto2responsibleai",
+  "state": "ACTIVE",
+  "revision": "api-00013-hit",
+  "previousRevision": "api-00012-cip",
+  "updateTime": "2026-10-21T22:30:30.981612444Z",
+  "healthStatus": 200,
+  "unauthenticatedProfileStatus": 401,
+  "hostingBuiltAssetsReachable": true,
+  "halfLifeDaysFromVerifiedSource": 7,
+  "legacyMigration": "lazy per profile; no bulk rewrite",
+  "signedInProductionRankingTested": false,
+  "hostingAssetsMatchLocalBuild": true
+}

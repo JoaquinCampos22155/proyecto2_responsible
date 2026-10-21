@@ -109,8 +109,11 @@ export function Chat({
     enabled: Boolean(routeArticleId),
   });
   const contextArticle = activeArticleId
-    ? feed.data?.items.find(({ article }) => article.id === activeArticleId)
-        ?.article
+    ? (feed.data?.items.find(({ article }) => article.id === activeArticleId)
+        ?.article ??
+      (currentArticle.data?.id === activeArticleId
+        ? currentArticle.data
+        : undefined))
     : currentArticle.data;
   const bottom = useRef<HTMLDivElement>(null);
   const composerInput = useRef<HTMLTextAreaElement>(null);

@@ -1,5 +1,5 @@
 import { randomUUID } from "node:crypto";
-import { updateInterests } from "../domain/interests.js";
+import { applyInterestEvent, interestAnchors } from "../domain/interests.js";
 import type { UserProfile } from "../domain/types.js";
 import { eventInput, locationInput } from "../domain/validation.js";
 import type { Repository } from "../repository/repository.js";
@@ -16,7 +16,7 @@ export class UserService {
     picture: string | null;
   }): Promise<UserProfile> {
     const existing = await this.repo.getUser(identity.uid);
-    if (existing) return existing;
+    if (existing) return this.anchorProfile(existing);
     const profile: UserProfile = {
       uid: identity.uid,
       displayName: identity.name,
@@ -24,6 +24,7 @@ export class UserService {
       photoURL: identity.picture,
       simulatedLocation: { country: "GT" },
       interestWeights: {},
+      interestUpdatedAt: {},
       createdAt: this.now(),
       updatedAt: this.now(),
     };
@@ -36,7 +37,7 @@ export class UserService {
     if (!profile)
       throw new AppError("NOT_FOUND", "User profile not found", 404);
     const updated = {
-      ...profile,
+      ...(await this.anchorProfile(profile)),
       simulatedLocation: location,
       updatedAt: this.now(),
     };
@@ -58,23 +59,40 @@ export class UserService {
       event.type === "topic_interaction" && event.topic
         ? [event.topic]
         : article.topics;
+    const timestamp = this.now();
     const updated = {
       ...profile,
-      interestWeights: updateInterests(
-        profile.interestWeights,
+      ...applyInterestEvent(
+        profile,
         event.type,
         topics,
+        new Date(timestamp),
         event.durationSeconds,
       ),
-      updatedAt: this.now(),
+      updatedAt: timestamp,
     };
     await this.repo.addEvent({
       ...event,
       id: randomUUID(),
       uid,
-      timestamp: this.now(),
+      timestamp,
     });
     await this.repo.saveUser(updated);
     return { profile: updated };
+  }
+  private async anchorProfile(profile: UserProfile): Promise<UserProfile> {
+    const anchors = interestAnchors(profile, new Date(this.now()));
+    if (
+      profile.interestUpdatedAt &&
+      Object.keys(anchors).length ===
+        Object.keys(profile.interestUpdatedAt).length &&
+      Object.entries(anchors).every(
+        ([topic, at]) => profile.interestUpdatedAt?.[topic] === at,
+      )
+    )
+      return profile;
+    const updated = { ...profile, interestUpdatedAt: anchors };
+    await this.repo.saveUser(updated);
+    return updated;
   }
 }

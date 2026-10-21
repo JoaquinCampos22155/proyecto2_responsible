@@ -1,12 +1,14 @@
 import { useEffect, useRef, useState, type CSSProperties } from "react";
 import { PanelRightClose, PanelRightOpen, MessageSquare } from "lucide-react";
-import { useLocation } from "react-router-dom";
+import { useLocation, useMatch } from "react-router-dom";
+import { useQuery } from "@tanstack/react-query";
 import gsap from "gsap";
 import { useGSAP } from "@gsap/react";
 import { Chat } from "./Chat";
 import { ChatPreview, SimulatedKeyboard } from "./ChatPreview";
 import { ChatNewsCarousel } from "./ChatNewsCarousel";
-import { useFeed } from "../api/queries";
+import { keys, useFeed } from "../api/queries";
+import { api } from "../auth/AuthProvider";
 import type { FeedItem } from "../types/domain";
 gsap.registerPlugin(useGSAP);
 export function ChatSidebar({
@@ -23,6 +25,7 @@ export function ChatSidebar({
   previewItems?: FeedItem[];
 }) {
   const { pathname } = useLocation();
+  const routeArticleId = useMatch("/news/:id")?.params.id;
   const lastPath = useRef(pathname);
   const panel = useRef<HTMLDivElement>(null);
   const [mobile, setMobile] = useState(
@@ -38,7 +41,25 @@ export function ChatSidebar({
   } | null>(null);
   const [activeArticleId, setActiveArticleId] = useState<string>();
   const liveFeed = useFeed(!preview);
-  const readingItems = preview ? previewItems : (liveFeed.data?.items ?? []);
+  const openedArticle = useQuery({
+    queryKey: keys.article(routeArticleId ?? ""),
+    queryFn: () => api.news(routeArticleId!),
+    enabled: !preview && Boolean(routeArticleId),
+  });
+  const edition = preview ? previewItems : (liveFeed.data?.items ?? []);
+  const openedItem =
+    edition.find(({ article }) => article.id === routeArticleId) ??
+    (openedArticle.data
+      ? { article: openedArticle.data, reasons: [] }
+      : undefined);
+  const readingItems = openedItem
+    ? [
+        openedItem,
+        ...edition.filter(
+          ({ article }) => article.id !== openedItem.article.id,
+        ),
+      ]
+    : edition;
   const activeArticle = readingItems.find(
     ({ article }) => article.id === activeArticleId,
   )?.article;
@@ -169,6 +190,7 @@ export function ChatSidebar({
       >
         {open && mobile && (
           <ChatNewsCarousel
+            key={pathname}
             items={readingItems}
             covered={keyboardOpen}
             onActiveArticleChange={setActiveArticleId}
@@ -205,7 +227,7 @@ export function ChatSidebar({
           ) : (
             <Chat
               compact
-              activeArticleId={activeArticleId}
+              activeArticleId={mobile && open ? activeArticleId : undefined}
               onKeyboardChange={setKeyboardOpen}
             />
           )}

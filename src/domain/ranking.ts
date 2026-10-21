@@ -1,13 +1,18 @@
 import type { Article } from "./types.js";
+import { effectiveInterests } from "./interests.js";
 export function rankFeed(
   articles: Article[],
   profile: {
     simulatedLocation: { country: string; region?: string };
     interestWeights: Record<string, number>;
+    interestUpdatedAt?: Record<string, string>;
+    updatedAt?: string;
+    createdAt?: string;
   },
   now: Date,
   limit: number,
 ): Array<{ article: Article; reasons: string[] }> {
+  const interests = effectiveInterests(profile, now);
   const candidates = articles
     .filter((article) => article.status === "published")
     .map((article) => {
@@ -22,7 +27,7 @@ export function rankFeed(
         topic: string;
         weight: number;
       } | null>((best, topic) => {
-        const weight = profile.interestWeights[topic] ?? 0;
+        const weight = interests[topic] ?? 0;
         return weight > (best?.weight ?? 0) ? { topic, weight } : best;
       }, null);
       const ageHours = article.publishedAt

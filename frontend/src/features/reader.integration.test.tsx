@@ -937,6 +937,47 @@ function SidebarHarness() {
   );
 }
 describe("chat sidebar lifecycle", () => {
+  it("starts the reading carousel on the opened report even when that report is outside the feed", async () => {
+    const weather = articles.find(
+      (article) => article.id === "demo-international-weather",
+    )!;
+    boundary.api.feed.mockResolvedValue({
+      items: articles
+        .filter((article) => article.id !== weather.id)
+        .map((article) => ({ article, reasons: [] })),
+      nextCursor: null,
+    });
+    boundary.api.chat.mockResolvedValue({
+      answer: "Contexto de la noticia abierta.",
+      citations: [],
+      uncertainty: "unverified",
+      providerMode: "mock",
+    });
+    mount(<SidebarHarness />, "/news/demo-international-weather");
+    const user = userEvent.setup();
+    await user.click(
+      screen.getByRole("button", { name: "Abrir conversación" }),
+    );
+    await waitFor(() =>
+      expect(
+        screen.getByText(
+          (_, element) =>
+            element?.classList.contains("chat-reading-context") ?? false,
+        ),
+      ).toHaveTextContent(newsTitle(weather.title)),
+    );
+    await user.type(
+      screen.getByLabelText("Tu pregunta sobre las noticias"),
+      "¿De qué trata?{Enter}",
+    );
+    await waitFor(() =>
+      expect(boundary.api.chat).toHaveBeenLastCalledWith(
+        "¿De qué trata?",
+        [],
+        "demo-international-weather",
+      ),
+    );
+  });
   it("uses the selected reading card as prompt-time context without pinning later questions to it", async () => {
     boundary.api.chat.mockResolvedValue({
       answer: "Respuesta con la noticia seleccionada.",
