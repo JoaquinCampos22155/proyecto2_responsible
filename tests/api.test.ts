@@ -168,23 +168,29 @@ describe("reader API", () => {
     expect(detail.body.sources[0].url).toBeTruthy();
   });
 
-  it("returns this Sunday-based week's country totals and the ten highest-priority stories", async () => {
+  it("returns the rolling 30-day country totals and ten highest-priority stories", async () => {
     const currentStories = Array.from({ length: 11 }, (_, index) =>
-      article(`week-${index}`, {
-        publishedAt: `2026-09-25T${String(index).padStart(2, "0")}:00:00.000Z`,
+      article(`recent-${index}`, {
+        publishedAt: `2026-09-${String(16 + (index % 10)).padStart(2, "0")}T${String(index).padStart(2, "0")}:00:00.000Z`,
       }),
     );
     currentStories.push(
       article("top-priority", {
-        publishedAt: "2026-09-25T08:00:00.000Z",
+        publishedAt: "2026-09-01T08:00:00.000Z",
         editorialPriority: "high",
         scope: "international",
         countries: ["GT", "US"],
       }),
-      article("previous-week", {
-        publishedAt: "2026-09-19T23:59:59.000Z",
+      article("window-start", {
+        publishedAt: "2026-08-28T06:00:00.000Z",
       }),
-      article("draft-this-week", {
+      article("before-window", {
+        publishedAt: "2026-08-28T05:59:59.000Z",
+      }),
+      article("future", {
+        publishedAt: "2026-09-27T06:00:00.000Z",
+      }),
+      article("draft-in-window", {
         publishedAt: "2026-09-25T09:00:00.000Z",
         status: "draft",
       }),
@@ -193,18 +199,23 @@ describe("reader API", () => {
     const response = await request(app).get("/v1/globe").set(auth("user"));
 
     expect(response.status).toBe(200);
-    expect(response.body.week).toEqual({
-      start: "2026-09-20",
+    expect(response.body.range).toEqual({
+      start: "2026-08-28",
       end: "2026-09-27",
     });
-    expect(response.body.countries.GT.count).toBe(12);
+    expect(response.body.countries.GT.count).toBe(13);
     expect(response.body.countries.GT.items).toHaveLength(10);
     expect(response.body.countries.GT.items[0].article.id).toBe("top-priority");
     expect(response.body.countries.US).toMatchObject({ count: 1 });
     expect(response.body.worldStory.article.id).toBe("top-priority");
+    const selectedIds = response.body.countries.GT.items.map(
+      (item: { article: { id: string } }) => item.article.id,
+    );
+    expect(selectedIds).not.toContain("before-window");
+    expect(selectedIds).not.toContain("future");
   });
 
-  it("leaves the world feature empty when the week has no international story", async () => {
+  it("leaves the world feature empty when the 30-day period has no international story", async () => {
     const { app } = setup(
       new MemoryRepository([article("local-only", { scope: "national" })]),
     );

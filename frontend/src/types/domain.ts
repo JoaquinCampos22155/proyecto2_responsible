@@ -162,7 +162,7 @@ export type EventInput = {
 export type LocationInput = UserProfile["simulatedLocation"];
 export type FeedItem = { article: Article; reasons: string[] };
 export type GlobeResponse = {
-  week: { start: string; end: string };
+  range: { start: string; end: string };
   countries: Record<string, { count: number; items: FeedItem[] }>;
   worldStory: FeedItem | null;
 };

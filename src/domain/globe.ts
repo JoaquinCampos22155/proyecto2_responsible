@@ -4,7 +4,7 @@ const GUATEMALA_TIME_ZONE = "America/Guatemala";
 const MAX_COUNTRY_STORIES = 10;
 
 type DateParts = { year: number; month: number; day: number };
-export type GlobeWeek = {
+export type GlobeRange = {
   start: string;
   end: string;
   startAt: string;
@@ -15,7 +15,7 @@ export type GlobeCountryDigest = {
   items: { article: Article; reasons: string[] }[];
 };
 export type GlobeDigest = {
-  week: Pick<GlobeWeek, "start" | "end">;
+  range: Pick<GlobeRange, "start" | "end">;
   countries: Record<string, GlobeCountryDigest>;
   worldStory: { article: Article; reasons: string[] } | null;
 };
@@ -54,24 +54,16 @@ function atGuatemalaMidnight(key: string) {
   return new Date(`${key}T00:00:00-06:00`).toISOString();
 }
 
-export function currentGlobeWeek(now: Date): GlobeWeek {
+export function currentGlobeRange(now: Date): GlobeRange {
   const today = localDateParts(now);
-  const weekday = new Date(
-    Date.UTC(today.year, today.month - 1, today.day),
-  ).getUTCDay();
-  const start = dateKey(addCalendarDays(today, -weekday));
-  const end = dateKey(addCalendarDays(partsFromKey(start), 7));
+  const start = dateKey(addCalendarDays(today, -29));
+  const end = dateKey(addCalendarDays(today, 1));
   return {
     start,
     end,
     startAt: atGuatemalaMidnight(start),
     endAt: atGuatemalaMidnight(end),
   };
-}
-
-function partsFromKey(key: string): DateParts {
-  const [year = 0, month = 0, day = 0] = key.split("-").map(Number);
-  return { year, month, day };
 }
 
 function compareEditorialImportance(left: Article, right: Article) {
@@ -87,19 +79,20 @@ function compareEditorialImportance(left: Article, right: Article) {
 
 export function digestGlobeNews(
   articles: Article[],
-  week: GlobeWeek,
+  range: GlobeRange,
 ): GlobeDigest {
-  const start = Date.parse(week.startAt);
-  const end = Date.parse(week.endAt);
+  const start = Date.parse(range.startAt);
+  const end = Date.parse(range.endAt);
   const grouped = new Map<string, Article[]>();
-  const weeklyArticles: Article[] = [];
+  const inRangeArticles: Article[] = [];
 
   for (const article of articles) {
     if (article.status !== "published" || !article.publishedAt) continue;
     const publishedAt = Date.parse(article.publishedAt);
     if (Number.isNaN(publishedAt) || publishedAt < start || publishedAt >= end)
       continue;
-    weeklyArticles.push(article);
+    inRangeArticles.push(article);
+
     for (const country of new Set(
       article.countries.map((code) => code.toUpperCase()),
     )) {
@@ -124,11 +117,11 @@ export function digestGlobeNews(
       ];
     }),
   );
-  const worldStory = weeklyArticles
+  const worldStory = inRangeArticles
     .filter((article) => article.scope === "international")
     .sort(compareEditorialImportance)[0];
   return {
-    week: { start: week.start, end: week.end },
+    range: { start: range.start, end: range.end },
     countries,
     worldStory: worldStory ? { article: worldStory, reasons: [] } : null,
   };
