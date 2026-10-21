@@ -322,4 +322,32 @@ test("el chat conectado mantiene espacio para mensajes y permite enviar por toqu
   await expect(page.locator(".answer-text").last()).toContainText(
     "Solo puedo ayudarte con las noticias",
   );
+  // Client-side navigation keeps the transcript mounted but must reset its
+  // reference scope to the newly opened article.
+  await page
+    .locator('.chat-source-avatar[href="/news/demo-international-weather"]')
+    .first()
+    .click();
+  await expect(page).toHaveURL(/\/news\/demo-international-weather$/);
+  await page.getByRole("button", { name: "Expandir conversación" }).click();
+  await input.fill("¿De qué trata?");
+  const openRequest = page.waitForRequest(
+    (request) =>
+      request.url().endsWith("/v1/chat") && request.method() === "POST",
+  );
+  await page.getByRole("button", { name: "Enviar pregunta" }).click();
+  expect((await openRequest).postDataJSON()).toEqual({
+    question: "¿De qué trata?",
+    currentArticleId: "demo-international-weather",
+  });
+  await expect(page.locator(".answer-text").last()).toContainText(
+    "meteorológicos",
+  );
+  await input.fill("¿Tienes noticias sobre bibliotecas?");
+  await page.getByRole("button", { name: "Enviar pregunta" }).click();
+  await expect(page.locator(".answer-text").last()).toContainText("biblioteca");
+  await input.fill("Explícalo más sencillo");
+  await page.getByRole("button", { name: "Enviar pregunta" }).click();
+  await expect(page.locator(".answer-text")).toHaveCount(6);
+  await expect(page.locator(".answer-text").last()).toContainText("biblioteca");
 });

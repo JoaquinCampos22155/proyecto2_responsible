@@ -253,9 +253,10 @@ export function createApp(options: AppOptions): Express {
   app.post(
     "/v1/chat",
     asyncRoute(async (req, res) => {
-      const { question, history } = z
+      const { question, history, currentArticleId } = z
         .object({
           question: z.string().trim().min(3).max(1000),
+          currentArticleId: z.string().trim().min(1).max(200).optional(),
           history: z
             .array(
               z
@@ -270,7 +271,14 @@ export function createApp(options: AppOptions): Express {
         })
         .strict()
         .parse(req.body);
-      res.json(await chat.answer(identity(res.locals).uid, question, history));
+      res.json(
+        await chat.answer(
+          identity(res.locals).uid,
+          question,
+          history,
+          currentArticleId,
+        ),
+      );
     }),
   );
 

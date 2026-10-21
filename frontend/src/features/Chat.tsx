@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef, type FormEvent } from "react";
-import { Link } from "react-router-dom";
+import { Link, useLocation, useMatch } from "react-router-dom";
 import {
   ArrowRight,
   ArrowUpRight,
@@ -10,14 +10,20 @@ import {
   ChevronDown,
   LoaderCircle,
 } from "lucide-react";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
 import { api } from "../auth/AuthProvider";
-import { useFeed, useMe } from "../api/queries";
+import { keys, useFeed, useMe } from "../api/queries";
 import { ErrorState, Evidence, External } from "../components/common";
 import { locationLabel, topicLabel, newsTitle } from "../utils/presentation";
 import { safeUrl } from "../utils/presentation";
-import type { ChatResponse, FeedItem } from "../types/domain";
-type Message = { question: string; response: ChatResponse };
+import type { ChatResponse, ChatTurn, FeedItem } from "../types/domain";
+type Message = { question: string; response: ChatResponse; readingKey: string };
+type ChatRequest = {
+  question: string;
+  history: ChatTurn[];
+  readingKey: string;
+  currentArticleId?: string;
+};
 export function ChatSources({
   citations,
   edition,
@@ -90,34 +96,56 @@ export function Chat({
   const [question, setQuestion] = useState(""),
     [messages, setMessages] = useState<Message[]>([]),
     [pendingQuestion, setPendingQuestion] = useState("");
+  const { key: readingKey } = useLocation();
+  const currentArticleId = useMatch("/news/:id")?.params.id;
+  const currentArticle = useQuery({
+    queryKey: keys.article(currentArticleId ?? ""),
+    queryFn: () => api.news(currentArticleId!),
+    enabled: Boolean(currentArticleId),
+  });
   const feed = useFeed(),
     profile = useMe();
   const bottom = useRef<HTMLDivElement>(null);
   const composerInput = useRef<HTMLTextAreaElement>(null);
   const mutation = useMutation({
-    mutationFn: (sent: string) =>
-      api.chat(
-        sent,
-        messages.slice(-4).map((message) => ({
+    mutationFn: (request: ChatRequest) =>
+      request.currentArticleId
+        ? api.chat(request.question, request.history, request.currentArticleId)
+        : api.chat(request.question, request.history),
+    onMutate: (sent) => {
+      setPendingQuestion(sent.question);
+      setQuestion("");
+    },
+    onSuccess: (response, sent) => {
+      setMessages((previous) => [
+        ...previous,
+        { question: sent.question, response, readingKey: sent.readingKey },
+      ]);
+      setPendingQuestion("");
+    },
+    onError: (_error, sent) => {
+      setPendingQuestion("");
+      if (sent.readingKey === readingKey) setQuestion(sent.question);
+    },
+  });
+  function ask(sent: string) {
+    mutation.mutate({
+      question: sent,
+      readingKey,
+      currentArticleId,
+      // Keep the transcript visible, but start a fresh reference on navigation.
+      // Snapshot the request so a late reply cannot inherit a different route.
+      history: messages
+        .filter((message) => message.readingKey === readingKey)
+        .slice(-4)
+        .map((message) => ({
           question: message.question,
           articleIds: message.response.citations.map(
             (citation) => citation.articleId,
           ),
         })),
-      ),
-    onMutate: (sent) => {
-      setPendingQuestion(sent);
-      setQuestion("");
-    },
-    onSuccess: (response, sent) => {
-      setMessages((previous) => [...previous, { question: sent, response }]);
-      setPendingQuestion("");
-    },
-    onError: (_error, sent) => {
-      setPendingQuestion("");
-      setQuestion(sent);
-    },
-  });
+    });
+  }
   useEffect(() => {
     if (messages.length)
       bottom.current?.scrollIntoView({
@@ -133,7 +161,7 @@ export function Chat({
     if (sent.length < 3 || mutation.isPending) return;
     composerInput.current?.blur();
     onKeyboardChange?.(false);
-    mutation.mutate(sent);
+    ask(sent);
   }
   const edition = feed.data?.items ?? [];
   const local = edition.find(({ article }) => article.scope === "local");
@@ -177,6 +205,14 @@ export function Chat({
           </button>
         </div>
         <div className="chat-scroll">
+          {currentArticle.data && (
+            <p className="chat-reading-context">
+              Noticia abierta:{" "}
+              <Link to={`/news/${currentArticle.data.id}`}>
+                {newsTitle(currentArticle.data.title)}
+              </Link>
+            </p>
+          )}
           {(!compact || !messages.length) && (
             <header className="chat-heading">
               <Heading>Pregunta sobre las noticias</Heading>
@@ -262,10 +298,7 @@ export function Chat({
             </p>
           )}
           {mutation.error && (
-            <ErrorState
-              error={mutation.error}
-              retry={() => mutation.mutate(question)}
-            />
+            <ErrorState error={mutation.error} retry={() => ask(question)} />
           )}
           <div ref={bottom} />
         </div>

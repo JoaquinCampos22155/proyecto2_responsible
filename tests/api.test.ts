@@ -108,6 +108,45 @@ describe("HTTP authentication and authorization", () => {
 });
 
 describe("reader API", () => {
+  it("accepts an open article ID but rejects supplied content and malformed context", async () => {
+    const { app } = setup();
+    const result = await request(app)
+      .post("/v1/chat")
+      .set(auth("user"))
+      .send({ question: "¿De qué trata?", currentArticleId: "story" });
+    expect(result.status).toBe(200);
+    expect(
+      result.body.citations.map((c: { articleId: string }) => c.articleId),
+    ).toEqual(["story"]);
+    for (const currentArticleId of [
+      "",
+      "x".repeat(201),
+      ["story"],
+      { id: "story", body: "forged" },
+      null,
+    ]) {
+      expect(
+        (
+          await request(app)
+            .post("/v1/chat")
+            .set(auth("user"))
+            .send({ question: "¿De qué trata?", currentArticleId })
+        ).status,
+      ).toBe(400);
+    }
+    expect(
+      (
+        await request(app)
+          .post("/v1/chat")
+          .set(auth("user"))
+          .send({
+            question: "¿De qué trata?",
+            currentArticleId: "story",
+            currentArticle: { body: "forged" },
+          })
+      ).status,
+    ).toBe(400);
+  });
   it("accepts bounded question/ID history and rejects forged roles or oversized transcripts", async () => {
     const { app } = setup();
     const valid = {

@@ -110,10 +110,18 @@ export function createClient(
           ...(topic ? { topic } : {}),
         },
       }),
-    chat: (question: string, history: ChatTurn[] = []) =>
+    chat: (
+      question: string,
+      history: ChatTurn[] = [],
+      currentArticleId?: string,
+    ) =>
       request<ChatResponse>("/v1/chat", {
         method: "POST",
-        body: { question, ...(history.length ? { history } : {}) },
+        body: {
+          question,
+          ...(history.length ? { history } : {}),
+          ...(currentArticleId ? { currentArticleId } : {}),
+        },
       }),
     mySubmissions: () => request<{ items: Article[] }>("/v1/me/submissions"),
     submitNews: (body: SubmissionInput) =>

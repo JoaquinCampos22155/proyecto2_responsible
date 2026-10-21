@@ -7,7 +7,13 @@ import {
 } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { MemoryRouter, Routes, Route, useLocation } from "react-router-dom";
+import {
+  Link,
+  MemoryRouter,
+  Routes,
+  Route,
+  useLocation,
+} from "react-router-dom";
 import { beforeEach, describe, it, expect, vi } from "vitest";
 import { useState, useRef, useCallback, type ReactNode } from "react";
 import seed from "./sample-news.json";
@@ -615,6 +621,118 @@ describe("reader workflows and disclosures", () => {
       expect(boundary.api.chat).toHaveBeenLastCalledWith(
         "noticias de salud",
         [],
+      ),
+    );
+  });
+  it("uses the open route without stale history when navigating between reports, and preserves visible messages", async () => {
+    boundary.api.chat.mockResolvedValue({
+      answer: "Explicación conservada.",
+      citations: [
+        {
+          articleId: "demo-guatemala-library",
+          title: "Biblioteca",
+          sources: [],
+        },
+      ],
+      uncertainty: "single_source",
+      providerMode: "mock",
+    });
+    mount(
+      <>
+        <Link to="/news/demo-international-weather">Abrir clima</Link>
+        <Link to="/feed">Ir a portada</Link>
+        <Chat />
+      </>,
+      "/news/demo-guatemala-library",
+    );
+    const user = userEvent.setup();
+    const input = screen.getByLabelText("Tu pregunta sobre las noticias");
+    await user.type(input, "¿De qué trata?{Enter}");
+    await screen.findByText("Explicación conservada.");
+    expect(boundary.api.chat).toHaveBeenLastCalledWith(
+      "¿De qué trata?",
+      [],
+      "demo-guatemala-library",
+    );
+    await user.type(input, "Háblame de meteorología{Enter}");
+    await waitFor(() =>
+      expect(boundary.api.chat).toHaveBeenLastCalledWith(
+        "Háblame de meteorología",
+        [
+          {
+            question: "¿De qué trata?",
+            articleIds: ["demo-guatemala-library"],
+          },
+        ],
+        "demo-guatemala-library",
+      ),
+    );
+    await waitFor(() =>
+      expect(screen.getAllByText("Explicación conservada.")).toHaveLength(2),
+    );
+    await user.click(screen.getByRole("link", { name: "Abrir clima" }));
+    await user.type(input, "¿De qué trata?{Enter}");
+    await waitFor(() =>
+      expect(boundary.api.chat).toHaveBeenLastCalledWith(
+        "¿De qué trata?",
+        [],
+        "demo-international-weather",
+      ),
+    );
+    await waitFor(() =>
+      expect(screen.getAllByText("Explicación conservada.")).toHaveLength(3),
+    );
+    await user.click(screen.getByRole("link", { name: "Ir a portada" }));
+    await user.type(input, "noticias de hoy{Enter}");
+    await waitFor(() =>
+      expect(boundary.api.chat).toHaveBeenLastCalledWith("noticias de hoy", []),
+    );
+  });
+  it("does not attach a response arriving after navigation to the new report's history", async () => {
+    let complete!: (value: unknown) => void;
+    boundary.api.chat
+      .mockImplementationOnce(
+        () =>
+          new Promise((resolve) => {
+            complete = resolve;
+          }),
+      )
+      .mockResolvedValue({
+        answer: "Nueva noticia.",
+        citations: [],
+        uncertainty: "unverified",
+        providerMode: "mock",
+      });
+    mount(
+      <>
+        <Link to="/news/demo-international-weather">Abrir clima</Link>
+        <Chat />
+      </>,
+      "/news/demo-guatemala-library",
+    );
+    const user = userEvent.setup();
+    const input = screen.getByLabelText("Tu pregunta sobre las noticias");
+    await user.type(input, "¿De qué trata?{Enter}");
+    await user.click(screen.getByRole("link", { name: "Abrir clima" }));
+    complete({
+      answer: "Respuesta de la biblioteca.",
+      citations: [
+        {
+          articleId: "demo-guatemala-library",
+          title: "Biblioteca",
+          sources: [],
+        },
+      ],
+      uncertainty: "single_source",
+      providerMode: "mock",
+    });
+    await screen.findByText("Respuesta de la biblioteca.");
+    await user.type(input, "¿De qué trata?{Enter}");
+    await waitFor(() =>
+      expect(boundary.api.chat).toHaveBeenLastCalledWith(
+        "¿De qué trata?",
+        [],
+        "demo-international-weather",
       ),
     );
   });

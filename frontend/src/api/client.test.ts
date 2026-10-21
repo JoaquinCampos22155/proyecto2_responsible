@@ -1,6 +1,19 @@
 import { describe, expect, it, vi } from "vitest";
 import { createClient, ApiError } from "./client";
 describe("authenticated API boundary", () => {
+  it("sends only the current report ID alongside bounded conversational history", async () => {
+    const fetcher = vi.fn().mockResolvedValue(new Response("{}"));
+    const client = createClient(
+      "https://api.example",
+      async () => "token",
+      fetcher,
+    );
+    await client.chat("¿De qué trata?", [], "weather");
+    expect(JSON.parse(fetcher.mock.calls[0][1].body)).toEqual({
+      question: "¿De qué trata?",
+      currentArticleId: "weather",
+    });
+  });
   it("refreshes an expired token once and uses the new bearer token", async () => {
     const token = vi
       .fn()

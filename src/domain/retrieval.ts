@@ -12,7 +12,7 @@ function tokens(text: string): string[] {
 
 const stopwords = new Set(
   tokens(
-    "the and for what in on to is are a an of about happened que qué los las el la un una unos unas de del con por para como cómo cual cuál hay es son sobre en al se me mi mis tus sus esta este estas estos noticias noticia news hoy today debo puedo deberia paso ocurrio ocurre sucedio cuentame explicame explica quiero aprender entender saber hablame trata recomiendas",
+    "the and for what in on to is are a an of about happened que qué los las el la un una unos unas de del con por para como cómo cual cuál hay es son sobre en al se me mi mis tus sus esta este estas estos noticias noticia news hoy today debo puedo deberia paso ocurrio ocurre sucedio cuentame explicame explica quiero aprender entender saber hablame trata recomiendas tienes tienen puedes otra otro otras otros ahora",
   ),
 );
 const briefingWords = new Set(
@@ -44,6 +44,13 @@ export interface ChatTurn {
   articleIds: string[];
 }
 
+export function refersToOpenArticle(query: string): boolean {
+  const value = tokens(query).join(" ");
+  return /\b(?:esta|este)\s+(?:noticia|reporte|articulo)\b|\b(?:noticia|reporte|articulo)\s+(?:abiert[oa]|actual|que estoy leyendo)\b/.test(
+    value,
+  );
+}
+
 // Follow-ups may reuse IDs, but never reuse client-supplied article content.
 // A named new subject such as "y sobre volcanes" must start a new search.
 export function isFollowUpQuestion(query: string): boolean {
@@ -54,7 +61,7 @@ export function isFollowUpQuestion(query: string): boolean {
     )
   )
     return false;
-  return /\b(?:esa|ese|esta|este|dicha|dicho|la|el)\s+(?:noticia|reporte|articulo|historia|tema|ejercicio)\b|\b(?:eso|ello|lo anterior|que fuentes|cuales fuentes|sus fuentes|sus consecuencias|de que trata|hablame mas|explicame mas|explicalo|dime mas|que mas|por que|cuanto costo|quienes participaron|cuando ocurrio|donde ocurrio|que significa|profundiza|continua|resumela|resumelo)\b/.test(
+  return /\b(?:esa|ese|esta|este|dicha|dicho|la|el)\s+(?:noticia|reporte|articulo|historia|tema|ejercicio)\b|\b(?:eso|ello|lo anterior|que fuentes|cuales fuentes|sus fuentes|sus consecuencias|de que (?:se )?trata|hablame mas|explicame mas|explicalo|dime mas|que mas|por que|cuanto costo|quienes participaron|cuando ocurrio|donde ocurrio|que significa|profundiza|continua|resumela|resumelo|resumirla|resumirlo)\b|^(?:dame un resumen|un resumen|resume|resumen|resumir|cuentame mas|cuales son los puntos principales)$/.test(
     value,
   );
 }

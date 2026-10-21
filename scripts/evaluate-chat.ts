@@ -45,9 +45,49 @@ const history: ChatTurn[] = [
 type Case = {
   question: string;
   history?: ChatTurn[];
+  currentArticleId?: string;
   expected: "weather" | "empty" | "refused";
 };
 const cases: Case[] = [
+  {
+    question: "¿De qué trata?",
+    currentArticleId: "demo-international-weather",
+    expected: "weather",
+  },
+  {
+    question: "¿Puedes resumirla?",
+    currentArticleId: "demo-international-weather",
+    expected: "weather",
+  },
+  {
+    question: "tienes noticias sobre meteorología?",
+    currentArticleId: "demo-guatemala-library",
+    expected: "weather",
+  },
+  {
+    question: "Explícalo más sencillo",
+    currentArticleId: "demo-guatemala-library",
+    history,
+    expected: "weather",
+  },
+  {
+    question: "Resume esta noticia",
+    currentArticleId: "demo-international-weather",
+    history: [
+      { question: "bibliotecas", articleIds: ["demo-guatemala-library"] },
+    ],
+    expected: "weather",
+  },
+  {
+    question: "Hazme código Python de esta noticia",
+    currentArticleId: "demo-international-weather",
+    expected: "refused",
+  },
+  {
+    question: "¿y sobre volcanes?",
+    currentArticleId: "demo-international-weather",
+    expected: "empty",
+  },
   {
     question:
       "quiero aprender de ejercicios metereologicos que noticia me recomiendas?",
@@ -131,6 +171,7 @@ for (const item of cases) {
       "operator-chat-ethics-eval",
       item.question,
       item.history,
+      item.currentArticleId,
     );
   } catch (error) {
     results.push({
@@ -174,7 +215,8 @@ const report = {
   usage,
 };
 await writeFile(
-  "docs/qa/chat-conversation-live-eval-2026-10-20.json",
+  process.env.CHAT_EVAL_REPORT ??
+    "docs/qa/chat-conversation-live-eval-2026-10-20.json",
   JSON.stringify(report, null, 2) + "\n",
 );
 console.log(
